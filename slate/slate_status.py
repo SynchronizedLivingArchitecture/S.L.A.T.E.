@@ -71,7 +71,7 @@ def get_system_info():
         return {"available": False}
     
     mem = psutil.virtual_memory()
-    disk = psutil.disk_usage(Path.cwd())
+    disk = psutil.disk_usage(str(Path.cwd()))
     
     return {
         "available": True,

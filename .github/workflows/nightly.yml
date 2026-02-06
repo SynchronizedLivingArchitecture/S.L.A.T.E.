@@ -24,7 +24,7 @@ permissions:
 jobs:
   full-test-suite:
     name: Full Test Suite
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
 
   slate-health:
     name: SLATE Health Check
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -71,7 +71,8 @@ jobs:
           python -c "
           import json
           with open('current_tasks.json', 'r') as f:
-              tasks = json.load(f)
+              data = json.load(f)
+          tasks = data.get('tasks', data) if isinstance(data, dict) else data
           total = len(tasks)
           statuses = {}
           for t in tasks:
@@ -85,7 +86,7 @@ jobs:
 
   sdk-import-audit:
     name: SDK Import Audit
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4

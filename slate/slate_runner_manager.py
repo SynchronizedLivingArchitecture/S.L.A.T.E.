@@ -94,7 +94,7 @@ class SlateRunnerManager:
         runner_file = self.runner_dir / ".runner"
         if runner_file.exists():
             try:
-                return json.loads(runner_file.read_text(encoding="utf-8"))
+                return json.loads(runner_file.read_text(encoding="utf-8-sig"))
             except (json.JSONDecodeError, IOError):
                 return None
         return None
@@ -392,8 +392,29 @@ try {{
         if not self.runner_dir:
             return {"installed": False, "running": False}
 
-        result = {"installed": True, "running": False, "service_name": None}
+        result = {"installed": True, "running": False, "service_name": None, "process_running": False, "pid": None}
 
+        # Check for runner process (foreground mode)
+        try:
+            proc_check = subprocess.run(
+                ["powershell", "-Command",
+                 "Get-Process -Name 'Runner.Listener' -ErrorAction SilentlyContinue | Select-Object Id | ConvertTo-Json"],
+                capture_output=True, text=True, timeout=10
+            )
+            if proc_check.returncode == 0 and proc_check.stdout.strip():
+                proc_data = json.loads(proc_check.stdout)
+                if isinstance(proc_data, dict):
+                    result["process_running"] = True
+                    result["running"] = True
+                    result["pid"] = proc_data.get("Id")
+                elif isinstance(proc_data, list) and proc_data:
+                    result["process_running"] = True
+                    result["running"] = True
+                    result["pid"] = proc_data[0].get("Id")
+        except Exception:
+            pass
+
+        # Check for Windows service
         try:
             svc_status = subprocess.run(
                 ["powershell", "-Command",
@@ -436,7 +457,12 @@ try {{
 
         # Service status
         if service.get("running"):
-            print(f"  Service:    Running ({service.get('service_name')})")
+            if service.get("service_name"):
+                print(f"  Service:    Running ({service.get('service_name')})")
+            elif service.get("process_running"):
+                print(f"  Process:    Running (PID {service.get('pid')})")
+            else:
+                print(f"  Status:     Running")
         elif service.get("installed"):
             print(f"  Service:    Stopped ({service.get('service_name')})")
         else:

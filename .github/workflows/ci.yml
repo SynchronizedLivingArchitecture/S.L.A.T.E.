@@ -32,7 +32,7 @@ permissions:
 jobs:
   smoke-tests:
     name: Smoke Tests
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -72,7 +72,7 @@ jobs:
 
   unit-tests:
     name: Unit Tests
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: smoke-tests
     steps:
@@ -103,7 +103,7 @@ jobs:
 
   build:
     name: Build Verification
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: unit-tests
     steps:
@@ -177,9 +177,13 @@ jobs:
           python3 -c "
           import json
           with open('current_tasks.json', 'r') as f:
-              tasks = json.load(f)
-          pending = sum(1 for t in tasks if t.get('status') == 'pending')
-          print(f'Task Queue: {pending} pending tasks')
+              data = json.load(f)
+          tasks = data.get('tasks', data) if isinstance(data, dict) else data
+          if isinstance(tasks, list):
+              pending = sum(1 for t in tasks if t.get('status') == 'pending')
+              print(f'Task Queue: {pending} pending tasks')
+          else:
+              print('Task queue OK')
           "
       - name: Validate pyproject.toml
         run: |

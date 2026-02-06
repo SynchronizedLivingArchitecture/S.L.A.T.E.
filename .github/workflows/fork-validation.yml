@@ -196,10 +196,11 @@ jobs:
 
           try:
               with open('current_tasks.json', 'r') as f:
-                  tasks = json.load(f)
+                  data = json.load(f)
 
+              tasks = data.get('tasks', data) if isinstance(data, dict) else data
               if not isinstance(tasks, list):
-                  print('::error::current_tasks.json must be a JSON array')
+                  print('::error::current_tasks.json must contain a JSON array of tasks')
                   sys.exit(1)
 
               # Check task structure
