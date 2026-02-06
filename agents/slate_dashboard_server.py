@@ -756,16 +756,82 @@ function connectSSE() {
   };
 }
 
+// GitHub Models functions
+async function loadGitHubModels() {
+  try {
+    const res = await fetch('/api/models/status');
+    const data = await res.json();
+
+    document.getElementById('models-token').textContent = data.token_set ? 'Yes' : 'No';
+    document.getElementById('models-token').className = 'status-value ' + (data.token_set ? 'online' : 'offline');
+
+    document.getElementById('models-sdk').textContent = data.sdk_installed ? 'Yes' : 'No';
+    document.getElementById('models-sdk').className = 'status-value ' + (data.sdk_installed ? 'online' : 'offline');
+
+    document.getElementById('models-connection').textContent = data.test_passed ? 'OK' : 'Not tested';
+    document.getElementById('models-connection').className = 'status-value ' + (data.test_passed ? 'online' : 'warning');
+
+    if (data.available) {
+      document.getElementById('models-indicator').className = 'badge success';
+      document.getElementById('models-indicator').textContent = 'Available';
+    } else {
+      document.getElementById('models-indicator').className = 'badge warning';
+      document.getElementById('models-indicator').textContent = data.sdk_installed ? 'Not Connected' : 'SDK Missing';
+    }
+
+    // Load model count
+    const modelsRes = await fetch('/api/models/list');
+    const modelsData = await modelsRes.json();
+    document.getElementById('models-count').textContent = modelsData.count || '--';
+  } catch (e) {
+    console.error('Error loading GitHub Models status:', e);
+    document.getElementById('models-indicator').className = 'badge error';
+    document.getElementById('models-indicator').textContent = 'Error';
+  }
+}
+
+async function testGitHubModels() {
+  addLog('Testing GitHub Models connection...', 'info');
+  try {
+    const model = document.getElementById('model-select').value;
+    const res = await fetch('/api/models/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: 'Say "GitHub Models connection successful!" and nothing else.',
+        model: model,
+        max_tokens: 50
+      })
+    });
+    const data = await res.json();
+    if (data.content) {
+      addLog(`[${model}] ${data.content}`, 'success');
+      addLog(`Tokens used: ${data.usage?.total_tokens || 'N/A'}`, 'info');
+    } else if (data.error) {
+      addLog(`Error: ${data.error}`, 'error');
+    }
+    loadGitHubModels();
+  } catch (e) {
+    addLog('Failed to test GitHub Models: ' + e.message, 'error');
+  }
+}
+
+function openModelsMarketplace() {
+  window.open('https://github.com/marketplace/models', '_blank');
+}
+
 // Initialize
 loadStatus();
 loadRunner();
 loadGPU();
+loadGitHubModels();
 connectSSE();
 
 // Refresh every 30 seconds
 setInterval(() => {
   loadStatus();
   loadRunner();
+  loadGitHubModels();
 }, 30000);
 </script>
 </body>

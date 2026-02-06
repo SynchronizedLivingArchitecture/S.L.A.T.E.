@@ -3587,3 +3587,20 @@
 {"timestamp": "2026-02-06T20:25:26.546990Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
 {"timestamp": "2026-02-06T20:25:26.548510Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.001520395278930664}
 {"timestamp": "2026-02-06T20:25:28.893946Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:25:36.382001Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:25:36.397189Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 7.50324273109436}
+{"timestamp": "2026-02-06T20:26:53.537713Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:26:53.538270Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0005559921264648438}
+{"timestamp": "2026-02-06T20:26:56.998153Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:26:57.000877Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:26:57.001397Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.003244161605834961}
+{"timestamp": "2026-02-06T20:28:19.355614Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:28:19.355614Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:28:25.755370Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:28:32.411181Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:28:32.427932Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 6.672561407089233}
+{"timestamp": "2026-02-06T20:29:45.930815Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:29:45.930815Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:29:53.113022Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:29:59.806159Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:29:59.815713Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 6.702691316604614}
