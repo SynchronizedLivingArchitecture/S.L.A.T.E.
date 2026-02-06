@@ -42,10 +42,7 @@ logger = logging.getLogger("aurora.github_integration")
 # CELL: constants [python]
 # ═══════════════════════════════════════════════════════════════════════════════
 
-SLATE_REPOS = {
-    "main": "SynchronizedLivingArchitecture/S.L.A.T.E.",
-    "beta": "SynchronizedLivingArchitecture/S.L.A.T.E.-BETA",
-}
+SLATE_REPO = "SynchronizedLivingArchitecture/S.L.A.T.E."
 
 DEFAULT_RUNNER_DIR = Path("C:/actions-runner") if os.name == "nt" else Path.home() / "actions-runner"
 
@@ -94,15 +91,9 @@ class SlateGitHubIntegration:
     - Repository management
     """
 
-    def __init__(self, repo: str = "main"):
-        """
-        Initialize integration.
-
-        Args:
-            repo: Repository key ('main' or 'beta')
-        """
-        self.repo_key = repo
-        self.repo = SLATE_REPOS.get(repo, SLATE_REPOS["main"])
+    def __init__(self):
+        """Initialize integration."""
+        self.repo = SLATE_REPO
         self.runner_dir = DEFAULT_RUNNER_DIR
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -560,7 +551,7 @@ Examples:
 
     parser.add_argument("--status", action="store_true", help="Show integration status")
     parser.add_argument("--json", action="store_true", dest="json_output", help="JSON output")
-    parser.add_argument("--repo", choices=["main", "beta"], default="main", help="Target repository")
+    # Repository is always SLATE main (BETA deprecated)
     parser.add_argument("--runner-start", action="store_true", help="Start the runner")
     parser.add_argument("--runner-stop", action="store_true", help="Stop the runner")
     parser.add_argument("--trigger-workflow", type=str, metavar="NAME", help="Trigger workflow dispatch")
@@ -575,7 +566,7 @@ Examples:
         format="%(asctime)s | %(levelname)-8s | %(message)s"
     )
 
-    integration = SlateGitHubIntegration(repo=args.repo)
+    integration = SlateGitHubIntegration()
 
     if args.status:
         status = integration.get_full_status()

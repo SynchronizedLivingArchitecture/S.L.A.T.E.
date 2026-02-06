@@ -148,24 +148,6 @@ python -c "import torch; print(torch.cuda.is_available())"
 .\.venv\Scripts\python.exe aurora_core/slate_runner_manager.py --start
 ```
 
-## Dual-Repository Setup
-
-For SLATE + SLATE-BETA, register runners for both repos:
-
-```powershell
-# Register for main SLATE
-.\.venv\Scripts\python.exe aurora_core/slate_runner_manager.py --configure \
-  --repo https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E. \
-  --token SLATE_TOKEN \
-  --name slate-runner-main
-
-# Register for BETA (separate runner or use organization runner)
-.\.venv\Scripts\python.exe aurora_core/slate_runner_manager.py --configure \
-  --repo https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.-BETA \
-  --token BETA_TOKEN \
-  --name slate-runner-beta
-```
-
 ## Related Documentation
 
 - [Configuration.md](Configuration.md) - Environment setup

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════════
 # CELL: install_slate [python]
-# Author: COPILOT | Created: 2026-02-06T00:30:00Z | Modified: 2026-02-08T02:15:00Z
-# Purpose: SLATE public installation script with dashboard-first tracking
+# Author: COPILOT | Created: 2026-02-06T00:30:00Z | Modified: 2026-02-09T06:30:00Z
+# Purpose: SLATE public installation script with dashboard-first tracking + runner
 # ═══════════════════════════════════════════════════════════════════════════════
 """
 S.L.A.T.E. Installation Script
@@ -22,6 +22,8 @@ Usage:
     python install_slate.py --beta              # Init from S.L.A.T.E.-BETA fork
     python install_slate.py --dev               # Developer mode (editable install)
     python install_slate.py --resume            # Resume a failed install
+    python install_slate.py --runner             # Include self-hosted runner setup
+    python install_slate.py --runner --runner-token TOK  # Runner + auto-configure
 """
 
 import argparse
@@ -381,26 +383,8 @@ def step_git_sync(tracker, args):
         tracker.update_progress("git_sync", 40, "Initializing git repository")
         _run_cmd(["git", "init"], timeout=15)
 
-    # Configure remotes based on --beta flag
-    if args.beta:
-        tracker.update_progress("git_sync", 50, "Configuring beta fork remote")
-        try:
-            from aurora_core.slate_fork_manager import SlateForkManager
-            manager = SlateForkManager(str(WORKSPACE_ROOT))
-            manager.configure_beta_remote()
-            tracker.complete_step("git_sync", success=True,
-                                  details="Git synced with S.L.A.T.E.-BETA fork")
-            return True
-        except ImportError:
-            _run_cmd(["git", "remote", "add", "beta",
-                       "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.-BETA.git"],
-                      timeout=10)
-            tracker.complete_step("git_sync", success=True,
-                                  details="Beta remote added (fork manager not available)")
-            return True
-    else:
-        # Standard sync — just verify remote
-        tracker.update_progress("git_sync", 60, "Verifying remotes")
+    # Verify remotes
+    tracker.update_progress("git_sync", 60, "Verifying remotes")
         remote = _run_cmd(["git", "remote", "-v"], timeout=10)
         branch = _run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], timeout=10)
         commit = _run_cmd(["git", "rev-parse", "--short", "HEAD"], timeout=10)
@@ -456,8 +440,96 @@ def step_benchmark(tracker, args):
         return True
 
 
+def step_runner_setup(tracker, args):
+    """Step 9: Set up GitHub Actions self-hosted runner (optional)."""
+    # Modified: 2026-02-09T06:30:00Z | Author: COPILOT | Change: Add runner step to install
+    tracker.start_step("runner_setup")
+
+    if not args.runner:
+        tracker.skip_step("runner_setup", "Self-hosted runner not requested (use --runner)")
+        return True
+
+    tracker.update_progress("runner_setup", 10, "Importing runner manager")
+    try:
+        from aurora_core.slate_runner_manager import SlateRunnerManager
+    except ImportError:
+        tracker.complete_step("runner_setup", success=True, warning=True,
+                              details="Runner manager not available — skipping")
+        return True
+
+    manager = SlateRunnerManager()
+
+    # Step 1: Check current runner status
+    tracker.update_progress("runner_setup", 15, "Checking runner status")
+    status = manager.get_status()
+
+    # Step 2: Download runner if not installed
+    if not status["installed"]:
+        tracker.update_progress("runner_setup", 20, "Downloading GitHub Actions runner")
+        if not manager.download_runner():
+            tracker.complete_step("runner_setup", success=True, warning=True,
+                                  details="Runner download failed — setup manually later")
+            return True
+        tracker.update_progress("runner_setup", 40, "Runner downloaded")
+    else:
+        tracker.update_progress("runner_setup", 40, "Runner already installed")
+
+    # Step 3: Configure runner if token provided and not already configured
+    if args.runner_token and not status["configured"]:
+        tracker.update_progress("runner_setup", 50, "Configuring runner")
+        repo_url = "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E."
+        result = manager.configure_runner(
+            repo_url=repo_url,
+            token=args.runner_token,
+        )
+        if result["success"]:
+            tracker.update_progress("runner_setup", 60, "Runner configured")
+        else:
+            errors = "; ".join(result.get("errors", ["Unknown error"]))
+            tracker.complete_step("runner_setup", success=True, warning=True,
+                                  details=f"Runner config failed: {errors}")
+            return True
+    elif not status["configured"]:
+        tracker.update_progress("runner_setup", 60,
+                                "Runner downloaded but needs --runner-token to configure")
+
+    # Step 4: Provision SLATE environment on runner
+    tracker.update_progress("runner_setup", 65, "Provisioning SLATE environment")
+    provision_result = manager.provision_slate_environment(WORKSPACE_ROOT)
+    if provision_result["success"]:
+        tracker.update_progress("runner_setup", 80, "SLATE environment provisioned")
+    else:
+        errors = "; ".join(provision_result.get("errors", []))
+        tracker.complete_step("runner_setup", success=True, warning=True,
+                              details=f"Provisioning partial: {errors}")
+        return True
+
+    # Step 5: Create startup and auto-start scripts
+    tracker.update_progress("runner_setup", 85, "Creating startup scripts")
+    try:
+        startup_script = manager.create_startup_script()
+        if os.name == "nt":
+            manager.create_windows_service_config()
+        tracker.update_progress("runner_setup", 95, f"Startup script: {startup_script}")
+    except Exception as e:
+        tracker.update_progress("runner_setup", 95, f"Startup script warning: {e}")
+
+    # Build summary
+    final_status = manager.get_status()
+    parts = []
+    parts.append(f"Runner {'installed' if final_status['installed'] else 'pending'}")
+    parts.append(f"{'configured' if final_status['configured'] else 'needs token'}")
+    parts.append(f"{'provisioned' if final_status['provisioned'] else 'not provisioned'}")
+    parts.append(f"{final_status['gpu']['gpu_count']} GPU(s)")
+    parts.append(f"Labels: {', '.join(final_status['labels'][:5])}")
+
+    tracker.complete_step("runner_setup", success=True,
+                          details=" | ".join(parts))
+    return True
+
+
 def step_runtime_check(tracker, args):
-    """Step 9: Final runtime verification."""
+    """Step 10: Final runtime verification."""
     tracker.start_step("runtime_check")
     tracker.update_progress("runtime_check", 20, "Running runtime checks")
 
@@ -559,6 +631,10 @@ def print_completion(success: bool, tracker=None):
         print("  For GPU support (optional):")
         print("    python aurora_core/slate_hardware_optimizer.py --install-pytorch")
         print()
+        print("  Self-hosted runner (optional):")
+        print("    python install_slate.py --runner --runner-token TOKEN")
+        print("    python aurora_core/slate_runner_manager.py --status")
+        print()
     else:
         print("  Troubleshooting:")
         print()
@@ -583,7 +659,7 @@ Examples:
   python install_slate.py                   Full install with live dashboard
   python install_slate.py --no-dashboard    CLI-only installation
   python install_slate.py --skip-gpu        Skip GPU detection step
-  python install_slate.py --beta            Initialize from S.L.A.T.E.-BETA fork
+  python install_slate.py --runner          Set up GitHub Actions runner
   python install_slate.py --resume          Resume a previously failed install
   python install_slate.py --dev             Developer mode (verbose + editable)
         """,
@@ -592,12 +668,15 @@ Examples:
                         help="Disable live dashboard (CLI output only)")
     parser.add_argument("--skip-gpu", action="store_true",
                         help="Skip NVIDIA GPU detection step")
-    parser.add_argument("--beta", action="store_true",
-                        help="Initialize from S.L.A.T.E.-BETA fork instead of upstream")
+    # --beta flag removed (BETA deprecated)
     parser.add_argument("--dev", action="store_true",
                         help="Developer mode — verbose output, editable install")
     parser.add_argument("--resume", action="store_true",
                         help="Resume a previously failed installation")
+    parser.add_argument("--runner", action="store_true",
+                        help="Set up self-hosted GitHub Actions runner")
+    parser.add_argument("--runner-token", type=str, default=None,
+                        help="GitHub Actions runner registration token")
     return parser.parse_args()
 
 
@@ -658,6 +737,7 @@ def main():
         ("dirs_create",    step_dirs_create),
         ("git_sync",       step_git_sync),
         ("benchmark",      step_benchmark),
+        ("runner_setup",   step_runner_setup),
         ("runtime_check",  step_runtime_check),
     ]
 

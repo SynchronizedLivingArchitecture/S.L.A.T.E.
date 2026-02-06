@@ -53,10 +53,7 @@ logger = logging.getLogger("aurora.runner_manager")
 RUNNER_VERSION = "2.331.0"
 RUNNER_BASE_URL = "https://github.com/actions/runner/releases/download"
 
-SLATE_REPOS = [
-    "SynchronizedLivingArchitecture/S.L.A.T.E.",
-    "SynchronizedLivingArchitecture/S.L.A.T.E.-BETA",
-]
+SLATE_REPO = "SynchronizedLivingArchitecture/S.L.A.T.E."
 
 DEFAULT_RUNNER_DIR = Path("C:/actions-runner") if platform.system() == "Windows" else Path.home() / "actions-runner"
 

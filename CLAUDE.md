@@ -188,64 +188,41 @@ All code changes must be accompanied by tests. Target 50%+ coverage for `aurora_
 5. REFACTOR → clean up while keeping tests green
 ```
 
-## Dual-Repository System
+## Development Workflow
 
-SLATE uses a dual-repo model for development and distribution:
-
-```
-SLATE (origin)         = Main repository (the product)
-       ↑
-       │ contribute-to-main.yml
-       │
-SLATE-BETA (beta)      = Developer fork (where development happens)
-```
-
-### Git Remote Configuration
+SLATE development happens on feature branches pushed directly to the main repository:
 
 ```powershell
-# Check remotes
+# Check remote
 git remote -v
 # Should show:
 # origin  https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E..git
-# beta    https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.-BETA.git
+
+# Create feature branch
+git checkout -b feature/my-feature
+
+# Make changes, commit
+git add .
+git commit -m "feat: description"
+
+# Push to origin
+git push origin HEAD
+
+# Create PR on GitHub or merge directly if authorized
 ```
 
-### Development Workflow (BETA → SLATE)
+### GitHub CLI Setup
 
-1. **Develop on BETA branch**
-   ```powershell
-   git checkout -b feature/my-feature
-   # Make changes, commit
-   ```
+```powershell
+# Install GitHub CLI
+winget install GitHub.cli
 
-2. **Sync BETA with SLATE main** (get latest)
-   ```powershell
-   git fetch origin
-   git merge origin/main
-   ```
+# Authenticate with workflow scope
+gh auth login --scopes repo,workflow
 
-3. **Push to BETA**
-   ```powershell
-   git push beta HEAD:main
-   ```
-
-4. **Contribute to SLATE main**
-   - Run the `contribute-to-main.yml` workflow on BETA
-   - OR push directly if you have access:
-   ```powershell
-   git push origin HEAD:main
-   ```
-
-### Required Setup
-
-1. **MAIN_REPO_TOKEN** secret on BETA repo
-   - Settings → Secrets → Actions → Add `MAIN_REPO_TOKEN`
-   - Use a PAT with `repo` and `workflow` scope
-
-2. **GitHub CLI with workflow scope**
-   ```powershell
-   gh auth login --scopes workflow
-   ```
+# Verify authentication
+gh auth status
+```
 
 ## Fork Contributions
 
