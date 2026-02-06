@@ -304,6 +304,36 @@ git push origin HEAD
 gh pr create --title "feat: description" --body "..."
 ```
 
+### Pushing Workflow Files (IMPORTANT)
+
+GitHub requires **workflow scope** to push changes to `.github/workflows/`. This is a security
+feature. SLATE provides automatic handling:
+
+```powershell
+# Automatic workflow push (handles auth)
+python slate/slate_workflow_push.py
+
+# Check if workflow scope is available
+python slate/slate_workflow_push.py --check
+
+# Re-authenticate with workflow scope
+python slate/slate_workflow_push.py --auth
+```
+
+**When you see this error:**
+```
+refusing to allow an OAuth App to create or update workflow without `workflow` scope
+```
+
+Run: `python slate/slate_workflow_push.py --auth` — this opens a browser to add the
+workflow scope. Then retry the push.
+
+**GitHub CLI alternative:**
+```powershell
+gh auth login -s workflow -w    # Add workflow scope
+git push origin HEAD            # Push changes
+```
+
 ---
 
 ## Agent System
