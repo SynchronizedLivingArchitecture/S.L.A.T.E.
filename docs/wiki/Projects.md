@@ -52,12 +52,12 @@ SLATE development is tracked through GitHub Issues, organized into the following
 - [x] Dark glass-theme install dashboard UI
 - [x] Resume support for failed installations
 
-### ✅ Phase 5 — Dual-Repo Architecture (Complete)
+### ✅ Phase 5 — Repository Architecture (Complete)
 - [x] S.L.A.T.E. upstream repository
-- [x] S.L.A.T.E.-BETA testing/fork repository
-- [x] Fork manager with beta remote support
+- [x] ~~S.L.A.T.E.-BETA testing/fork repository~~ (deprecated)
+- [x] Fork manager with remote support
 - [x] Credential bypass push for workflow scope
-- [x] Beta fork configuration (`.slate_fork/config.json`)
+- [x] Self-hosted runner integration
 
 ### 🔄 Phase 6 — Data Visualization (In Progress)
 - [x] Dashboard server framework

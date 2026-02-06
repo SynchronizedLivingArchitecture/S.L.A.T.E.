@@ -1,7 +1,8 @@
 ﻿# 
 # Nightly Workflow
-# Author: COPILOT | Created: 2026-01-20T00:00:00Z | Modified: 2026-02-06T14:00:00Z
+# Author: COPILOT | Created: 2026-01-20T00:00:00Z | Modified: 2026-02-09T06:55:00Z
 # Full test suite, coverage, and SLATE health checks run nightly
+# Includes self-hosted runner GPU tests
 # 
 
 name: Nightly
@@ -132,7 +133,7 @@ jobs:
 
   summary:
     name: Nightly Summary
-    needs: [full-test-suite, slate-health, sdk-import-audit, dependency-check]
+    needs: [full-test-suite, slate-health, sdk-import-audit, dependency-check, gpu-nightly]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -145,3 +146,57 @@ jobs:
           echo "| SLATE Health | ${{ needs.slate-health.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| SDK Import Audit | ${{ needs.sdk-import-audit.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Dependency Check | ${{ needs.dependency-check.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| GPU Nightly | ${{ needs.gpu-nightly.result }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ─── Self-Hosted Runner: Nightly GPU Tests ───────────────────────────────
+  gpu-nightly:
+    name: "GPU Nightly Tests (Self-Hosted)"
+    runs-on: [self-hosted, slate, gpu, windows]
+    timeout-minutes: 30
+    continue-on-error: true  # Don't fail nightly if runner is offline
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: GPU Full Test Suite
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          Write-Host "=== Nightly GPU Test Suite ===" -ForegroundColor Cyan
+
+          # Run full test suite with GPU access
+          & $python -m pytest tests/ -v --tb=short -x 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::warning::Some tests failed on GPU runner"
+          }
+
+      - name: GPU Benchmark Suite
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          if (Test-Path "aurora_core/slate_benchmark.py") {
+            & $python aurora_core/slate_benchmark.py --json
+          }
+
+      - name: ML Orchestrator Health
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          if (Test-Path "aurora_core/ml_orchestrator.py") {
+            & $python aurora_core/ml_orchestrator.py --status
+            & $python aurora_core/ml_orchestrator.py --benchmarks 2>$null
+          }
+
+      - name: VRAM Health
+        shell: pwsh
+        run: |
+          try {
+            & nvidia-smi --query-gpu=name,memory.used,memory.total,temperature.gpu,utilization.gpu --format=csv,noheader
+          } catch {
+            Write-Host "nvidia-smi not available"
+          }
+
+      - name: Runner Environment Verify
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          & $python aurora_core/slate_runner_manager.py --status

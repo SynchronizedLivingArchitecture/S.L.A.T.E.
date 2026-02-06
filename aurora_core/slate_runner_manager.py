@@ -8,7 +8,7 @@
 
 Manages self-hosted GitHub Actions runners for SLATE:
 - Downloads and configures the runner
-- Registers with SLATE repos (main and BETA)
+- Registers with S.L.A.T.E. repository
 - Provisions complete SLATE environment (venv, deps, GPU, SDK)
 - Runs as Windows service or interactive
 - GPU-aware job routing

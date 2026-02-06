@@ -4,25 +4,22 @@ How to contribute to SLATE as an external user.
 
 ## Repository Structure
 
-SLATE uses a dual-repository model:
+SLATE uses a single-repository model with branch-based development:
 
 ```
-SLATE-BETA (Development)     SLATE (Public)           User Forks
-         │                         │                       │
-         │    sync-to-public       │                       │
-         ├────────────────────────>│                       │
-         │                         │      fork             │
-         │                         ├──────────────────────>│
-         │                         │                       │
-         │                         │      contribute       │
-         │                         │<──────────────────────┤
-         │                         │                       │
+S.L.A.T.E. (Main)                    User Forks
+       │                                   │
+       │            fork                   │
+       ├──────────────────────────────────>│
+       │                                   │
+       │            contribute (PR)        │
+       │<──────────────────────────────────┤
+       │                                   │
 ```
 
 | Repository | Purpose | Access |
 |------------|---------|--------|
-| **S.L.A.T.E.-BETA** | Development repo | Maintainers only |
-| **S.L.A.T.E.** | Public installer | Everyone |
+| **S.L.A.T.E.** | Main development repo | Everyone |
 | **Your Fork** | Your personal SLATE | You |
 
 ## Getting Started

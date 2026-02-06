@@ -40,7 +40,7 @@ jobs:
           CONTRIBUTOR="${{ github.event.pull_request.user.login }}"
 
           # Trusted contributors (org members, known good actors)
-          TRUSTED_USERS="SynchronizedLivingArchitecture SLATE-BETA"
+          TRUSTED_USERS="SynchronizedLivingArchitecture"
 
           IS_TRUSTED="false"
           for user in $TRUSTED_USERS; do

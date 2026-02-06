@@ -19,7 +19,6 @@ Usage:
     python install_slate.py                     # Full install with dashboard
     python install_slate.py --no-dashboard      # CLI-only (no browser)
     python install_slate.py --skip-gpu          # Skip GPU detection
-    python install_slate.py --beta              # Init from S.L.A.T.E.-BETA fork
     python install_slate.py --dev               # Developer mode (editable install)
     python install_slate.py --resume            # Resume a failed install
     python install_slate.py --runner             # Include self-hosted runner setup
@@ -385,19 +384,19 @@ def step_git_sync(tracker, args):
 
     # Verify remotes
     tracker.update_progress("git_sync", 60, "Verifying remotes")
-        remote = _run_cmd(["git", "remote", "-v"], timeout=10)
-        branch = _run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], timeout=10)
-        commit = _run_cmd(["git", "rev-parse", "--short", "HEAD"], timeout=10)
+    remote = _run_cmd(["git", "remote", "-v"], timeout=10)
+    branch = _run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], timeout=10)
+    commit = _run_cmd(["git", "rev-parse", "--short", "HEAD"], timeout=10)
 
-        branch_name = branch.stdout.strip() if branch.returncode == 0 else "unknown"
-        commit_hash = commit.stdout.strip() if commit.returncode == 0 else "unknown"
-        has_remote = "origin" in (remote.stdout or "")
+    branch_name = branch.stdout.strip() if branch.returncode == 0 else "unknown"
+    commit_hash = commit.stdout.strip() if commit.returncode == 0 else "unknown"
+    has_remote = "origin" in (remote.stdout or "")
 
-        details = f"Branch: {branch_name} @ {commit_hash}"
-        if has_remote:
-            details += " (origin configured)"
-        tracker.complete_step("git_sync", success=True, details=details)
-        return True
+    details = f"Branch: {branch_name} @ {commit_hash}"
+    if has_remote:
+        details += " (origin configured)"
+    tracker.complete_step("git_sync", success=True, details=details)
+    return True
 
 
 def step_benchmark(tracker, args):
@@ -668,7 +667,6 @@ Examples:
                         help="Disable live dashboard (CLI output only)")
     parser.add_argument("--skip-gpu", action="store_true",
                         help="Skip NVIDIA GPU detection step")
-    # --beta flag removed (BETA deprecated)
     parser.add_argument("--dev", action="store_true",
                         help="Developer mode — verbose output, editable install")
     parser.add_argument("--resume", action="store_true",
