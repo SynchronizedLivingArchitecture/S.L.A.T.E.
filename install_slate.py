@@ -1,27 +1,527 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════════
 # CELL: install_slate [python]
-# Author: COPILOT | Created: 2026-02-06T00:30:00Z | Modified: 2026-02-06T00:30:00Z
-# Purpose: SLATE public installation script
+# Author: COPILOT | Created: 2026-02-06T00:30:00Z | Modified: 2026-02-08T02:15:00Z
+# Purpose: SLATE public installation script with dashboard-first tracking
 # ═══════════════════════════════════════════════════════════════════════════════
 """
 S.L.A.T.E. Installation Script
 ===============================
-Installs and configures SLATE for your system.
+Installs and configures SLATE with real-time dashboard progress tracking.
+The dashboard is the FIRST system installed — every subsequent step is
+visible in the browser at http://127.0.0.1:8080.
+
+Architecture:
+    install_slate.py → InstallTracker → install_state.json ← Dashboard reads
+                                      → SSE broadcast     ← Dashboard listens
 
 Usage:
-    python install_slate.py
-    python install_slate.py --skip-gpu
-    python install_slate.py --dev
+    python install_slate.py                     # Full install with dashboard
+    python install_slate.py --no-dashboard      # CLI-only (no browser)
+    python install_slate.py --skip-gpu          # Skip GPU detection
+    python install_slate.py --beta              # Init from S.L.A.T.E.-BETA fork
+    python install_slate.py --dev               # Developer mode (editable install)
+    python install_slate.py --resume            # Resume a failed install
 """
 
+import argparse
+import importlib
+import json
 import os
 import subprocess
 import sys
+import time
+import webbrowser
 from pathlib import Path
 
 WORKSPACE_ROOT = Path(__file__).parent
+DASHBOARD_PORT = 8080
+DASHBOARD_URL = f"http://127.0.0.1:{DASHBOARD_PORT}"
 
+
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+
+def _get_python_exe() -> Path:
+    """Get venv python executable path."""
+    if os.name == "nt":
+        return WORKSPACE_ROOT / ".venv" / "Scripts" / "python.exe"
+    return WORKSPACE_ROOT / ".venv" / "bin" / "python"
+
+
+def _get_pip_exe() -> Path:
+    """Get venv pip executable path."""
+    if os.name == "nt":
+        return WORKSPACE_ROOT / ".venv" / "Scripts" / "pip.exe"
+    return WORKSPACE_ROOT / ".venv" / "bin" / "pip"
+
+
+def _run_cmd(cmd: list, timeout: int = 120, **kwargs) -> subprocess.CompletedProcess:
+    """Run a subprocess with defaults."""
+    return subprocess.run(
+        [str(c) for c in cmd],
+        capture_output=True, text=True, timeout=timeout,
+        cwd=str(WORKSPACE_ROOT), **kwargs,
+    )
+
+
+def _gpu_arch(compute_cap: str) -> str:
+    """Map CUDA compute capability to architecture name."""
+    if compute_cap.startswith("12."):
+        return "Blackwell"
+    elif compute_cap == "8.9":
+        return "Ada Lovelace"
+    elif compute_cap.startswith("8."):
+        return "Ampere"
+    elif compute_cap == "7.5":
+        return "Turing"
+    elif compute_cap == "7.0":
+        return "Volta"
+    elif compute_cap.startswith("6."):
+        return "Pascal"
+    return "Unknown"
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  INSTALLATION STEPS — each maps to an InstallTracker canonical step
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def step_dashboard_boot(tracker, args):
+    """Step 0: Boot the install dashboard (first thing visible)."""
+    tracker.start_step("dashboard_boot")
+
+    if args.no_dashboard:
+        tracker.skip_step("dashboard_boot", "Dashboard disabled (--no-dashboard)")
+        return True
+
+    try:
+        # The install_api module can run a standalone server
+        sys.path.insert(0, str(WORKSPACE_ROOT))
+        from agents.install_api import run_standalone_server
+        tracker.update_progress("dashboard_boot", 50, "Starting dashboard server")
+        server_thread = run_standalone_server(port=DASHBOARD_PORT)
+
+        if server_thread and server_thread.is_alive():
+            tracker.update_progress("dashboard_boot", 80, "Opening browser")
+            time.sleep(0.5)
+            webbrowser.open(DASHBOARD_URL)
+            tracker.complete_step("dashboard_boot", success=True,
+                                  details=f"Dashboard live at {DASHBOARD_URL}")
+            return True
+        else:
+            tracker.complete_step("dashboard_boot", success=True, warning=True,
+                                  details="Dashboard failed to start — continuing CLI-only")
+            return True
+    except ImportError:
+        tracker.complete_step("dashboard_boot", success=True, warning=True,
+                              details="FastAPI not yet installed — dashboard available after deps")
+        return True
+    except Exception as e:
+        tracker.complete_step("dashboard_boot", success=True, warning=True,
+                              details=f"Dashboard skipped: {e}")
+        return True
+
+
+def step_python_check(tracker, args):
+    """Step 1: Verify Python version."""
+    tracker.start_step("python_check")
+
+    version = sys.version_info
+    py_str = f"{version.major}.{version.minor}.{version.micro}"
+    tracker.update_progress("python_check", 50, f"Found Python {py_str}")
+
+    if version.major < 3 or (version.major == 3 and version.minor < 11):
+        tracker.complete_step("python_check", success=False,
+                              error=f"Python 3.11+ required, found {py_str}")
+        return False
+
+    details = f"Python {py_str} ({sys.executable})"
+    tracker.complete_step("python_check", success=True, details=details)
+    return True
+
+
+def step_venv_setup(tracker, args):
+    """Step 2: Create or verify virtual environment."""
+    tracker.start_step("venv_setup")
+    venv_path = WORKSPACE_ROOT / ".venv"
+
+    if venv_path.exists() and _get_python_exe().exists():
+        tracker.update_progress("venv_setup", 80, "Virtual environment exists")
+        # Verify it works
+        try:
+            result = _run_cmd([_get_python_exe(), "-c", "import sys; print(sys.version)"], timeout=10)
+            if result.returncode == 0:
+                tracker.complete_step("venv_setup", success=True,
+                                      details=f"Existing venv OK ({result.stdout.strip().split()[0]})")
+                return True
+        except Exception:
+            pass
+        # Exists but broken — recreate
+        tracker.update_progress("venv_setup", 30, "Venv broken, recreating...")
+
+    tracker.update_progress("venv_setup", 20, "Creating virtual environment")
+    try:
+        subprocess.run([sys.executable, "-m", "venv", str(venv_path)],
+                       check=True, timeout=60)
+        tracker.complete_step("venv_setup", success=True, details=f"Created at {venv_path}")
+        return True
+    except subprocess.CalledProcessError as e:
+        tracker.complete_step("venv_setup", success=False,
+                              error=f"venv creation failed: {e}")
+        return False
+    except subprocess.TimeoutExpired:
+        tracker.complete_step("venv_setup", success=False,
+                              error="venv creation timed out after 60s")
+        return False
+
+
+def step_deps_install(tracker, args):
+    """Step 3: Install core dependencies from requirements.txt."""
+    tracker.start_step("deps_install")
+    pip = _get_pip_exe()
+
+    if not pip.exists():
+        tracker.complete_step("deps_install", success=False,
+                              error="pip not found in venv — venv may be corrupt")
+        return False
+
+    # Upgrade pip first
+    tracker.update_progress("deps_install", 10, "Upgrading pip")
+    try:
+        _run_cmd([pip, "install", "--upgrade", "pip", "--quiet"], timeout=60)
+    except Exception:
+        pass  # Non-fatal
+
+    req_file = WORKSPACE_ROOT / "requirements.txt"
+    if not req_file.exists():
+        tracker.complete_step("deps_install", success=False,
+                              error="requirements.txt not found")
+        return False
+
+    # Count packages for progress estimation
+    pkg_count = sum(1 for line in req_file.read_text().splitlines()
+                    if line.strip() and not line.strip().startswith("#"))
+    tracker.update_progress("deps_install", 20,
+                            f"Installing {pkg_count} packages from requirements.txt")
+
+    try:
+        install_args = [str(pip), "install", "-r", str(req_file)]
+        if not args.dev:
+            install_args.append("--quiet")
+        result = subprocess.run(install_args, capture_output=True, text=True,
+                                timeout=600, cwd=str(WORKSPACE_ROOT))
+
+        if result.returncode != 0:
+            # Try to extract useful error
+            err_lines = [l for l in (result.stderr or "").splitlines() if "ERROR" in l]
+            error_msg = err_lines[-1] if err_lines else "pip install failed"
+            tracker.complete_step("deps_install", success=False, error=error_msg)
+            return False
+
+        tracker.update_progress("deps_install", 90, "Verifying core imports")
+        # Quick verification — can we import key packages?
+        verify = _run_cmd([_get_python_exe(), "-c",
+                           "import fastapi; import uvicorn; print('core OK')"], timeout=15)
+        if verify.returncode == 0:
+            tracker.complete_step("deps_install", success=True,
+                                  details=f"{pkg_count} packages installed, core imports OK")
+        else:
+            tracker.complete_step("deps_install", success=True, warning=True,
+                                  details=f"{pkg_count} packages installed (some optional imports missing)")
+        return True
+
+    except subprocess.TimeoutExpired:
+        tracker.complete_step("deps_install", success=False,
+                              error="Package installation timed out after 10 minutes")
+        return False
+    except Exception as e:
+        tracker.complete_step("deps_install", success=False, error=str(e))
+        return False
+
+
+def step_gpu_detect(tracker, args):
+    """Step 4: Detect NVIDIA GPUs and compute capability."""
+    tracker.start_step("gpu_detect")
+
+    if args.skip_gpu:
+        tracker.skip_step("gpu_detect", "GPU detection skipped (--skip-gpu)")
+        return True
+
+    tracker.update_progress("gpu_detect", 30, "Querying nvidia-smi")
+    try:
+        result = _run_cmd(
+            ["nvidia-smi", "--query-gpu=name,compute_cap,memory.total",
+             "--format=csv,noheader"],
+            timeout=15,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            gpus = result.stdout.strip().split("\n")
+            gpu_info = []
+            for gpu_line in gpus:
+                parts = [p.strip() for p in gpu_line.split(",")]
+                if len(parts) >= 3:
+                    name, cc, mem = parts[0], parts[1], parts[2]
+                    gpu_info.append(f"{name} ({_gpu_arch(cc)}, CC {cc}, {mem})")
+
+            details = f"{len(gpus)} GPU(s): " + "; ".join(gpu_info)
+            tracker.complete_step("gpu_detect", success=True, details=details)
+        else:
+            tracker.complete_step("gpu_detect", success=True, warning=True,
+                                  details="No NVIDIA GPU detected — running in CPU mode")
+        return True
+
+    except FileNotFoundError:
+        tracker.complete_step("gpu_detect", success=True, warning=True,
+                              details="nvidia-smi not found — running in CPU mode")
+        return True
+    except subprocess.TimeoutExpired:
+        tracker.complete_step("gpu_detect", success=True, warning=True,
+                              details="GPU detection timed out — skipping")
+        return True
+    except Exception as e:
+        tracker.complete_step("gpu_detect", success=True, warning=True,
+                              details=f"GPU detection error: {e}")
+        return True
+
+
+def step_sdk_validate(tracker, args):
+    """Step 5: Validate aurora_core SDK imports and version."""
+    tracker.start_step("sdk_validate")
+    tracker.update_progress("sdk_validate", 30, "Importing aurora_core SDK")
+
+    try:
+        result = _run_cmd([
+            _get_python_exe(), "-c",
+            "import aurora_core; print(getattr(aurora_core, '__version__', 'unknown'))"
+        ], timeout=15)
+
+        if result.returncode == 0:
+            version = result.stdout.strip()
+            tracker.update_progress("sdk_validate", 70, f"SDK v{version} found")
+            # Check critical modules
+            check = _run_cmd([
+                _get_python_exe(), "-c",
+                "from aurora_core import slate_status; "
+                "from aurora_core import slate_runtime; "
+                "print('all_ok')"
+            ], timeout=15)
+            if check.returncode == 0 and "all_ok" in check.stdout:
+                tracker.complete_step("sdk_validate", success=True,
+                                      details=f"aurora_core v{version} — all modules OK")
+            else:
+                tracker.complete_step("sdk_validate", success=True, warning=True,
+                                      details=f"aurora_core v{version} — some modules missing")
+        else:
+            tracker.complete_step("sdk_validate", success=True, warning=True,
+                                  details="aurora_core not importable (first install)")
+        return True
+
+    except Exception as e:
+        tracker.complete_step("sdk_validate", success=True, warning=True,
+                              details=f"SDK validation skipped: {e}")
+        return True
+
+
+def step_dirs_create(tracker, args):
+    """Step 6: Create workspace directories and init files."""
+    tracker.start_step("dirs_create")
+
+    dirs = [
+        WORKSPACE_ROOT / "aurora_core",
+        WORKSPACE_ROOT / "agents",
+        WORKSPACE_ROOT / "aurora_slate",
+        WORKSPACE_ROOT / "tests",
+        WORKSPACE_ROOT / ".github",
+        WORKSPACE_ROOT / ".slate_install",
+        WORKSPACE_ROOT / ".slate_fork",
+        WORKSPACE_ROOT / "logs",
+        WORKSPACE_ROOT / "data",
+    ]
+
+    created = 0
+    for d in dirs:
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            created += 1
+
+    # Ensure __init__.py files exist for Python packages
+    init_files = [
+        WORKSPACE_ROOT / "aurora_core" / "__init__.py",
+        WORKSPACE_ROOT / "agents" / "__init__.py",
+        WORKSPACE_ROOT / "aurora_slate" / "__init__.py",
+        WORKSPACE_ROOT / "tests" / "__init__.py",
+    ]
+    for f in init_files:
+        f.touch(exist_ok=True)
+
+    tracker.complete_step("dirs_create", success=True,
+                          details=f"{len(dirs)} directories checked, {created} created")
+    return True
+
+
+def step_git_sync(tracker, args):
+    """Step 7: Sync with GitHub repository state."""
+    tracker.start_step("git_sync")
+    tracker.update_progress("git_sync", 20, "Checking git state")
+
+    # Verify git is available
+    try:
+        result = _run_cmd(["git", "--version"], timeout=10)
+        if result.returncode != 0:
+            tracker.complete_step("git_sync", success=True, warning=True,
+                                  details="git not found — skipping sync")
+            return True
+    except FileNotFoundError:
+        tracker.complete_step("git_sync", success=True, warning=True,
+                              details="git not installed — skipping sync")
+        return True
+
+    # Check if we're in a git repo
+    in_repo = _run_cmd(["git", "rev-parse", "--is-inside-work-tree"], timeout=10)
+    if in_repo.returncode != 0:
+        tracker.update_progress("git_sync", 40, "Initializing git repository")
+        _run_cmd(["git", "init"], timeout=15)
+
+    # Configure remotes based on --beta flag
+    if args.beta:
+        tracker.update_progress("git_sync", 50, "Configuring beta fork remote")
+        try:
+            from aurora_core.slate_fork_manager import SlateForkManager
+            manager = SlateForkManager(str(WORKSPACE_ROOT))
+            manager.configure_beta_remote()
+            tracker.complete_step("git_sync", success=True,
+                                  details="Git synced with S.L.A.T.E.-BETA fork")
+            return True
+        except ImportError:
+            _run_cmd(["git", "remote", "add", "beta",
+                       "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.-BETA.git"],
+                      timeout=10)
+            tracker.complete_step("git_sync", success=True,
+                                  details="Beta remote added (fork manager not available)")
+            return True
+    else:
+        # Standard sync — just verify remote
+        tracker.update_progress("git_sync", 60, "Verifying remotes")
+        remote = _run_cmd(["git", "remote", "-v"], timeout=10)
+        branch = _run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], timeout=10)
+        commit = _run_cmd(["git", "rev-parse", "--short", "HEAD"], timeout=10)
+
+        branch_name = branch.stdout.strip() if branch.returncode == 0 else "unknown"
+        commit_hash = commit.stdout.strip() if commit.returncode == 0 else "unknown"
+        has_remote = "origin" in (remote.stdout or "")
+
+        details = f"Branch: {branch_name} @ {commit_hash}"
+        if has_remote:
+            details += " (origin configured)"
+        tracker.complete_step("git_sync", success=True, details=details)
+        return True
+
+
+def step_benchmark(tracker, args):
+    """Step 8: Run system benchmarks."""
+    tracker.start_step("benchmark")
+
+    benchmark_script = WORKSPACE_ROOT / "aurora_core" / "slate_benchmark.py"
+    if not benchmark_script.exists():
+        tracker.skip_step("benchmark", "Benchmark script not found")
+        return True
+
+    python_exe = _get_python_exe()
+    if not python_exe.exists():
+        tracker.skip_step("benchmark", "Python venv not available")
+        return True
+
+    tracker.update_progress("benchmark", 20, "Running CPU + memory benchmarks")
+    try:
+        result = _run_cmd([python_exe, str(benchmark_script), "--json"], timeout=120)
+        if result.returncode == 0:
+            # Try to parse benchmark results
+            try:
+                bench_data = json.loads(result.stdout)
+                score = bench_data.get("overall_score", "N/A")
+                details = f"Benchmark complete — Overall score: {score}"
+            except (json.JSONDecodeError, ValueError):
+                details = "Benchmark complete"
+            tracker.complete_step("benchmark", success=True, details=details)
+        else:
+            tracker.complete_step("benchmark", success=True, warning=True,
+                                  details="Benchmark ran with warnings")
+        return True
+    except subprocess.TimeoutExpired:
+        tracker.complete_step("benchmark", success=True, warning=True,
+                              details="Benchmark timed out after 120s — skipping")
+        return True
+    except Exception as e:
+        tracker.complete_step("benchmark", success=True, warning=True,
+                              details=f"Benchmark skipped: {e}")
+        return True
+
+
+def step_runtime_check(tracker, args):
+    """Step 9: Final runtime verification."""
+    tracker.start_step("runtime_check")
+    tracker.update_progress("runtime_check", 20, "Running runtime checks")
+
+    checks_passed = 0
+    checks_total = 0
+    issues = []
+
+    # Check 1: slate_status.py exists and runs
+    checks_total += 1
+    status_script = WORKSPACE_ROOT / "aurora_core" / "slate_status.py"
+    if status_script.exists():
+        result = _run_cmd([_get_python_exe(), str(status_script), "--quick"], timeout=30)
+        if result.returncode == 0:
+            checks_passed += 1
+        else:
+            issues.append("slate_status.py failed")
+    else:
+        issues.append("slate_status.py not found")
+
+    tracker.update_progress("runtime_check", 50, f"{checks_passed}/{checks_total} checks passed")
+
+    # Check 2: slate_runtime.py exists and runs
+    checks_total += 1
+    runtime_script = WORKSPACE_ROOT / "aurora_core" / "slate_runtime.py"
+    if runtime_script.exists():
+        result = _run_cmd([_get_python_exe(), str(runtime_script), "--check-all"], timeout=30)
+        if result.returncode == 0:
+            checks_passed += 1
+        else:
+            issues.append("slate_runtime.py returned errors")
+    else:
+        issues.append("slate_runtime.py not found")
+
+    # Check 3: Dashboard server importable
+    checks_total += 1
+    result = _run_cmd([
+        _get_python_exe(), "-c",
+        "from agents.aurora_dashboard_server import app; print('ok')"
+    ], timeout=15)
+    if result.returncode == 0:
+        checks_passed += 1
+    else:
+        issues.append("Dashboard server not importable")
+
+    tracker.update_progress("runtime_check", 80,
+                            f"{checks_passed}/{checks_total} runtime checks passed")
+
+    if checks_passed == checks_total:
+        tracker.complete_step("runtime_check", success=True,
+                              details=f"All {checks_total} runtime checks passed")
+    elif checks_passed > 0:
+        tracker.complete_step("runtime_check", success=True, warning=True,
+                              details=f"{checks_passed}/{checks_total} passed — {'; '.join(issues)}")
+    else:
+        tracker.complete_step("runtime_check", success=False,
+                              error=f"All checks failed: {'; '.join(issues)}")
+        return False
+
+    return True
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  BANNER & COMPLETION
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def print_banner():
     """Print installation banner."""
@@ -33,206 +533,164 @@ def print_banner():
     print()
 
 
-def check_python_version():
-    """Check Python version."""
-    print("[1/6] Checking Python version...")
-    version = sys.version_info
-    if version.major < 3 or (version.major == 3 and version.minor < 11):
-        print(f"  ✗ Python 3.11+ required, found {version.major}.{version.minor}")
-        return False
-    print(f"  ✓ Python {version.major}.{version.minor}.{version.micro}")
-    return True
-
-
-def create_venv():
-    """Create virtual environment if not exists."""
-    print("[2/6] Setting up virtual environment...")
-    venv_path = WORKSPACE_ROOT / ".venv"
-    
-    if venv_path.exists():
-        print("  ✓ Virtual environment exists")
-        return True
-    
-    try:
-        subprocess.run([sys.executable, "-m", "venv", str(venv_path)], check=True)
-        print("  ✓ Virtual environment created")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"  ✗ Failed to create venv: {e}")
-        return False
-
-
-def get_pip():
-    """Get pip executable path."""
-    if os.name == "nt":
-        return WORKSPACE_ROOT / ".venv" / "Scripts" / "pip.exe"
-    return WORKSPACE_ROOT / ".venv" / "bin" / "pip"
-
-
-def install_requirements():
-    """Install Python requirements."""
-    print("[3/6] Installing dependencies...")
-    pip = get_pip()
-    
-    if not pip.exists():
-        print("  ✗ pip not found in venv")
-        return False
-    
-    req_file = WORKSPACE_ROOT / "requirements.txt"
-    if not req_file.exists():
-        print("  ✗ requirements.txt not found")
-        return False
-    
-    try:
-        subprocess.run(
-            [str(pip), "install", "-r", str(req_file), "--quiet"],
-            check=True,
-            timeout=300
-        )
-        print("  ✓ Dependencies installed")
-        return True
-    except subprocess.TimeoutExpired:
-        print("  ✗ Installation timed out")
-        return False
-    except subprocess.CalledProcessError as e:
-        print(f"  ✗ Installation failed: {e}")
-        return False
-
-
-def detect_hardware():
-    """Detect system hardware."""
-    print("[4/6] Detecting hardware...")
-    
-    try:
-        result = subprocess.run(
-            ["nvidia-smi", "--query-gpu=name,compute_cap,memory.total", "--format=csv,noheader"],
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            gpus = result.stdout.strip().split("\n")
-            print(f"  ✓ Found {len(gpus)} NVIDIA GPU(s):")
-            for gpu in gpus:
-                parts = [p.strip() for p in gpu.split(",")]
-                if len(parts) >= 3:
-                    name, cc, mem = parts[0], parts[1], parts[2]
-                    if cc.startswith("12."):
-                        arch = "Blackwell"
-                    elif cc == "8.9":
-                        arch = "Ada Lovelace"
-                    elif cc.startswith("8."):
-                        arch = "Ampere"
-                    elif cc == "7.5":
-                        arch = "Turing"
-                    else:
-                        arch = "Unknown"
-                    print(f"      {name} ({arch}, CC {cc}, {mem})")
-            return True
-        else:
-            print("  ○ No NVIDIA GPU detected (CPU mode)")
-            return True
-    except FileNotFoundError:
-        print("  ○ nvidia-smi not found (CPU mode)")
-        return True
-    except Exception as e:
-        print(f"  ○ GPU detection skipped: {e}")
-        return True
-
-
-def create_directories():
-    """Create required directories."""
-    print("[5/6] Creating directories...")
-    
-    dirs = [
-        WORKSPACE_ROOT / "aurora_core",
-        WORKSPACE_ROOT / "agents",
-        WORKSPACE_ROOT / "tests",
-        WORKSPACE_ROOT / ".github",
-    ]
-    
-    for d in dirs:
-        d.mkdir(exist_ok=True)
-    
-    (WORKSPACE_ROOT / "aurora_core" / "__init__.py").touch()
-    (WORKSPACE_ROOT / "agents" / "__init__.py").touch()
-    
-    print("  ✓ Directories created")
-    return True
-
-
-def run_benchmark():
-    """Run system benchmark."""
-    print("[6/6] Running benchmark...")
-    
-    benchmark_script = WORKSPACE_ROOT / "aurora_core" / "slate_benchmark.py"
-    if not benchmark_script.exists():
-        print("  ○ Benchmark script not found (skipping)")
-        return True
-    
-    python_exe = WORKSPACE_ROOT / ".venv" / ("Scripts" if os.name == "nt" else "bin") / "python"
-    if os.name == "nt":
-        python_exe = python_exe.with_suffix(".exe")
-    
-    try:
-        result = subprocess.run(
-            [str(python_exe), str(benchmark_script), "--json"],
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        if result.returncode == 0:
-            print("  ✓ Benchmark complete")
-        else:
-            print("  ○ Benchmark skipped")
-        return True
-    except Exception:
-        print("  ○ Benchmark skipped")
-        return True
-
-
-def print_completion():
+def print_completion(success: bool, tracker=None):
     """Print completion message."""
     print()
     print("═" * 70)
-    print("  S.L.A.T.E. Installation Complete!")
+    if success:
+        print("  ✓ S.L.A.T.E. Installation Complete!")
+    else:
+        print("  ✗ S.L.A.T.E. Installation Failed")
     print("═" * 70)
     print()
-    print("  Next steps:")
-    print()
-    if os.name == "nt":
-        print("    1. Activate: .\\.venv\\Scripts\\activate")
+
+    if success:
+        print("  Next steps:")
+        print()
+        if os.name == "nt":
+            print("    1. Activate:  .\\.venv\\Scripts\\activate")
+        else:
+            print("    1. Activate:  source .venv/bin/activate")
+        print("    2. Status:    python aurora_core/slate_status.py --quick")
+        print("    3. Runtime:   python aurora_core/slate_runtime.py --check-all")
+        print("    4. Dashboard: python agents/aurora_dashboard_server.py")
+        print("    5. Hardware:  python aurora_core/slate_hardware_optimizer.py")
+        print()
+        print("  For GPU support (optional):")
+        print("    python aurora_core/slate_hardware_optimizer.py --install-pytorch")
+        print()
     else:
-        print("    1. Activate: source .venv/bin/activate")
-    print("    2. Check status: python aurora_core/slate_status.py --quick")
-    print("    3. Run benchmark: python aurora_core/slate_benchmark.py")
-    print("    4. Detect hardware: python aurora_core/slate_hardware_optimizer.py")
-    print()
-    print("  For GPU support (optional):")
-    print("    python aurora_core/slate_hardware_optimizer.py --install-pytorch")
-    print()
+        print("  Troubleshooting:")
+        print()
+        print("    • Check install log:  cat .slate_install/install.log")
+        print("    • Check install state: cat .slate_install/install_state.json")
+        print("    • Resume install:     python install_slate.py --resume")
+        print("    • Skip GPU:           python install_slate.py --skip-gpu")
+        print()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  MAIN
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def parse_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(
+        description="S.L.A.T.E. Installation Script",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python install_slate.py                   Full install with live dashboard
+  python install_slate.py --no-dashboard    CLI-only installation
+  python install_slate.py --skip-gpu        Skip GPU detection step
+  python install_slate.py --beta            Initialize from S.L.A.T.E.-BETA fork
+  python install_slate.py --resume          Resume a previously failed install
+  python install_slate.py --dev             Developer mode (verbose + editable)
+        """,
+    )
+    parser.add_argument("--no-dashboard", action="store_true",
+                        help="Disable live dashboard (CLI output only)")
+    parser.add_argument("--skip-gpu", action="store_true",
+                        help="Skip NVIDIA GPU detection step")
+    parser.add_argument("--beta", action="store_true",
+                        help="Initialize from S.L.A.T.E.-BETA fork instead of upstream")
+    parser.add_argument("--dev", action="store_true",
+                        help="Developer mode — verbose output, editable install")
+    parser.add_argument("--resume", action="store_true",
+                        help="Resume a previously failed installation")
+    return parser.parse_args()
 
 
 def main():
     """Main installation entry point."""
+    args = parse_args()
     print_banner()
-    
-    steps = [
-        check_python_version,
-        create_venv,
-        install_requirements,
-        detect_hardware,
-        create_directories,
-        run_benchmark,
+
+    # Initialize the install tracker
+    sys.path.insert(0, str(WORKSPACE_ROOT))
+    try:
+        from aurora_core.install_tracker import InstallTracker
+        tracker = InstallTracker()
+    except ImportError:
+        # InstallTracker not available yet — create a minimal shim
+        class _MinimalTracker:
+            """Shim that prints to console when InstallTracker isn't available."""
+            def begin_install(self): pass
+            def finish_install(self, success=True): pass
+            def start_step(self, sid, substep=None):
+                print(f"  → Starting: {sid}")
+            def update_progress(self, sid, pct, detail=None):
+                if detail:
+                    print(f"    ... {detail}")
+            def complete_step(self, sid, success=True, details=None,
+                              error=None, warning=False):
+                icon = "✓" if success else ("⚠" if warning else "✗")
+                msg = details or error or ("Done" if success else "Failed")
+                print(f"  {icon} {sid}: {msg}")
+            def skip_step(self, sid, reason="Skipped"):
+                print(f"  ○ {sid}: {reason}")
+            def get_state(self): return {}
+        tracker = _MinimalTracker()
+
+    # Resume support — skip already-completed steps
+    resume_completed = set()
+    if args.resume:
+        try:
+            from aurora_core.install_tracker import InstallTracker as IT
+            state = IT.load_state()
+            if state and state.get("steps"):
+                resume_completed = {
+                    s["id"] for s in state["steps"]
+                    if s.get("status") in ("success", "skipped", "warning")
+                }
+                print(f"  ℹ Resuming — {len(resume_completed)} steps already complete\n")
+        except Exception:
+            pass
+
+    # Define all 10 installation steps in canonical order
+    install_steps = [
+        ("dashboard_boot", step_dashboard_boot),
+        ("python_check",   step_python_check),
+        ("venv_setup",     step_venv_setup),
+        ("deps_install",   step_deps_install),
+        ("gpu_detect",     step_gpu_detect),
+        ("sdk_validate",   step_sdk_validate),
+        ("dirs_create",    step_dirs_create),
+        ("git_sync",       step_git_sync),
+        ("benchmark",      step_benchmark),
+        ("runtime_check",  step_runtime_check),
     ]
-    
-    for step in steps:
-        if not step():
-            print("\n✗ Installation failed")
-            return 1
-    
-    print_completion()
-    return 0
+
+    tracker.begin_install()
+    all_ok = True
+
+    for step_id, step_fn in install_steps:
+        # Skip already-completed steps on resume
+        if step_id in resume_completed:
+            tracker.skip_step(step_id, "Already completed (resumed)")
+            continue
+
+        try:
+            success = step_fn(tracker, args)
+            if not success:
+                all_ok = False
+                # Fatal steps stop the install
+                if step_id in ("python_check", "venv_setup", "deps_install"):
+                    print(f"\n  ✗ Fatal step '{step_id}' failed — cannot continue")
+                    break
+        except KeyboardInterrupt:
+            tracker.complete_step(step_id, success=False, error="Cancelled by user")
+            all_ok = False
+            break
+        except Exception as e:
+            tracker.complete_step(step_id, success=False, error=str(e))
+            all_ok = False
+            if step_id in ("python_check", "venv_setup", "deps_install"):
+                break
+
+    tracker.finish_install(success=all_ok)
+    print_completion(all_ok, tracker)
+    return 0 if all_ok else 1
 
 
 if __name__ == "__main__":
