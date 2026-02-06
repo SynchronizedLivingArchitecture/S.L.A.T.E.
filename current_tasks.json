@@ -1,0 +1,165 @@
+{
+  "tasks": [
+    {
+      "id": "copilot_fix_discovery_001",
+      "title": "Fix discover_work() to not short-circuit on completed/stale tasks",
+      "description": "The _load_pending_tasks() returns immediately if ANY pending tasks exist, preventing coverage/tech tree/Nemo discovery from running. Fix: filter out stale tasks before returning, or continue to other discovery sources even when pending tasks exist.",
+      "priority": "high",
+      "assigned_to": "ALPHA",
+      "source": "copilot_analysis",
+      "file_paths": "aurora_core/slate_unified_autonomous.py",
+      "status": "pending",
+      "created_at": "2026-02-06T07:35:00+00:00",
+      "started_at": "2026-02-06T09:30:00+00:00",
+      "started_by": "ALPHA",
+      "reset_at": "2026-02-06T12:40:09.146317"
+    },
+    {
+      "id": "copilot_fix_dashboard_002",
+      "title": "Diagnose and fix dashboard crash (exit code 1)",
+      "description": "The SLATE Dashboard task exits with code 1 immediately on startup. Investigate aurora_dashboard_server.py / agents/aurora_dashboard_server.py for the root cause and fix.",
+      "priority": "high",
+      "assigned_to": "ALPHA",
+      "source": "copilot_analysis",
+      "file_paths": "agents/aurora_dashboard_server.py",
+      "status": "pending",
+      "created_at": "2026-02-06T07:35:00+00:00",
+      "started_at": "2026-02-06T09:30:00+00:00",
+      "started_by": "ALPHA",
+      "reset_at": "2026-02-06T12:40:09.146317"
+    },
+    {
+      "id": "copilot_techtree_003",
+      "title": "Add new tech tree nodes for Phase 2 capabilities (UV, Discord)",
+      "description": "All 16 tech tree nodes are 100% complete. Add new Phase 2 nodes: UV package manager migration, Discord bot completion (#17). Set status to 'available' so autonomous discovery finds them.",
+      "priority": "medium",
+      "assigned_to": "ALPHA",
+      "source": "copilot_analysis",
+      "file_paths": ".slate_tech_tree/tech_tree.json",
+      "status": "pending",
+      "created_at": "2026-02-06T07:35:00+00:00",
+      "started_at": "2026-02-06T09:30:00+00:00",
+      "started_by": "ALPHA",
+      "reset_at": "2026-02-06T12:40:09.146317"
+    },
+    {
+      "name": "Test Task from unit test",
+      "type": "testing",
+      "priority": 3,
+      "status": "pending",
+      "assigned_to": "BETA",
+      "id": "task_1770396981239",
+      "created_at": "2026-02-06T16:56:21.239491+00:00"
+    },
+    {
+      "id": "task_1770397109_0",
+      "type": "coding",
+      "payload": {
+        "description": "Test task"
+      },
+      "priority": 2,
+      "status": "in-progress",
+      "created_at": "2026-02-06T11:58:29.392466",
+      "picked_up_at": "2026-02-06T12:11:19.981841",
+      "claimed_at": "2026-02-06T12:11:19.981841",
+      "copilot_session_id": "copilot_claim_20260206121119",
+      "last_updated": "2026-02-06T12:11:19.981841",
+      "claim_type": "bidirectional_pull"
+    },
+    {
+      "id": "task_1770397113_0",
+      "type": "testing",
+      "payload": {
+        "description": "Integration test task"
+      },
+      "priority": 3,
+      "status": "in-progress",
+      "created_at": "2026-02-06T11:58:33.579465",
+      "picked_up_at": "2026-02-06T12:11:22.012581",
+      "claimed_at": "2026-02-06T12:11:22.012581",
+      "copilot_session_id": "test_session_123",
+      "last_updated": "2026-02-06T12:11:22.012581",
+      "claim_type": "bidirectional_pull"
+    },
+    {
+      "name": "Test Task from unit test",
+      "type": "testing",
+      "priority": 3,
+      "status": "pending",
+      "assigned_to": "BETA",
+      "id": "task_1770397269007",
+      "created_at": "2026-02-06T17:01:09.007851+00:00"
+    },
+    {
+      "name": "Test Task from unit test",
+      "type": "testing",
+      "priority": 3,
+      "status": "pending",
+      "assigned_to": "BETA",
+      "id": "task_1770397611621",
+      "created_at": "2026-02-06T17:06:51.621909+00:00"
+    },
+    {
+      "id": "task_1770397730_0",
+      "type": "coding",
+      "payload": {
+        "description": "Test task"
+      },
+      "priority": 2,
+      "status": "in-progress",
+      "created_at": "2026-02-06T12:08:50.083868",
+      "picked_up_at": "2026-02-06T12:16:43.950003",
+      "claimed_at": "2026-02-06T12:16:43.950003",
+      "copilot_session_id": "copilot_claim_20260206121643",
+      "last_updated": "2026-02-06T12:16:43.950003",
+      "claim_type": "bidirectional_pull"
+    },
+    {
+      "id": "task_1770397734_0",
+      "type": "testing",
+      "payload": {
+        "description": "Integration test task"
+      },
+      "priority": 3,
+      "status": "in-progress",
+      "created_at": "2026-02-06T12:08:54.245008",
+      "picked_up_at": "2026-02-06T12:16:45.980820",
+      "claimed_at": "2026-02-06T12:16:45.980820",
+      "copilot_session_id": "test_session_123",
+      "last_updated": "2026-02-06T12:16:45.980820",
+      "claim_type": "bidirectional_pull"
+    },
+    {
+      "name": "Test Task from unit test",
+      "type": "testing",
+      "priority": 3,
+      "status": "pending",
+      "assigned_to": "BETA",
+      "id": "task_1770397945805",
+      "created_at": "2026-02-06T17:12:25.805961+00:00"
+    },
+    {
+      "id": "task_1770398058_0",
+      "type": "coding",
+      "payload": {
+        "description": "Test task"
+      },
+      "priority": 2,
+      "status": "pending",
+      "created_at": "2026-02-06T12:14:18.333583"
+    },
+    {
+      "id": "task_1770398062_0",
+      "type": "testing",
+      "payload": {
+        "description": "Integration test task"
+      },
+      "priority": 3,
+      "status": "pending",
+      "created_at": "2026-02-06T12:14:22.460581"
+    }
+  ],
+  "created_at": "2026-02-06T04:19:10.197376+00:00",
+  "last_cleaned": "2026-02-06T07:35:00+00:00",
+  "clean_reason": "Marked 3 Nemo tasks as completed (already done). Seeded 3 real COPILOT tasks for autonomous loop."
+}

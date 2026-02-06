@@ -49,6 +49,32 @@ htmlcov/
 .slate_hardware_config.json
 *.log
 
+# SLATE runtime data (not source)
+.aurora_pids/
+.aurora_training/
+.slate_analytics/
+.slate_cas/
+.slate_copilot_feedback/
+.slate_dev_tracker/
+.slate_gpu/
+.slate_hash_chain/
+.slate_metrics/
+.slate_reviews/
+.slate_specs/
+.slate_task_archive/
+.slate_traces/
+.tools/
+aurora_logs/
+aurora_memory/
+slate_memory/
+
+# Runtime state files
+vscode_errors.json
+nul
+
+# Claude
+.claude/
+
 # Secrets (NEVER commit)
 .env
 *.pem
