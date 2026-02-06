@@ -3604,3 +3604,178 @@
 {"timestamp": "2026-02-06T20:29:53.113022Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
 {"timestamp": "2026-02-06T20:29:59.806159Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
 {"timestamp": "2026-02-06T20:29:59.815713Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 6.702691316604614}
+{"timestamp": "2026-02-06T20:31:13.265948Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:31:13.266984Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.001035451889038086}
+{"timestamp": "2026-02-06T20:31:15.468437Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:31:19.294939Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:31:19.304078Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 3.835641622543335}
+{"timestamp": "2026-02-06T20:32:32.821213Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:32:32.821213Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:32:39.504170Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:32:39.507385Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:32:39.507901Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.003731250762939453}
+{"timestamp": "2026-02-06T20:33:55.770137Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:33:55.770137Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:34:02.288768Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:34:07.220640Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:34:07.238782Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.950529336929321}
+{"timestamp": "2026-02-06T20:35:22.279049Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:35:22.280052Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.001003265380859375}
+{"timestamp": "2026-02-06T20:35:28.857196Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:35:28.860457Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:35:28.860967Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.0037717819213867188}
+{"timestamp": "2026-02-06T20:36:55.146496Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:36:55.146496Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.000507354736328125}
+{"timestamp": "2026-02-06T20:36:55.148504Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:36:55.151486Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:36:55.151486Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.0029821395874023438}
+{"timestamp": "2026-02-06T20:38:09.361246Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:38:09.361749Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0005025863647460938}
+{"timestamp": "2026-02-06T20:38:20.373984Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:38:20.380193Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:38:20.380193Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.006208658218383789}
+{"timestamp": "2026-02-06T20:39:41.917404Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:39:41.917404Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:39:44.167485Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:39:44.172305Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:39:44.172305Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.004820108413696289}
+{"timestamp": "2026-02-06T20:41:09.442594Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:41:09.451060Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.008466720581054688}
+{"timestamp": "2026-02-06T20:41:11.632900Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:41:11.636057Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:41:11.636057Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.003157377243041992}
+{"timestamp": "2026-02-06T20:42:26.583933Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:42:26.583933Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:42:33.428854Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:42:38.876800Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:42:38.893364Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 5.464509963989258}
+{"timestamp": "2026-02-06T20:43:55.205958Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:43:55.206962Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0010035037994384766}
+{"timestamp": "2026-02-06T20:44:00.064537Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:44:00.068658Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:44:00.068658Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.004639625549316406}
+{"timestamp": "2026-02-06T20:45:14.607400Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:45:14.607400Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:45:25.671999Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:45:25.674666Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:45:25.675188Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.002666950225830078}
+{"timestamp": "2026-02-06T20:46:45.500664Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:46:45.500664Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:46:50.036413Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:46:50.039527Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:46:50.039527Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 0.0031135082244873047}
+{"timestamp": "2026-02-06T20:48:07.328138Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:48:07.328138Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:48:14.402462Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:48:18.341374Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:48:18.341374Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 3.9389121532440186}
+{"timestamp": "2026-02-06T20:49:37.889330Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:49:37.890319Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.000989675521850586}
+{"timestamp": "2026-02-06T20:49:44.052741Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:49:50.491189Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:49:50.514478Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 6.461737394332886}
+{"timestamp": "2026-02-06T20:51:02.187464Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:51:02.188464Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0009999275207519531}
+{"timestamp": "2026-02-06T20:51:08.330050Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:51:12.653088Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:51:12.672934Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.34288477897644}
+{"timestamp": "2026-02-06T20:52:30.873478Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:52:30.883020Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.009541749954223633}
+{"timestamp": "2026-02-06T20:52:30.984055Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:52:36.450889Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:52:36.464438Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 5.480382680892944}
+{"timestamp": "2026-02-06T20:53:53.256210Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:53:53.256210Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:53:59.924884Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:54:04.271191Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:54:04.282095Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.357211112976074}
+{"timestamp": "2026-02-06T20:55:11.489109Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:55:11.490109Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0009999275207519531}
+{"timestamp": "2026-02-06T20:55:24.034877Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:55:28.571618Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:55:28.591625Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.556748390197754}
+{"timestamp": "2026-02-06T20:56:38.116121Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:56:38.116121Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.001003265380859375}
+{"timestamp": "2026-02-06T20:56:45.478645Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:56:50.038153Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:56:50.048859Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.570213317871094}
+{"timestamp": "2026-02-06T20:58:08.808375Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:58:08.808375Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:58:11.144535Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:58:16.375037Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:58:16.395681Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 5.250146865844727}
+{"timestamp": "2026-02-06T20:59:32.501388Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T20:59:32.502401Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T20:59:34.795029Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T20:59:39.247150Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T20:59:39.265450Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.470421314239502}
+{"timestamp": "2026-02-06T21:01:00.750204Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:01:00.750716Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0005125999450683594}
+{"timestamp": "2026-02-06T21:01:00.754875Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:01:06.854343Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:01:06.870455Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 6.115580320358276}
+{"timestamp": "2026-02-06T21:02:23.947183Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:02:23.948689Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0015063285827636719}
+{"timestamp": "2026-02-06T21:02:23.951617Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:02:27.899249Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:02:27.918186Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 3.966569185256958}
+{"timestamp": "2026-02-06T21:03:47.130541Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:03:47.131541Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0009999275207519531}
+{"timestamp": "2026-02-06T21:03:49.277296Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:03:53.649690Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:03:53.667972Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.390675783157349}
+{"timestamp": "2026-02-06T21:05:15.435324Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:05:15.435324Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T21:05:15.439866Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:05:19.594806Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:05:19.612965Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.173098802566528}
+{"timestamp": "2026-02-06T21:06:31.174982Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:06:31.179372Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.00439000129699707}
+{"timestamp": "2026-02-06T21:06:41.412011Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:06:45.890445Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:06:45.901542Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.48953104019165}
+{"timestamp": "2026-02-06T21:08:00.884005Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:08:00.893562Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.009557008743286133}
+{"timestamp": "2026-02-06T21:08:05.205802Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:08:09.872105Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:08:09.884764Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.678962469100952}
+{"timestamp": "2026-02-06T21:09:21.942207Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:09:21.942207Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0011322498321533203}
+{"timestamp": "2026-02-06T21:09:33.754189Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:09:39.065100Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:09:39.084951Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 5.330762624740601}
+{"timestamp": "2026-02-06T21:10:50.096238Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:10:50.096758Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0005202293395996094}
+{"timestamp": "2026-02-06T21:10:59.400266Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:11:05.408872Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:11:05.423417Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 6.023150682449341}
+{"timestamp": "2026-02-06T21:12:19.494593Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:12:19.494593Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T21:12:19.497105Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:12:23.629444Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:12:23.647795Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 4.15069055557251}
+{"timestamp": "2026-02-06T21:13:40.131523Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:13:40.141648Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.010125160217285156}
+{"timestamp": "2026-02-06T21:13:49.359947Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:13:55.395805Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:13:55.409905Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 6.049957752227783}
+{"timestamp": "2026-02-06T21:15:05.576909Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:15:05.577908Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0009996891021728516}
+{"timestamp": "2026-02-06T21:15:15.214533Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:15:21.164474Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:15:21.179643Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 5.965110540390015}
+{"timestamp": "2026-02-06T21:16:39.262225Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:16:39.263228Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.001003265380859375}
+{"timestamp": "2026-02-06T21:16:39.266878Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:16:44.794596Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:16:44.820536Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 5.553658723831177}
+{"timestamp": "2026-02-06T21:18:05.654062Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:18:05.654062Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T21:18:05.659370Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:18:11.582810Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:18:11.594281Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 5.934911251068115}
+{"timestamp": "2026-02-06T21:19:20.271950Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_current_errors", "operation": "get_current_errors"}
+{"timestamp": "2026-02-06T21:19:20.271950Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_current_errors", "operation": "get_current_errors", "duration_seconds": 0.0}
+{"timestamp": "2026-02-06T21:19:26.960784Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Starting get_ceo_dashboard", "operation": "get_ceo_dashboard"}
+{"timestamp": "2026-02-06T21:19:30.713150Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Event: ceo_dashboard_generated", "event_type": "ceo_dashboard_generated"}
+{"timestamp": "2026-02-06T21:19:30.729220Z", "service": "slate-dashboard-server", "level": "INFO", "message": "Completed get_ceo_dashboard", "operation": "get_ceo_dashboard", "duration_seconds": 3.7689552307128906}
