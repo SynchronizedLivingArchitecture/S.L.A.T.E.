@@ -9,7 +9,7 @@
     {
       "name": "slate-sdk",
       "version": "1.0.0",
-      "source": "./plugins/slate-sdk",
+      "source": "./",
       "description": "SLATE orchestration, workflow management, and AI tools for Claude Code"
     }
   ]
