@@ -53,6 +53,7 @@ htmlcov/
 .aurora_pids/
 .aurora_training/
 .slate_analytics/
+.slate_archive/
 .slate_cas/
 .slate_copilot_feedback/
 .slate_dev_tracker/
@@ -63,10 +64,15 @@ htmlcov/
 .slate_specs/
 .slate_task_archive/
 .slate_traces/
+.slate_training/
 .tools/
 aurora_logs/
 aurora_memory/
 slate_memory/
+_PipelineMapping/
+
+# GitHub Actions self-hosted runner (contains credentials)
+actions-runner/
 
 # Runtime state files
 vscode_errors.json
