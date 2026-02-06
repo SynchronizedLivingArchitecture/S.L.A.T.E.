@@ -328,9 +328,9 @@ def slate_search_code(query: str, file_pattern: str = "*.py", max_results: int =
 
 
 @mcp.tool()
-def slate_dashboard_url() -> Dict[str, str]:
+def slate_dashboard_url() -> Dict[str, Any]:
     """Get the SLATE dashboard URL and check if it's running."""
-    # Modified: 2026-02-06T10:00:00Z | Author: COPILOT | Change: Initial MCP tool
+    # Modified: 2026-02-06T22:30:00Z | Author: COPILOT | Change: Fix return type for running field
     import urllib.request
 
     url = "http://127.0.0.1:8080"
