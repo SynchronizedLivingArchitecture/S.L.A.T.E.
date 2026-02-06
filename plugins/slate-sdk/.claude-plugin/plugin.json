@@ -1,0 +1,14 @@
+{
+  "name": "slate-sdk",
+  "description": "S.L.A.T.E. - AI-powered development orchestration, workflow management, and agentic task execution",
+  "version": "1.0.0",
+  "author": {
+    "name": "SynchronizedLivingArchitecture",
+    "email": "slate@github.com"
+  },
+  "repository": "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E",
+  "license": "MIT",
+  "keywords": ["slate", "ai", "orchestration", "agents", "workflow", "automation"],
+  "skills": "./skills/",
+  "commands": ["./commands/slate-help.md"]
+}

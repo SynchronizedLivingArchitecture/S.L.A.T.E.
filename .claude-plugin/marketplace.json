@@ -9,11 +9,7 @@
     {
       "name": "slate-sdk",
       "version": "1.0.0",
-      "source": {
-        "source": "github",
-        "repo": "SynchronizedLivingArchitecture/S.L.A.T.E",
-        "ref": "main"
-      },
+      "source": "./plugins/slate-sdk",
       "description": "SLATE orchestration, workflow management, and AI tools for Claude Code"
     }
   ]
