@@ -1,0 +1,35 @@
+# S.L.A.T.E. Code Owners
+# These owners are automatically requested for review on PRs
+# Format: path @owner
+
+# Core SLATE System - Requires maintainer review
+/aurora_core/                    @SynchronizedLivingArchitecture/slate-maintainers
+/slate_core/                     @SynchronizedLivingArchitecture/slate-maintainers
+/agents/                         @SynchronizedLivingArchitecture/slate-maintainers
+
+# Security-Critical Files - Strict review required
+/aurora_core/action_guard.py    @SynchronizedLivingArchitecture/slate-security
+/aurora_core/sdk_source_guard.py @SynchronizedLivingArchitecture/slate-security
+/.github/workflows/              @SynchronizedLivingArchitecture/slate-security
+/pyproject.toml                  @SynchronizedLivingArchitecture/slate-maintainers
+/requirements.txt                @SynchronizedLivingArchitecture/slate-security
+
+# MCP Server - Critical integration point
+/slate_copilot_mcp_server.py     @SynchronizedLivingArchitecture/slate-maintainers
+/.claude/                        @SynchronizedLivingArchitecture/slate-maintainers
+
+# Configuration Files
+/.github/copilot-instructions.md @SynchronizedLivingArchitecture/slate-maintainers
+/.github/slate.config.yaml       @SynchronizedLivingArchitecture/slate-maintainers
+/CLAUDE.md                       @SynchronizedLivingArchitecture/slate-maintainers
+
+# Documentation - Community can contribute
+/docs/                           @SynchronizedLivingArchitecture/slate-docs
+/README.md                       @SynchronizedLivingArchitecture/slate-docs
+
+# Tests - Standard review
+/tests/                          @SynchronizedLivingArchitecture/slate-maintainers
+
+# Specs - Planning documents
+/specs/                          @SynchronizedLivingArchitecture/slate-maintainers
+/.specify/                       @SynchronizedLivingArchitecture/slate-maintainers
