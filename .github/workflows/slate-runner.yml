@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SLATE Self-Hosted Runner — Full System Validation
-# Modified: 2026-02-09T06:45:00Z | Author: COPILOT | Change: Create runner workflow
+# Modified: 2026-02-09T08:30:00Z | Author: COPILOT | Change: Dual-GPU awareness, SLATE Live System job
 # ═══════════════════════════════════════════════════════════════════════════════
 # Runs the complete SLATE system stack on the self-hosted runner to validate
 # GPU acceleration, ML pipelines, agent systems, and SDK integrity.
@@ -297,47 +297,87 @@ jobs:
                   print(f'  {tf}: not found')
           "@
 
-  # ─── GPU Tests ────────────────────────────────────────────────────────────
+  # ─── GPU Tests (Dual-GPU Aware) ────────────────────────────────────────────
   gpu-tests:
-    name: "GPU & CUDA Tests"
+    name: "GPU & CUDA Tests (Dual-GPU)"
     runs-on: [self-hosted, slate, gpu, windows]
     needs: environment
     if: needs.environment.outputs.gpu_available == 'true'
     timeout-minutes: 20
+    env:
+      CUDA_VISIBLE_DEVICES: "0,1"
     steps:
       - uses: actions/checkout@v4
 
-      - name: PyTorch GPU Test
+      - name: Dual-GPU Detection
+        shell: pwsh
+        run: |
+          Write-Host "=== Dual-GPU Environment ===" -ForegroundColor Cyan
+          & nvidia-smi --query-gpu=index,name,memory.total,compute_cap --format=csv,noheader
+          $gpuCount = (& nvidia-smi --query-gpu=name --format=csv,noheader | Measure-Object -Line).Lines
+          Write-Host ""
+          Write-Host "Total GPUs: $gpuCount"
+          Write-Host "CUDA_VISIBLE_DEVICES: $env:CUDA_VISIBLE_DEVICES"
+          if ($gpuCount -lt 2) {
+            Write-Host "::warning::Expected 2 GPUs but found $gpuCount"
+          }
+
+      - name: PyTorch Dual-GPU Test
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
           & $python -c @"
+          import sys
           try:
               import torch
               print(f'PyTorch version: {torch.__version__}')
               print(f'CUDA available: {torch.cuda.is_available()}')
-              if torch.cuda.is_available():
-                  print(f'CUDA version: {torch.version.cuda}')
-                  for i in range(torch.cuda.device_count()):
-                      name = torch.cuda.get_device_name(i)
-                      mem = torch.cuda.get_device_properties(i).total_mem / 1e9
-                      print(f'  GPU {i}: {name} ({mem:.1f} GB)')
-                  # Quick tensor test
-                  t = torch.randn(1000, 1000, device='cuda')
+              if not torch.cuda.is_available():
+                  print('CUDA not available — skipping GPU tests')
+                  sys.exit(0)
+
+              gpu_count = torch.cuda.device_count()
+              print(f'CUDA version: {torch.version.cuda}')
+              print(f'GPU count: {gpu_count}')
+              assert gpu_count >= 2, f'Expected 2+ GPUs, found {gpu_count}'
+
+              # Test EACH GPU independently
+              for i in range(gpu_count):
+                  device = torch.device(f'cuda:{i}')
+                  name = torch.cuda.get_device_name(i)
+                  props = torch.cuda.get_device_properties(i)
+                  mem_gb = props.total_mem / 1e9
+                  print(f'  GPU {i}: {name} ({mem_gb:.1f} GB, CC {props.major}.{props.minor})')
+
+                  # Tensor allocation + compute on this GPU
+                  t = torch.randn(2000, 2000, device=device)
                   result = torch.mm(t, t)
-                  print(f'  Matrix multiply test: OK ({result.shape})')
+                  print(f'    Matrix multiply on cuda:{i}: OK ({result.shape})')
                   del t, result
-                  torch.cuda.empty_cache()
+
+              # Cross-GPU tensor transfer test
+              print('  Cross-GPU transfer test...')
+              t0 = torch.randn(1000, 1000, device='cuda:0')
+              t1 = t0.to('cuda:1')
+              assert t1.device.index == 1, 'Transfer to GPU 1 failed'
+              result = torch.mm(t1, t1)
+              print(f'    cuda:0 -> cuda:1 transfer + compute: OK')
+              del t0, t1, result
+
+              torch.cuda.empty_cache()
+              print(f'Dual-GPU test PASSED ({gpu_count} GPUs verified)')
           except ImportError:
               print('PyTorch not installed')
           except Exception as e:
               print(f'GPU test error: {e}')
+              sys.exit(1)
           "@
 
-      - name: VRAM Status
+      - name: VRAM Status (All GPUs)
         shell: pwsh
         run: |
-          & nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu --format=csv,noheader
+          Write-Host "=== Per-GPU VRAM ===" -ForegroundColor Cyan
+          & nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu,temperature.gpu --format=csv,noheader
 
       - name: GPU Benchmark
         if: github.event_name == 'workflow_dispatch' && inputs.run_gpu_benchmarks
@@ -347,6 +387,225 @@ jobs:
           if (Test-Path "aurora_core/slate_benchmark.py") {
             & $python aurora_core/slate_benchmark.py --json
           }
+
+  # ─── SLATE Live System ────────────────────────────────────────────────────
+  # Runs SLATE systems LIVE during CI — dashboard, agents, task processing
+  # across both GPUs. This validates that SLATE operates during runner runtime.
+  slate-live-system:
+    name: "SLATE Live System (Dual-GPU)"
+    runs-on: [self-hosted, slate, gpu, windows]
+    needs: [core-systems, gpu-tests]
+    timeout-minutes: 25
+    env:
+      CUDA_VISIBLE_DEVICES: "0,1"
+      SLATE_RUNNER: "true"
+      SLATE_CI_MODE: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Dual-GPU Environment
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          & $python -c @"
+          import os, sys
+          print('=== SLATE Live System — GPU Environment ===')
+          print(f'CUDA_VISIBLE_DEVICES: {os.environ.get(\"CUDA_VISIBLE_DEVICES\", \"NOT SET\")}')
+          print(f'SLATE_RUNNER: {os.environ.get(\"SLATE_RUNNER\", \"NOT SET\")}')
+
+          # Verify both GPUs are accessible
+          try:
+              import torch
+              gpu_count = torch.cuda.device_count()
+              for i in range(gpu_count):
+                  print(f'  GPU {i}: {torch.cuda.get_device_name(i)}')
+                  os.environ[f'SLATE_GPU_{i}'] = torch.cuda.get_device_name(i)
+              print(f'SLATE_GPU_COUNT: {gpu_count}')
+              assert gpu_count >= 2, f'SLATE Live System requires 2+ GPUs, found {gpu_count}'
+          except ImportError:
+              print('PyTorch not available — GPU names from nvidia-smi')
+          "@
+
+      - name: Start SLATE Dashboard (Background)
+        id: dashboard
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          Write-Host "Starting SLATE dashboard in background..." -ForegroundColor Cyan
+          $dashProc = Start-Process -FilePath $python -ArgumentList @(
+            "-c",
+            "from agents.aurora_dashboard_server import app; import uvicorn; uvicorn.run(app, host='127.0.0.1', port=8420, log_level='warning')"
+          ) -PassThru -NoNewWindow -RedirectStandardOutput "dashboard_stdout.log" -RedirectStandardError "dashboard_stderr.log"
+          echo "dashboard_pid=$($dashProc.Id)" >> $env:GITHUB_OUTPUT
+          Start-Sleep -Seconds 5
+          Write-Host "Dashboard PID: $($dashProc.Id)"
+
+          # Health check
+          try {
+            $resp = Invoke-WebRequest -Uri "http://127.0.0.1:8420/api/status" -TimeoutSec 10 -ErrorAction Stop
+            Write-Host "Dashboard health: $($resp.StatusCode) OK" -ForegroundColor Green
+          } catch {
+            Write-Host "::warning::Dashboard health check failed: $_"
+          }
+
+      - name: SLATE Systems Boot
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          Write-Host "=== Booting SLATE Systems ===" -ForegroundColor Cyan
+
+          # Run SLATE status check
+          Write-Host "--- SLATE Status ---"
+          & $python aurora_core/slate_status.py --quick
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::warning::slate_status.py returned non-zero"
+          }
+
+          # Run SLATE runtime checks
+          Write-Host "--- SLATE Runtime ---"
+          & $python aurora_core/slate_runtime.py --check-all
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::warning::slate_runtime.py returned non-zero"
+          }
+
+          # Hardware optimizer
+          if (Test-Path "aurora_core/slate_hardware_optimizer.py") {
+            Write-Host "--- Hardware Optimizer ---"
+            & $python aurora_core/slate_hardware_optimizer.py 2>$null
+          }
+
+      - name: Initialize Agent System
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          & $python -c @"
+          import json, os, sys
+          print('=== SLATE Agent System Init ===')
+
+          # Initialize agent coordinator
+          try:
+              from aurora_agent_coordinator import AgentCoordinator
+              coord = AgentCoordinator()
+              print(f'Agent coordinator: initialized')
+          except Exception as e:
+              print(f'Agent coordinator: {e}')
+
+          # Initialize agent intelligence
+          try:
+              from aurora_agent_intelligence import AgentIntelligence
+              intel = AgentIntelligence()
+              print(f'Agent intelligence: initialized')
+          except Exception as e:
+              print(f'Agent intelligence: {e}')
+
+          # Load task queue
+          task_count = 0
+          for tf in ['clean_tasks.json', 'aurora_strategic_tasks.json']:
+              if os.path.exists(tf):
+                  with open(tf) as f:
+                      data = json.load(f)
+                  count = len(data) if isinstance(data, list) else len(data.get('tasks', []))
+                  task_count += count
+                  print(f'  {tf}: {count} tasks')
+          print(f'Total tasks available: {task_count}')
+          "@
+
+      - name: Dual-GPU Workload Test
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          & $python -c @"
+          import sys, os, time
+          print('=== SLATE Dual-GPU Workload ===')
+
+          try:
+              import torch
+              import torch.nn as nn
+
+              gpu_count = torch.cuda.device_count()
+              assert gpu_count >= 2, f'Need 2+ GPUs, found {gpu_count}'
+
+              # Simulate parallel GPU workload across both GPUs
+              print('Running parallel workloads on both GPUs...')
+              results = {}
+              for gpu_id in range(gpu_count):
+                  device = torch.device(f'cuda:{gpu_id}')
+                  start = time.time()
+
+                  # Larger matrix multiply to actually exercise the GPU
+                  a = torch.randn(4096, 4096, device=device)
+                  b = torch.randn(4096, 4096, device=device)
+                  c = torch.mm(a, b)
+                  torch.cuda.synchronize(device)
+
+                  elapsed = time.time() - start
+                  mem_used = torch.cuda.memory_allocated(device) / 1e9
+                  results[gpu_id] = {'time': elapsed, 'mem_gb': mem_used}
+                  print(f'  GPU {gpu_id}: 4096x4096 matmul in {elapsed:.3f}s, {mem_used:.2f} GB used')
+                  del a, b, c
+
+              # Multi-GPU data parallel simulation
+              print('Multi-GPU data parallel simulation...')
+              model = nn.Sequential(nn.Linear(1024, 2048), nn.ReLU(), nn.Linear(2048, 512))
+              if gpu_count >= 2:
+                  model = nn.DataParallel(model, device_ids=list(range(gpu_count)))
+              model = model.cuda()
+              x = torch.randn(64, 1024, device='cuda:0')
+              out = model(x)
+              print(f'  DataParallel output: {out.shape} (across {gpu_count} GPUs)')
+              del model, x, out
+
+              torch.cuda.empty_cache()
+              print(f'Dual-GPU workload: PASSED')
+
+          except ImportError:
+              print('PyTorch not installed — skipping GPU workload')
+          except Exception as e:
+              print(f'GPU workload error: {e}')
+              sys.exit(1)
+          "@
+
+      - name: SLATE Runner Status Report
+        shell: pwsh
+        run: |
+          $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
+          & $python -c @"
+          from aurora_core.slate_runner_manager import SlateRunnerManager
+          import json
+
+          mgr = SlateRunnerManager()
+          status = mgr.get_status()
+
+          print('=== SLATE Runner Live Status ===')
+          print(f'Installed:    {status[\"installed\"]}')
+          print(f'Configured:   {status[\"configured\"]}')
+          print(f'Provisioned:  {status[\"provisioned\"]}')
+          print(f'Running:      {status[\"running\"]}')
+          print(f'GPU Count:    {status[\"gpu\"][\"gpu_count\"]}')
+          print(f'GPU Names:    {status[\"gpu\"][\"gpu_names\"]}')
+          print(f'Labels:       {status[\"labels\"]}')
+
+          # Verify multi-gpu label is present
+          assert 'multi-gpu' in status['labels'], 'multi-gpu label missing!'
+          assert 'gpu-2' in status['labels'], 'gpu-2 label missing!'
+          print('Label assertions: PASSED')
+          "@
+
+      - name: Stop Dashboard
+        if: always()
+        shell: pwsh
+        run: |
+          $pid = "${{ steps.dashboard.outputs.dashboard_pid }}"
+          if ($pid -and $pid -ne "") {
+            Write-Host "Stopping dashboard (PID: $pid)..."
+            try { Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue } catch {}
+          }
+          # Also cleanup any stray uvicorn processes on our port
+          $procs = Get-NetTCPConnection -LocalPort 8420 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
+          foreach ($p in $procs) {
+            try { Stop-Process -Id $p -Force -ErrorAction SilentlyContinue } catch {}
+          }
+          Write-Host "Dashboard cleanup complete"
 
   # ─── ML Pipeline ──────────────────────────────────────────────────────────
   ml-pipeline:
@@ -421,7 +680,7 @@ jobs:
   summary:
     name: "Runner Summary"
     runs-on: [self-hosted, slate, gpu, windows]
-    needs: [environment, core-systems, dashboard, agents, gpu-tests, ml-pipeline, package]
+    needs: [environment, core-systems, dashboard, agents, gpu-tests, slate-live-system, ml-pipeline, package]
     if: always()
     timeout-minutes: 5
     steps:
@@ -436,16 +695,17 @@ jobs:
           Write-Host "  SLATE Self-Hosted Runner Summary" -ForegroundColor Cyan
           Write-Host "========================================" -ForegroundColor Cyan
           Write-Host ""
-          Write-Host "Environment:  ${{ needs.environment.result }}"
-          Write-Host "Core Systems: ${{ needs.core-systems.result }}"
-          Write-Host "Dashboard:    ${{ needs.dashboard.result }}"
-          Write-Host "Agents:       ${{ needs.agents.result }}"
-          Write-Host "GPU Tests:    ${{ needs.gpu-tests.result }}"
-          Write-Host "ML Pipeline:  ${{ needs.ml-pipeline.result }}"
-          Write-Host "Package:      ${{ needs.package.result }}"
+          Write-Host "Environment:    ${{ needs.environment.result }}"
+          Write-Host "Core Systems:   ${{ needs.core-systems.result }}"
+          Write-Host "Dashboard:      ${{ needs.dashboard.result }}"
+          Write-Host "Agents:         ${{ needs.agents.result }}"
+          Write-Host "GPU Tests:      ${{ needs.gpu-tests.result }}"
+          Write-Host "SLATE Live:     ${{ needs.slate-live-system.result }}"
+          Write-Host "ML Pipeline:    ${{ needs.ml-pipeline.result }}"
+          Write-Host "Package:        ${{ needs.package.result }}"
           Write-Host ""
-          Write-Host "SDK Version:  ${{ needs.environment.outputs.slate_version }}"
-          Write-Host "GPU Count:    ${{ needs.environment.outputs.gpu_count }}"
+          Write-Host "SDK Version:    ${{ needs.environment.outputs.slate_version }}"
+          Write-Host "GPU Count:      ${{ needs.environment.outputs.gpu_count }}"
           Write-Host ""
 
       - name: Write Job Summary
@@ -460,12 +720,13 @@ jobs:
           | Core Systems | ${{ needs.core-systems.result }} |
           | Dashboard & API | ${{ needs.dashboard.result }} |
           | Agent System | ${{ needs.agents.result }} |
-          | GPU Tests | ${{ needs.gpu-tests.result }} |
+          | GPU Tests (Dual) | ${{ needs.gpu-tests.result }} |
+          | **SLATE Live System** | **${{ needs.slate-live-system.result }}** |
           | ML Pipeline | ${{ needs.ml-pipeline.result }} |
           | Package & Build | ${{ needs.package.result }} |
 
           **SDK Version:** ${{ needs.environment.outputs.slate_version }}
-          **GPUs:** ${{ needs.environment.outputs.gpu_count }}
-          **Runner:** ``self-hosted, slate, gpu, windows``
+          **GPUs:** ${{ needs.environment.outputs.gpu_count }} (Dual-GPU)
+          **Runner:** ``self-hosted, slate, gpu, multi-gpu, windows``
           "@
           $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
