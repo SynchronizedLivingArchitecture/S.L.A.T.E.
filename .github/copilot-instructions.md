@@ -12,6 +12,19 @@ rules:
   do:
     - Use timestamp+author on all edits
     - Use isBackground=true for long commands
+    - Use branch prefixes: feature/, bugfix/, refactor/, docs/
   dont:
     - Use curl.exe (freezes)
     - Bind to 0.0.0.0
+    - Use numbered branch prefixes (001-, 002-)
+
+branch_naming:
+  required_prefixes:
+    - feature/
+    - bugfix/
+    - refactor/
+    - docs/
+  prohibited_patterns:
+    - "001-*"
+    - "002-*"
+    - "*_*"

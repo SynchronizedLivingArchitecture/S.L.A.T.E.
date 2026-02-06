@@ -421,7 +421,11 @@ Co-Authored-By: Your Name <email>
 ### Pull Request Process
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Create a branch following the naming convention:
+   - `feature/description` - New features
+   - `bugfix/description` - Bug fixes
+   - `refactor/description` - Code refactoring
+   - `docs/description` - Documentation updates
 3. Write tests for new functionality
 4. Ensure all tests pass (`pytest tests/ -v`)
 5. Submit a pull request

@@ -188,64 +188,52 @@ All code changes must be accompanied by tests. Target 50%+ coverage for `aurora_
 5. REFACTOR → clean up while keeping tests green
 ```
 
-## Dual-Repository System
+## Single-Repository Model
 
-SLATE uses a dual-repo model for development and distribution:
+SLATE uses a single repository with branch-based development:
 
-```
-SLATE (origin)         = Main repository (the product)
-       ↑
-       │ contribute-to-main.yml
-       │
-SLATE-BETA (beta)      = Developer fork (where development happens)
-```
+| Repository | Purpose | Branch |
+|------------|---------|--------|
+| **S.L.A.T.E.** | Main product — all development | `main` (stable), feature branches |
 
-### Git Remote Configuration
+> **Note**: S.L.A.T.E.-BETA is deprecated. All work is in the single `S.L.A.T.E.` repository.
+
+### Branch Naming Convention (Enforced)
+
+All branches **must** follow this naming convention:
+
+| Prefix | Purpose | Example |
+|--------|---------|---------|
+| `feature/` | New features | `feature/user-auth` |
+| `bugfix/` | Bug fixes | `bugfix/login-crash` |
+| `refactor/` | Code refactoring | `refactor/api-cleanup` |
+| `docs/` | Documentation | `docs/api-reference` |
+
+**Prohibited patterns:** `001-*`, `002-*`, numbered prefixes, generic names.
+
+### Development Workflow
 
 ```powershell
-# Check remotes
-git remote -v
-# Should show:
-# origin  https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E..git
-# beta    https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.-BETA.git
+# Create branch (use correct prefix!)
+git checkout -b feature/my-feature
+
+# Make changes, commit
+git add .
+git commit -m "feat: description"
+
+# Push to origin (triggers CI)
+git push origin HEAD
+
+# Create PR on GitHub
+gh pr create --title "feat: description" --body "..."
 ```
 
-### Development Workflow (BETA → SLATE)
+### GitHub CLI Setup
 
-1. **Develop on BETA branch**
-   ```powershell
-   git checkout -b feature/my-feature
-   # Make changes, commit
-   ```
-
-2. **Sync BETA with SLATE main** (get latest)
-   ```powershell
-   git fetch origin
-   git merge origin/main
-   ```
-
-3. **Push to BETA**
-   ```powershell
-   git push beta HEAD:main
-   ```
-
-4. **Contribute to SLATE main**
-   - Run the `contribute-to-main.yml` workflow on BETA
-   - OR push directly if you have access:
-   ```powershell
-   git push origin HEAD:main
-   ```
-
-### Required Setup
-
-1. **MAIN_REPO_TOKEN** secret on BETA repo
-   - Settings → Secrets → Actions → Add `MAIN_REPO_TOKEN`
-   - Use a PAT with `repo` and `workflow` scope
-
-2. **GitHub CLI with workflow scope**
-   ```powershell
-   gh auth login --scopes workflow
-   ```
+```powershell
+# Authenticate with workflow scope (required for workflow file changes)
+gh auth login --scopes workflow
+```
 
 ## Fork Contributions
 
