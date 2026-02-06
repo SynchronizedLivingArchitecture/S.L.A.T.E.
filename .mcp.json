@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "slate": {
+      "command": ".venv\\Scripts\\python.exe",
+      "args": ["slate/mcp_server.py"],
+      "env": {
+        "SLATE_WORKSPACE": ".",
+        "PYTHONPATH": "."
+      },
+      "description": "SLATE MCP Server - Provides tools for orchestration, workflow management, and system status"
+    }
+  }
+}

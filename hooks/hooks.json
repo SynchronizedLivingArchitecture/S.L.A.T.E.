@@ -1,0 +1,26 @@
+{
+  "hooks": [
+    {
+      "event": "on_session_start",
+      "command": ".venv\\Scripts\\python.exe slate/slate_status.py --quick",
+      "description": "Check SLATE status on session start",
+      "timeout": 10000,
+      "enabled": false
+    },
+    {
+      "event": "pre_commit",
+      "command": ".venv\\Scripts\\python.exe -m pytest tests/ -v --tb=short -q",
+      "description": "Run tests before git commit",
+      "timeout": 120000,
+      "enabled": true
+    },
+    {
+      "event": "post_edit",
+      "command": "ruff check --fix",
+      "description": "Auto-fix linting issues after file edit",
+      "timeout": 30000,
+      "enabled": false,
+      "patterns": ["*.py"]
+    }
+  ]
+}

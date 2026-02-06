@@ -1,0 +1,15 @@
+{
+  "name": "slate-marketplace",
+  "owner": {
+    "name": "SynchronizedLivingArchitecture",
+    "email": "slate@github.com"
+  },
+  "description": "S.L.A.T.E. - Synchronized Living Architecture for Transformation and Evolution",
+  "plugins": [
+    {
+      "name": "slate-sdk",
+      "source": ".",
+      "description": "SLATE orchestration, workflow management, and AI tools for Claude Code"
+    }
+  ]
+}
