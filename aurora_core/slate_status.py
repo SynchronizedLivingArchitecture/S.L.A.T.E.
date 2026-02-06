@@ -22,47 +22,17 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Modified: 2026-02-06T01:15:00Z | Author: COPILOT | Change: Use centralized utilities
+try:
+    from aurora_core import slate_utils
+except ImportError:
+    import slate_utils
+
 try:
     import psutil
     HAS_PSUTIL = True
 except ImportError:
     HAS_PSUTIL = False
-
-
-def get_python_info():
-    """Get Python version info."""
-    version = sys.version_info
-    return {
-        "version": f"{version.major}.{version.minor}.{version.micro}",
-        "executable": sys.executable,
-        "ok": version.major >= 3 and version.minor >= 11
-    }
-
-
-def get_gpu_info():
-    """Detect NVIDIA GPUs."""
-    try:
-        result = subprocess.run(
-            ["nvidia-smi", "--query-gpu=name,compute_cap,memory.total,memory.free", "--format=csv,noheader"],
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            gpus = []
-            for line in result.stdout.strip().split("\n"):
-                parts = [p.strip() for p in line.split(",")]
-                if len(parts) >= 4:
-                    gpus.append({
-                        "name": parts[0],
-                        "compute_capability": parts[1],
-                        "memory_total": parts[2],
-                        "memory_free": parts[3]
-                    })
-            return {"available": True, "count": len(gpus), "gpus": gpus}
-        return {"available": False, "count": 0, "gpus": []}
-    except Exception:
-        return {"available": False, "count": 0, "gpus": []}
 
 
 def get_system_info():
@@ -85,49 +55,15 @@ def get_system_info():
     }
 
 
-def get_pytorch_info():
-    """Check PyTorch installation."""
-    try:
-        import torch
-        cuda_available = torch.cuda.is_available()
-        return {
-            "installed": True,
-            "version": torch.__version__,
-            "cuda_available": cuda_available,
-            "cuda_version": torch.version.cuda if cuda_available else None,
-            "device_count": torch.cuda.device_count() if cuda_available else 0
-        }
-    except ImportError:
-        return {"installed": False}
-
-
-def get_ollama_info():
-    """Check Ollama status."""
-    try:
-        result = subprocess.run(
-            ["ollama", "list"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        if result.returncode == 0:
-            lines = result.stdout.strip().split("\n")
-            models = [l.split()[0] for l in lines[1:] if l.strip()]
-            return {"available": True, "model_count": len(models), "models": models[:10]}
-        return {"available": False, "model_count": 0}
-    except Exception:
-        return {"available": False, "model_count": 0}
-
-
 def get_status():
     """Get full system status."""
     return {
         "timestamp": datetime.now().isoformat(),
-        "python": get_python_info(),
-        "gpu": get_gpu_info(),
+        "python": slate_utils.get_python_info(),
+        "gpu": slate_utils.get_gpu_info(),
         "system": get_system_info(),
-        "pytorch": get_pytorch_info(),
-        "ollama": get_ollama_info()
+        "pytorch": slate_utils.get_pytorch_info(),
+        "ollama": slate_utils.get_ollama_info()
     }
 
 

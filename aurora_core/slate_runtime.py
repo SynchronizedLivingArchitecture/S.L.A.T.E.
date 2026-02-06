@@ -19,6 +19,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Modified: 2026-02-06T01:20:00Z | Author: COPILOT | Change: Use centralized utilities
+try:
+    from aurora_core import slate_utils
+except ImportError:
+    import slate_utils
+
 def check_integration(name, check_fn, details_fn=None):
     try:
         status = check_fn()
@@ -27,35 +33,18 @@ def check_integration(name, check_fn, details_fn=None):
     except Exception as e:
         return {"name": name, "status": "error", "error": str(e)}
 
-def check_python(): return sys.version_info >= (3, 11)
-def python_details(): return f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-def check_pytorch():
-    try: import torch; return True
-    except: return False
-def pytorch_details():
-    import torch
-    cuda = f", CUDA {torch.version.cuda}" if torch.cuda.is_available() else ", CPU"
-    return f"{torch.__version__}{cuda}"
-def check_ollama():
-    try: return subprocess.run(["ollama", "--version"], capture_output=True, timeout=5).returncode == 0
-    except: return False
-def check_gpu():
-    try:
-        r = subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], capture_output=True, text=True, timeout=5)
-        return r.returncode == 0 and r.stdout.strip()
-    except: return False
 def check_transformers():
     try: import transformers; return True
     except: return False
 def check_venv(): return (Path.cwd() / ".venv").exists()
 
 INTEGRATIONS = [
-    ("Python 3.11+", check_python, python_details),
+    ("Python 3.11+", lambda: slate_utils.get_python_info()["ok"], lambda: slate_utils.get_python_info()["version"]),
     ("Virtual Env", check_venv, None),
-    ("NVIDIA GPU", check_gpu, None),
-    ("PyTorch", check_pytorch, pytorch_details),
+    ("NVIDIA GPU", slate_utils.check_gpu, None),
+    ("PyTorch", slate_utils.check_pytorch, slate_utils.get_pytorch_details),
     ("Transformers", check_transformers, None),
-    ("Ollama", check_ollama, None),
+    ("Ollama", slate_utils.check_ollama, None),
 ]
 
 def check_all():
