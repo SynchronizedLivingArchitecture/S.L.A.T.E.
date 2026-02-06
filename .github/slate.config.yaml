@@ -10,11 +10,25 @@ system:
   mode: active_development
   security: local_only  # 127.0.0.1 ONLY
 
-# GitHub Integration
+# GitHub Integration - Dual Repo Setup
 github:
-  owner: SynchronizedLivingArchitecture
-  repo: S.L.A.T.E.
-  url: https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.
+  # SLATE (Main) - The primary repository (the product)
+  main:
+    owner: SynchronizedLivingArchitecture
+    repo: S.L.A.T.E.
+    url: https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.
+    remote_name: origin
+    purpose: main_product  # The public SLATE that users install
+
+  # SLATE-BETA - Developer's personal fork
+  beta:
+    owner: SynchronizedLivingArchitecture
+    repo: S.L.A.T.E.-BETA
+    url: https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.-BETA
+    remote_name: beta
+    purpose: dev_fork  # Developer works here, contributes to main
+
+  # Workflow: Developer works on BETA → contributes to SLATE (main) → other users fork SLATE
 
   # Branch Protection
   branch_protection:

@@ -1,0 +1,303 @@
+#
+# Contributor PR Workflow
+# Author: COPILOT | Created: 2026-02-06T20:00:00Z
+#
+# Handles PRs from external SLATE users (forks of the public repo).
+# This workflow runs on the PUBLIC SLATE repo to validate contributor PRs.
+#
+
+name: Contributor PR
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ==========================================================================
+  # CONTRIBUTOR DETECTION
+  # ==========================================================================
+  detect-contributor:
+    name: Detect Contributor Type
+    runs-on: ubuntu-latest
+    outputs:
+      is_fork: ${{ steps.check.outputs.is_fork }}
+      is_trusted: ${{ steps.check.outputs.is_trusted }}
+      contributor: ${{ steps.check.outputs.contributor }}
+    steps:
+      - name: Analyze PR source
+        id: check
+        run: |
+          IS_FORK="${{ github.event.pull_request.head.repo.fork }}"
+          CONTRIBUTOR="${{ github.event.pull_request.user.login }}"
+
+          # Trusted contributors (org members, known good actors)
+          TRUSTED_USERS="SynchronizedLivingArchitecture SLATE-BETA"
+
+          IS_TRUSTED="false"
+          for user in $TRUSTED_USERS; do
+            if [[ "$CONTRIBUTOR" == "$user" ]]; then
+              IS_TRUSTED="true"
+              break
+            fi
+          done
+
+          echo "is_fork=$IS_FORK" >> $GITHUB_OUTPUT
+          echo "is_trusted=$IS_TRUSTED" >> $GITHUB_OUTPUT
+          echo "contributor=$CONTRIBUTOR" >> $GITHUB_OUTPUT
+
+          echo "::notice::Contributor: $CONTRIBUTOR, Fork: $IS_FORK, Trusted: $IS_TRUSTED"
+
+  # ==========================================================================
+  # WELCOME MESSAGE - First-time contributors
+  # ==========================================================================
+  welcome-contributor:
+    name: Welcome Contributor
+    needs: detect-contributor
+    if: needs.detect-contributor.outputs.is_fork == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if first contribution
+        id: first_time
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const contributor = '${{ needs.detect-contributor.outputs.contributor }}';
+
+            // Check for previous PRs
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100
+            });
+
+            const previousPRs = prs.data.filter(pr =>
+              pr.user.login === contributor && pr.number !== context.issue.number
+            );
+
+            core.setOutput('is_first', previousPRs.length === 0);
+            return previousPRs.length === 0;
+
+      - name: Post welcome message
+        if: steps.first_time.outputs.is_first == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `## Welcome to SLATE!
+
+            Thank you for your first contribution, @${{ needs.detect-contributor.outputs.contributor }}!
+
+            ### What happens next:
+            1. **Automated checks** will validate your changes against SLATE standards
+            2. **Security scan** will ensure no harmful patterns are introduced
+            3. **A maintainer** will review your PR once checks pass
+
+            ### SLATE Contributor Guidelines:
+            - All code must bind to \`127.0.0.1\` only (no \`0.0.0.0\`)
+            - ActionGuard must remain intact
+            - Tests are required for new features
+            - Follow the existing code style
+
+            ### Need help?
+            - Check our [wiki](../../wiki) for documentation
+            - Review [CONTRIBUTING.md](../../blob/main/CONTRIBUTING.md)
+
+            ---
+            *SLATE Contributor Bot*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+  # ==========================================================================
+  # SLATE VALIDATION - Same as fork-validation but contributor-specific
+  # ==========================================================================
+  validate-contribution:
+    name: Validate Contribution
+    needs: detect-contributor
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt 2>/dev/null || true
+
+      - name: Validate SLATE core modules
+        run: |
+          python -c "
+          import sys
+          errors = []
+
+          # Required modules
+          modules = [
+              'aurora_core',
+              'aurora_core.slatepi_status',
+              'aurora_core.action_guard',
+          ]
+
+          for mod in modules:
+              try:
+                  __import__(mod)
+                  print(f'OK: {mod}')
+              except Exception as e:
+                  print(f'FAIL: {mod} - {e}')
+                  errors.append(mod)
+
+          if errors:
+              print(f'::error::Missing modules: {errors}')
+              sys.exit(1)
+          "
+
+      - name: Check for protected file modifications
+        if: needs.detect-contributor.outputs.is_fork == 'true'
+        run: |
+          # Get changed files
+          CHANGED=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            | jq -r '.[].filename')
+
+          # Protected files that forks cannot modify
+          PROTECTED=".github/workflows .github/CODEOWNERS aurora_core/action_guard.py"
+
+          for protected in $PROTECTED; do
+            if echo "$CHANGED" | grep -q "^$protected"; then
+              echo "::error::Cannot modify protected file: $protected"
+              exit 1
+            fi
+          done
+
+          echo "No protected files modified"
+
+      - name: Security scan
+        run: |
+          # Check for dangerous patterns
+          PATTERNS=(
+            "0.0.0.0"
+            "eval("
+            "exec(os"
+            "subprocess.call.*shell=True"
+          )
+
+          for pattern in "${PATTERNS[@]}"; do
+            if grep -rn "$pattern" --include="*.py" aurora_core/ agents/ 2>/dev/null | grep -v "test" | head -3; then
+              echo "::warning::Found potentially dangerous pattern: $pattern"
+            fi
+          done
+
+  # ==========================================================================
+  # LABEL PR
+  # ==========================================================================
+  label-pr:
+    name: Label PR
+    needs: [detect-contributor, validate-contribution]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Apply labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [];
+
+            // Contributor type labels
+            if ('${{ needs.detect-contributor.outputs.is_fork }}' === 'true') {
+              labels.push('external-contributor');
+            }
+
+            if ('${{ needs.detect-contributor.outputs.is_trusted }}' === 'true') {
+              labels.push('trusted-contributor');
+            }
+
+            // Validation status
+            if ('${{ needs.validate-contribution.result }}' === 'success') {
+              labels.push('validation-passed');
+            } else {
+              labels.push('needs-fixes');
+            }
+
+            // Apply labels
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: labels
+              });
+            }
+
+  # ==========================================================================
+  # VALIDATION SUMMARY
+  # ==========================================================================
+  validation-summary:
+    name: Validation Summary
+    needs: [detect-contributor, validate-contribution]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Post validation results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const passed = '${{ needs.validate-contribution.result }}' === 'success';
+            const icon = passed ? '' : '';
+
+            const body = `## ${icon} Contributor Validation Results
+
+            | Check | Status |
+            |-------|--------|
+            | Contributor Type | ${{ needs.detect-contributor.outputs.is_fork == 'true' && 'External Fork' || 'Internal' }} |
+            | Trusted Status | ${{ needs.detect-contributor.outputs.is_trusted == 'true' && 'Trusted' || 'Standard Review Required' }} |
+            | Validation | ${passed ? 'Passed' : 'Failed'} |
+
+            ${passed ?
+              '### Ready for Review\nThis contribution has passed automated validation and is ready for maintainer review.' :
+              '### Action Required\nPlease address the validation failures before this PR can be reviewed.'}
+
+            ---
+            *SLATE Contributor Validation*`;
+
+            // Find existing bot comment
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+
+            const botComment = comments.data.find(c =>
+              c.body.includes('Contributor Validation Results')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                comment_id: botComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }

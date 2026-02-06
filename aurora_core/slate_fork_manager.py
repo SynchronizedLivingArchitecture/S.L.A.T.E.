@@ -39,10 +39,17 @@ logger = logging.getLogger("aurora.fork_manager")
 # ═══════════════════════════════════════════════════════════════════════════════
 # CELL: constants [python]
 # Author: COPILOT | Created: 2026-02-06T19:30:00Z
+# Modified: 2026-02-08T00:00:00Z | Author: COPILOT | Change: Add BETA repo constants
 # ═══════════════════════════════════════════════════════════════════════════════
 
 SLATE_UPSTREAM = "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E..git"
 SLATE_UPSTREAM_SSH = "git@github.com:SynchronizedLivingArchitecture/S.L.A.T.E..git"
+
+# Beta repo for user testing / fork template
+SLATE_BETA_REPO = "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.-BETA.git"
+SLATE_BETA_REPO_SSH = "git@github.com:SynchronizedLivingArchitecture/S.L.A.T.E.-BETA.git"
+SLATE_BETA_OWNER = "SynchronizedLivingArchitecture"
+SLATE_BETA_NAME = "S.L.A.T.E.-BETA"
 
 FORK_CONFIG_FILE = ".slate_fork/config.json"
 FORK_STATE_FILE = ".slate_fork/state.json"
@@ -65,6 +72,7 @@ REQUIRED_FILES = [
 ]
 
 
+# Modified: 2026-02-08T00:00:00Z | Author: COPILOT | Change: Add fork_source and beta_fork fields
 @dataclass
 class ForkConfig:
     """Configuration for a user's SLATE fork."""
@@ -72,6 +80,8 @@ class ForkConfig:
     user_email: str
     fork_url: Optional[str] = None
     upstream_url: str = SLATE_UPSTREAM
+    fork_source: str = "upstream"  # "upstream" or "beta"
+    beta_fork_url: Optional[str] = None
     created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
     last_sync: Optional[str] = None
     local_branch: str = "user-workspace"
@@ -82,6 +92,8 @@ class ForkConfig:
             "user_email": self.user_email,
             "fork_url": self.fork_url,
             "upstream_url": self.upstream_url,
+            "fork_source": self.fork_source,
+            "beta_fork_url": self.beta_fork_url,
             "created_at": self.created_at,
             "last_sync": self.last_sync,
             "local_branch": self.local_branch,
@@ -89,7 +101,10 @@ class ForkConfig:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ForkConfig":
-        return cls(**data)
+        # Handle older configs without new fields
+        known_fields = {f.name for f in cls.__dataclass_fields__.values()}
+        filtered = {k: v for k, v in data.items() if k in known_fields}
+        return cls(**filtered)
 
 
 @dataclass
@@ -488,6 +503,99 @@ class SlateForkManager:
         results["success"] = True
         return results
 
+    # Modified: 2026-02-08T00:00:00Z | Author: COPILOT | Change: Add beta fork support
+    def configure_beta_remote(self) -> Dict[str, Any]:
+        """
+        Configure the S.L.A.T.E.-BETA repo as a remote.
+
+        This allows users to fork from the beta repo (which has the full
+        workflow suite, install tracker, and user-facing features) rather
+        than forking the upstream S.L.A.T.E. repo directly.
+
+        Returns:
+            Configuration status
+        """
+        results = {
+            "success": False,
+            "steps": [],
+            "errors": [],
+        }
+
+        try:
+            # Check if beta remote already exists
+            result = self._run_git(["remote", "get-url", "beta"])
+            if result.returncode == 0:
+                # Update existing
+                self._run_git(["remote", "set-url", "beta", SLATE_BETA_REPO])
+                results["steps"].append(f"Updated beta remote: {SLATE_BETA_REPO}")
+            else:
+                # Add new
+                self._run_git(["remote", "add", "beta", SLATE_BETA_REPO])
+                results["steps"].append(f"Added beta remote: {SLATE_BETA_REPO}")
+
+            # Fetch beta
+            result = self._run_git(["fetch", "beta"])
+            if result.returncode == 0:
+                results["steps"].append("Fetched beta remote")
+            else:
+                results["errors"].append(f"Failed to fetch beta: {result.stderr}")
+
+            # Update config
+            if self.config:
+                self.config.beta_fork_url = SLATE_BETA_REPO
+                self._save()
+
+            results["success"] = True
+
+        except Exception as e:
+            results["errors"].append(str(e))
+            logger.exception("Beta remote configuration failed")
+
+        return results
+
+    def initialize_from_beta(
+        self,
+        user_name: str,
+        user_email: str,
+        fork_url: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Initialize a user workspace from S.L.A.T.E.-BETA instead of upstream.
+
+        This is the recommended path for new users:
+        1. Fork S.L.A.T.E.-BETA on GitHub
+        2. Clone their fork locally
+        3. Run this to configure remotes and workspace
+
+        Args:
+            user_name: Git user name
+            user_email: Git user email
+            fork_url: URL of the user's fork of S.L.A.T.E.-BETA
+
+        Returns:
+            Status dict with initialization results
+        """
+        # Use the standard init, but with beta as the source
+        result = self.initialize_user_workspace(
+            user_name=user_name,
+            user_email=user_email,
+            fork_url=fork_url,
+        )
+
+        if result["success"] and self.config:
+            # Override upstream to point to beta
+            self.config.fork_source = "beta"
+            self.config.upstream_url = SLATE_BETA_REPO
+            self.config.beta_fork_url = SLATE_BETA_REPO
+
+            # Reconfigure upstream remote to point to beta
+            self._run_git(["remote", "set-url", "upstream", SLATE_BETA_REPO])
+            result["steps"].append(f"Set upstream to beta: {SLATE_BETA_REPO}")
+
+            self._save()
+
+        return result
+
     def get_status(self) -> Dict[str, Any]:
         """Get current fork status."""
         return {
@@ -542,13 +650,21 @@ Examples:
 
   # Check status
   python slate_fork_manager.py --status
+
+  # Initialize from BETA repo (recommended for new users)
+  python slate_fork_manager.py --init --beta --name "Your Name" --email "you@example.com"
+
+  # Configure beta remote on existing workspace
+  python slate_fork_manager.py --setup-beta
 """
     )
 
     parser.add_argument("--init", action="store_true", help="Initialize user workspace")
+    parser.add_argument("--beta", action="store_true", help="Initialize from S.L.A.T.E.-BETA (recommended)")
     parser.add_argument("--name", type=str, help="Git user name")
     parser.add_argument("--email", type=str, help="Git user email")
     parser.add_argument("--setup-fork", type=str, metavar="URL", help="Configure fork remote URL")
+    parser.add_argument("--setup-beta", action="store_true", help="Configure S.L.A.T.E.-BETA as a remote")
     parser.add_argument("--validate", action="store_true", help="Validate SLATE prerequisites")
     parser.add_argument("--contribute", type=str, metavar="BRANCH", help="Prepare contribution branch")
     parser.add_argument("--title", type=str, help="Contribution title")
@@ -571,11 +687,18 @@ Examples:
             print("Error: --init requires --name and --email")
             sys.exit(1)
 
-        result = manager.initialize_user_workspace(
-            user_name=args.name,
-            user_email=args.email,
-            fork_url=args.setup_fork
-        )
+        if args.beta:
+            result = manager.initialize_from_beta(
+                user_name=args.name,
+                user_email=args.email,
+                fork_url=args.setup_fork
+            )
+        else:
+            result = manager.initialize_user_workspace(
+                user_name=args.name,
+                user_email=args.email,
+                fork_url=args.setup_fork
+            )
 
         if args.json_output:
             print(json.dumps(result, indent=2))
