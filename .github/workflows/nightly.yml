@@ -39,7 +39,7 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov pytest-xdist
       - name: Run full test suite
-        run: pytest tests/ -v --tb=short --cov=aurora_core --cov-report=xml --cov-report=term-missing -x
+        run: pytest tests/ -v --tb=short --cov=slate --cov-report=xml --cov-report=term-missing -x
         continue-on-error: true
       - uses: codecov/codecov-action@v5
         if: always()
@@ -65,7 +65,7 @@ jobs:
           pip install -r requirements.txt
         continue-on-error: true
       - name: SLATE Status
-        run: python aurora_core/slate_status.py --quick
+        run: python slate/slate_status.py --quick
         continue-on-error: true
       - name: Validate task queue integrity
         run: |
@@ -103,7 +103,7 @@ jobs:
         run: |
           python -c "
           import os, importlib, sys
-          sdk_dir = 'aurora_core'
+          sdk_dir = 'slate'
           passed, failed = 0, 0
           for f in sorted(os.listdir(sdk_dir)):
               if f.endswith('.py') and not f.startswith('__'):
@@ -173,17 +173,17 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/slate_benchmark.py") {
-            & $python aurora_core/slate_benchmark.py --json
+          if (Test-Path "slate/slate_benchmark.py") {
+            & $python slate/slate_benchmark.py --json
           }
 
       - name: ML Orchestrator Health
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/ml_orchestrator.py") {
-            & $python aurora_core/ml_orchestrator.py --status
-            & $python aurora_core/ml_orchestrator.py --benchmarks 2>$null
+          if (Test-Path "slate/ml_orchestrator.py") {
+            & $python slate/ml_orchestrator.py --status
+            & $python slate/ml_orchestrator.py --benchmarks 2>$null
           }
 
       - name: VRAM Health
@@ -199,4 +199,4 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          & $python aurora_core/slate_runner_manager.py --status
+          & $python slate/slate_runner_manager.py --status

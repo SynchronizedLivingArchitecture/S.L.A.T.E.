@@ -12,7 +12,7 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'aurora_core/**'
+      - 'slate/**'
       - 'slate_core/**'
       - 'tests/**'
   pull_request:
@@ -86,7 +86,7 @@ jobs:
 
       - name: SLATE GPU Status
         run: |
-          python aurora_core/slatepi_status.py --quick --json
+          python slate/slate_status.py --quick --json
         continue-on-error: true
 
   # ==========================================================================

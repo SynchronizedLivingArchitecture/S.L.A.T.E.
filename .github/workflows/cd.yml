@@ -67,7 +67,7 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
       - name: Run smoke tests
-        run: python aurora_core/build_smoke_tests.py
+        run: python slate/build_smoke_tests.py
       - name: Build EXE
         run: pyinstaller Aurora.spec --noconfirm
       - name: Verify EXE

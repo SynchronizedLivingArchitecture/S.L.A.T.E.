@@ -149,9 +149,9 @@ jobs:
 
           # Required modules
           modules = [
-              'aurora_core',
-              'aurora_core.slatepi_status',
-              'aurora_core.action_guard',
+              'slate',
+              'slate.slate_status',
+              'slate.action_guard',
           ]
 
           for mod in modules:
@@ -176,7 +176,7 @@ jobs:
             | jq -r '.[].filename')
 
           # Protected files that forks cannot modify
-          PROTECTED=".github/workflows .github/CODEOWNERS aurora_core/action_guard.py"
+          PROTECTED=".github/workflows .github/CODEOWNERS slate/action_guard.py"
 
           for protected in $PROTECTED; do
             if echo "$CHANGED" | grep -q "^$protected"; then
@@ -198,7 +198,7 @@ jobs:
           )
 
           for pattern in "${PATTERNS[@]}"; do
-            if grep -rn "$pattern" --include="*.py" aurora_core/ agents/ 2>/dev/null | grep -v "test" | head -3; then
+            if grep -rn "$pattern" --include="*.py" slate/ agents/ 2>/dev/null | grep -v "test" | head -3; then
               echo "::warning::Found potentially dangerous pattern: $pattern"
             fi
           done

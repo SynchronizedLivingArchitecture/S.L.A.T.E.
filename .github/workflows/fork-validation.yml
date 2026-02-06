@@ -61,7 +61,7 @@ jobs:
           fi
 
           # Block security-critical file modifications without maintainer review
-          CRITICAL_FILES=".github/CODEOWNERS .github/SECURITY.md aurora_core/action_guard.py aurora_core/sdk_source_guard.py"
+          CRITICAL_FILES=".github/CODEOWNERS .github/SECURITY.md slate/action_guard.py slate/sdk_source_guard.py"
           for file in $CRITICAL_FILES; do
             if echo "$CHANGED_FILES" | grep -q "^$file$"; then
               echo "::warning::PR modifies security-critical file: $file"
@@ -144,9 +144,9 @@ jobs:
 
           # Required modules for SLATE compatibility
           required_modules = [
-              'aurora_core.slate_status',
-              'aurora_core.action_guard',
-              'aurora_core.feature_flags',
+              'slate.slate_status',
+              'slate.action_guard',
+              'slate.feature_flags',
           ]
 
           for mod in required_modules:

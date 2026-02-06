@@ -34,9 +34,9 @@ jobs:
           cache: 'pip'
       - run: pip install ruff mypy
       - name: Ruff lint
-        run: ruff check aurora_core/ agents/ --output-format=github || true
+        run: ruff check slate/ agents/ --output-format=github || true
       - name: Format check
-        run: ruff format --check aurora_core/ agents/ --diff || true
+        run: ruff format --check slate/ agents/ --diff || true
 
   tests:
     name: Tests
@@ -75,11 +75,11 @@ jobs:
         continue-on-error: true
       - name: Validate SDK
         run: |
-          python -c "import aurora_core; print(f'SDK v{aurora_core.__version__}')"
-          python -c "import aurora_core.action_guard; print('action_guard OK')"
-          python -c "import aurora_core.smart_task_router; print('smart_task_router OK')"
-          python -c "import aurora_core.slate_status; print('slate_status OK')"
-          python -c "import aurora_core.feature_flags; print('feature_flags OK')"
+          python -c "import slate; print(f'SDK v{slate.__version__}')"
+          python -c "import slate.action_guard; print('action_guard OK')"
+          python -c "import slate.smart_task_router; print('smart_task_router OK')"
+          python -c "import slate.slate_status; print('slate_status OK')"
+          python -c "import slate.feature_flags; print('feature_flags OK')"
       - name: Version sync check
         run: |
           python -c "
@@ -87,8 +87,8 @@ jobs:
           with open('pyproject.toml', 'rb') as f:
               c = tomllib.load(f)
           v = c['project']['version']
-          import aurora_core
-          assert aurora_core.__version__ == v, f'Mismatch: {aurora_core.__version__} != {v}'
+          import slate
+          assert slate.__version__ == v, f'Mismatch: {slate.__version__} != {v}'
           print(f'Version sync OK: {v}')
           "
 
@@ -108,7 +108,7 @@ jobs:
           pip install -r requirements.txt
         continue-on-error: true
       - name: Smoke tests
-        run: python aurora_core/build_smoke_tests.py
+        run: python slate/build_smoke_tests.py
 
   security:
     name: Security
@@ -121,7 +121,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - run: pip install bandit
       - name: Security scan
-        run: bandit -r aurora_core/ agents/ -ll -ii -x "**/test*" -f json -o bandit-report.json || true
+        run: bandit -r slate/ agents/ -ll -ii -x "**/test*" -f json -o bandit-report.json || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:

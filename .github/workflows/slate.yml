@@ -11,7 +11,7 @@ on:
   push:
     branches: [main, develop, '001-*', '002-*', '003-*', '004-*']
     paths:
-      - 'aurora_core/**'
+      - 'slate/**'
       - 'agents/**'
       - '.slate_tech_tree/**'
       - '.slate_nemo/**'
@@ -48,7 +48,7 @@ jobs:
           pip install -r requirements.txt
         continue-on-error: true
       - name: Run SLATE Status
-        run: python aurora_core/slate_status.py --quick
+        run: python slate/slate_status.py --quick
         continue-on-error: true
 
   sdk-validation:
@@ -73,10 +73,10 @@ jobs:
           with open('pyproject.toml', 'rb') as f:
               c = tomllib.load(f)
           toml_ver = c['project']['version']
-          import aurora_core
-          sdk_ver = aurora_core.__version__
+          import slate
+          sdk_ver = slate.__version__
           print(f'pyproject.toml: {toml_ver}')
-          print(f'aurora_core:    {sdk_ver}')
+          print(f'slate:          {sdk_ver}')
           assert toml_ver == sdk_ver, f'VERSION MISMATCH: {toml_ver} != {sdk_ver}'
           print('Version sync: OK')
           "
@@ -124,7 +124,7 @@ jobs:
         run: |
           python -c "
           try:
-              from agents.aurora_dashboard_server import app
+              from agents.slate_dashboard_server import app
               print('Dashboard module imports successfully')
           except ImportError as e:
               print(f'Dashboard import failed: {e}')
@@ -152,11 +152,11 @@ jobs:
           import sys
           errors = []
           modules = [
-              'aurora_core.slate_status',
-              'aurora_core.smart_task_router',
-              'aurora_core.feature_flags',
-              'aurora_core.action_guard',
-              'aurora_core.build_versioning',
+              'slate.slate_status',
+              'slate.slate_sdk',
+              'slate.slate_runner_manager',
+              'slate.slate_runtime',
+              'slate.slate_hardware_optimizer',
           ]
           for mod in modules:
               try:
@@ -236,13 +236,13 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          & $python aurora_core/slate_status.py --quick
+          & $python slate/slate_status.py --quick
 
       - name: Runner Manager Status
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          & $python aurora_core/slate_runner_manager.py --status --json
+          & $python slate/slate_runner_manager.py --status --json
 
       - name: PyTorch GPU Validation
         shell: pwsh
@@ -268,6 +268,6 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/slate_hardware_optimizer.py") {
-            & $python aurora_core/slate_hardware_optimizer.py 2>$null
+          if (Test-Path "slate/slate_hardware_optimizer.py") {
+            & $python slate/slate_hardware_optimizer.py 2>$null
           }

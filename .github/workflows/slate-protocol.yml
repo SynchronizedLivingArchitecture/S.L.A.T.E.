@@ -55,7 +55,7 @@ jobs:
       - name: Validate SLATE Prerequisites
         id: validate
         run: |
-          python aurora_core/slate_fork_manager.py --validate --json > validation.json
+          python slate/slate_fork_manager.py --validate --json > validation.json
           ALL_PASSED=$(python -c "import json; d=json.load(open('validation.json')); print('true' if d.get('all_passed', False) else 'false')")
           echo "status=validated" >> $GITHUB_OUTPUT
           echo "all_passed=$ALL_PASSED" >> $GITHUB_OUTPUT
@@ -66,16 +66,16 @@ jobs:
       - name: Check Core Modules
         run: |
           python -c "
-          from aurora_core import slate_status
-          from aurora_core import action_guard
-          from aurora_core import sdk_source_guard
+          from slate import slate_status
+          from slate import action_guard
+          from slate import sdk_source_guard
           print('Core modules: OK')
           "
 
       - name: Security Validation
         run: |
-          python aurora_core/sdk_source_guard.py --check-requirements 2>&1 || echo "SDK check completed"
-          python aurora_core/action_guard.py --status 2>&1 || echo "ActionGuard check completed"
+          python slate/sdk_source_guard.py --check-requirements 2>&1 || echo "SDK check completed"
+          python slate/action_guard.py --status 2>&1 || echo "ActionGuard check completed"
 
   # Job 2: Sync operation
   sync:
@@ -115,7 +115,7 @@ jobs:
       - name: Check AI Backend Status
         run: |
           echo "Checking AI backends..."
-          python aurora_core/foundry_local.py --check 2>&1 || echo "Foundry: offline"
+          python slate/foundry_local.py --check 2>&1 || echo "Foundry: offline"
           curl -s http://127.0.0.1:11434/api/tags | python -c "
           import sys, json
           try:
@@ -146,11 +146,11 @@ jobs:
           echo "Deploying SLATE v${{ env.SLATE_VERSION }} to ${{ github.event.inputs.target }}"
           echo "Target: ${{ github.event.inputs.target }}"
           # Deployment logic would go here
-          python aurora_core/slate_status.py --quick
+          python slate/slate_status.py --quick
 
       - name: Post-deploy Health Check
         run: |
-          python aurora_core/slate_status.py --quick --json > post_deploy.json
+          python slate/slate_status.py --quick --json > post_deploy.json
           cat post_deploy.json
 
   # Job 4: Nightly maintenance
@@ -172,12 +172,12 @@ jobs:
 
       - name: Update Nemo Knowledge Base
         run: |
-          python aurora_core/rag_memory.py --reindex 2>&1 || echo "Nemo reindex skipped"
+          python slate/rag_memory.py --reindex 2>&1 || echo "Nemo reindex skipped"
 
       - name: Generate Daily Status Report
         run: |
           DATE=$(date +%Y%m%d)
-          python aurora_core/slate_status.py --json > ".slate_status_${DATE}.json"
+          python slate/slate_status.py --json > ".slate_status_${DATE}.json"
           echo "Status report generated for ${DATE}"
 
       - name: Summary

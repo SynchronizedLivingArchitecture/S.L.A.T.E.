@@ -15,7 +15,7 @@ on:
   push:
     branches: [main, "001-data-viz-dashboard"]
     paths:
-      - "aurora_core/**"
+      - "slate/**"
       - "agents/**"
       - "tests/**"
       - "requirements.txt"
@@ -111,7 +111,7 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          $version = & $python -c "import aurora_core; print(getattr(aurora_core, '__version__', 'unknown'))" 2>$null
+          $version = & $python -c "import slate; print(getattr(slate, '__version__', 'unknown'))" 2>$null
           if ($LASTEXITCODE -eq 0) {
             Write-Host "SLATE SDK: v$version"
             echo "version=$version" >> $env:GITHUB_OUTPUT
@@ -133,7 +133,7 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          & $python aurora_core/slate_status.py --quick
+          & $python slate/slate_status.py --quick
           if ($LASTEXITCODE -ne 0) {
             Write-Host "::warning::slate_status.py returned non-zero"
           }
@@ -142,7 +142,7 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          & $python aurora_core/slate_runtime.py --check-all
+          & $python slate/slate_runtime.py --check-all
           if ($LASTEXITCODE -ne 0) {
             Write-Host "::warning::slate_runtime.py returned non-zero"
           }
@@ -152,13 +152,13 @@ jobs:
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
           & $python -c @"
-          import aurora_core
-          from aurora_core import slate_status
-          from aurora_core import slate_runtime
+          import slate
+          from slate import slate_status
+          from slate import slate_runtime
           print('Core SDK imports: OK')
 
           # Test runner manager
-          from aurora_core.slate_runner_manager import SlateRunnerManager
+          from slate.slate_runner_manager import SlateRunnerManager
           mgr = SlateRunnerManager()
           status = mgr.get_status()
           print(f'Runner status: installed={status[\"installed\"]}, provisioned={status[\"provisioned\"]}')
@@ -170,8 +170,8 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/slate_hardware_optimizer.py") {
-            & $python aurora_core/slate_hardware_optimizer.py 2>$null
+          if (Test-Path "slate/slate_hardware_optimizer.py") {
+            & $python slate/slate_hardware_optimizer.py 2>$null
             if ($LASTEXITCODE -ne 0) {
               Write-Host "::warning::Hardware optimizer returned non-zero"
             }
@@ -183,10 +183,10 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/tech_tree.json") {
+          if (Test-Path ".slate_tech_tree/tech_tree.json") {
             & $python -c @"
           import json
-          with open('aurora_core/tech_tree.json') as f:
+          with open('.slate_tech_tree/tech_tree.json') as f:
               tree = json.load(f)
           total = len(tree) if isinstance(tree, list) else len(tree.get('nodes', tree.get('tasks', [])))
           print(f'Tech tree: {total} nodes loaded')
@@ -210,7 +210,7 @@ jobs:
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
           & $python -c @"
           try:
-              from agents.aurora_dashboard_server import app
+              from agents.slate_dashboard_server import app
               print('Dashboard server: importable')
           except ImportError as e:
               print(f'Dashboard import warning: {e}')
@@ -223,7 +223,7 @@ jobs:
           & $python -c @"
           import asyncio, sys
           try:
-              from agents.aurora_dashboard_server import app
+              from agents.slate_dashboard_server import app
               from fastapi.testclient import TestClient
               client = TestClient(app)
               resp = client.get('/api/status')
@@ -262,12 +262,12 @@ jobs:
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
           & $python -c @"
           modules = [
-              'aurora_agent_coordinator',
-              'aurora_agent_intelligence',
-              'aurora_agent_v2',
-              'aurora_cycle_evaluator',
-              'aurora_cycle_monitor',
-              'aurora_workspace_analyzer',
+              'slate.slate_status',
+              'slate.slate_runtime',
+              'slate.slate_runner_manager',
+              'slate.slate_hardware_optimizer',
+              'slate.slate_benchmark',
+              'slate.slate_fork_manager',
           ]
           ok = 0
           for mod in modules:
@@ -286,7 +286,7 @@ jobs:
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
           & $python -c @"
           import json, os
-          task_files = ['clean_tasks.json', 'aurora_strategic_tasks.json', 'approval_queue.json']
+          task_files = ['clean_tasks.json', 'current_tasks.json', 'approval_queue.json']
           for tf in task_files:
               if os.path.exists(tf):
                   with open(tf) as f:
@@ -384,8 +384,8 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/slate_benchmark.py") {
-            & $python aurora_core/slate_benchmark.py --json
+          if (Test-Path "slate/slate_benchmark.py") {
+            & $python slate/slate_benchmark.py --json
           }
 
   # ─── SLATE Live System ────────────────────────────────────────────────────
@@ -434,7 +434,7 @@ jobs:
           Write-Host "Starting SLATE dashboard in background..." -ForegroundColor Cyan
           $dashProc = Start-Process -FilePath $python -ArgumentList @(
             "-c",
-            "from agents.aurora_dashboard_server import app; import uvicorn; uvicorn.run(app, host='127.0.0.1', port=8420, log_level='warning')"
+            "from agents.slate_dashboard_server import app; import uvicorn; uvicorn.run(app, host='127.0.0.1', port=8420, log_level='warning')"
           ) -PassThru -NoNewWindow -RedirectStandardOutput "dashboard_stdout.log" -RedirectStandardError "dashboard_stderr.log"
           echo "dashboard_pid=$($dashProc.Id)" >> $env:GITHUB_OUTPUT
           Start-Sleep -Seconds 5
@@ -456,22 +456,22 @@ jobs:
 
           # Run SLATE status check
           Write-Host "--- SLATE Status ---"
-          & $python aurora_core/slate_status.py --quick
+          & $python slate/slate_status.py --quick
           if ($LASTEXITCODE -ne 0) {
             Write-Host "::warning::slate_status.py returned non-zero"
           }
 
           # Run SLATE runtime checks
           Write-Host "--- SLATE Runtime ---"
-          & $python aurora_core/slate_runtime.py --check-all
+          & $python slate/slate_runtime.py --check-all
           if ($LASTEXITCODE -ne 0) {
             Write-Host "::warning::slate_runtime.py returned non-zero"
           }
 
           # Hardware optimizer
-          if (Test-Path "aurora_core/slate_hardware_optimizer.py") {
+          if (Test-Path "slate/slate_hardware_optimizer.py") {
             Write-Host "--- Hardware Optimizer ---"
-            & $python aurora_core/slate_hardware_optimizer.py 2>$null
+            & $python slate/slate_hardware_optimizer.py 2>$null
           }
 
       - name: Initialize Agent System
@@ -482,25 +482,25 @@ jobs:
           import json, os, sys
           print('=== SLATE Agent System Init ===')
 
-          # Initialize agent coordinator
+          # Initialize SLATE runner manager
           try:
-              from aurora_agent_coordinator import AgentCoordinator
-              coord = AgentCoordinator()
-              print(f'Agent coordinator: initialized')
+              from slate.slate_runner_manager import RunnerManager
+              mgr = RunnerManager()
+              print(f'Runner manager: initialized')
           except Exception as e:
-              print(f'Agent coordinator: {e}')
+              print(f'Runner manager: {e}')
 
-          # Initialize agent intelligence
+          # Initialize SLATE status
           try:
-              from aurora_agent_intelligence import AgentIntelligence
-              intel = AgentIntelligence()
-              print(f'Agent intelligence: initialized')
+              from slate.slate_status import SlateStatus
+              status = SlateStatus()
+              print(f'SLATE status: initialized')
           except Exception as e:
-              print(f'Agent intelligence: {e}')
+              print(f'SLATE status: {e}')
 
           # Load task queue
           task_count = 0
-          for tf in ['clean_tasks.json', 'aurora_strategic_tasks.json']:
+          for tf in ['clean_tasks.json', 'current_tasks.json']:
               if os.path.exists(tf):
                   with open(tf) as f:
                       data = json.load(f)
@@ -570,7 +570,7 @@ jobs:
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
           & $python -c @"
-          from aurora_core.slate_runner_manager import SlateRunnerManager
+          from slate.slate_runner_manager import SlateRunnerManager
           import json
 
           mgr = SlateRunnerManager()
@@ -624,8 +624,8 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/ml_orchestrator.py") {
-            & $python aurora_core/ml_orchestrator.py --status
+          if (Test-Path "slate/ml_orchestrator.py") {
+            & $python slate/ml_orchestrator.py --status
           } else {
             Write-Host "ML orchestrator not found"
           }
@@ -634,8 +634,8 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/ml_orchestrator.py") {
-            & $python aurora_core/ml_orchestrator.py --index-now
+          if (Test-Path "slate/ml_orchestrator.py") {
+            & $python slate/ml_orchestrator.py --index-now
           }
 
       - name: ML Training Cycle
@@ -643,8 +643,8 @@ jobs:
         timeout-minutes: 20
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/ml_orchestrator.py") {
-            & $python aurora_core/ml_orchestrator.py --train-now
+          if (Test-Path "slate/ml_orchestrator.py") {
+            & $python slate/ml_orchestrator.py --train-now
           }
 
   # ─── Package Validation ───────────────────────────────────────────────────
@@ -672,8 +672,8 @@ jobs:
         shell: pwsh
         run: |
           $python = if (Test-Path ".venv\Scripts\python.exe") { ".venv\Scripts\python.exe" } else { "python" }
-          if (Test-Path "aurora_core/slate_package_manager.py") {
-            & $python aurora_core/slate_package_manager.py validate
+          if (Test-Path "slate/slate_package_manager.py") {
+            & $python slate/slate_package_manager.py validate
           }
 
   # ─── Summary ──────────────────────────────────────────────────────────────
