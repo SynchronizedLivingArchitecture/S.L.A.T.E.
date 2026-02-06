@@ -723,6 +723,20 @@ Examples:
         else:
             print("❌ Initialize workspace first: --init --name <name> --email <email>")
 
+    elif args.setup_beta:
+        result = manager.configure_beta_remote()
+        if args.json_output:
+            print(json.dumps(result, indent=2))
+        else:
+            if result["success"]:
+                print("✅ S.L.A.T.E.-BETA remote configured")
+                for step in result["steps"]:
+                    print(f"  • {step}")
+            else:
+                print("❌ Beta configuration failed")
+                for error in result["errors"]:
+                    print(f"  • {error}")
+
     elif args.validate:
         result = manager.validate_prerequisites()
 
@@ -800,7 +814,9 @@ Examples:
             if result["config"]:
                 print(f"  User:            {result['config']['user_name']}")
                 print(f"  Branch:          {result['config']['local_branch']}")
+                print(f"  Fork Source:     {result['config'].get('fork_source', 'upstream')}")
                 print(f"  Fork URL:        {result['config']['fork_url'] or 'Not configured'}")
+                print(f"  Beta Fork URL:   {result['config'].get('beta_fork_url') or 'Not configured'}")
                 print(f"  Last Sync:       {result['config']['last_sync'] or 'Never'}")
 
             if result["remotes"]:
