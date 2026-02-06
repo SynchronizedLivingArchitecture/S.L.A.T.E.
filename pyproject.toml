@@ -1,3 +1,4 @@
+# Modified: 2026-02-06T10:05:00Z | Author: COPILOT | Change: Added slate-protocols script entry point
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -45,6 +46,7 @@ slate-status = "aurora_core.slate_status:main"
 slate-runtime = "aurora_core.slate_runtime:main"
 slate-benchmark = "aurora_core.slate_benchmark:main"
 slate-hardware = "aurora_core.slate_hardware_optimizer:main"
+slate-protocols = "aurora_core.slate_protocols:main"
 
 [project.urls]
 Homepage = "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E."

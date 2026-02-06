@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Modified: 2026-02-06T10:10:00Z | Author: COPILOT | Change: Added test for slate_protocols
 """Tests for aurora_core package."""
 
 import pytest
@@ -33,6 +34,10 @@ def test_slate_runtime_import():
 def test_slate_terminal_monitor_import():
     from aurora_core import slate_terminal_monitor
     assert hasattr(slate_terminal_monitor, 'is_blocked')
+
+def test_slate_protocols_import():
+    from aurora_core import slate_protocols
+    assert hasattr(slate_protocols, 'main')
 
 def test_blocked_commands():
     from aurora_core.slate_terminal_monitor import is_blocked
