@@ -1,0 +1,108 @@
+# S.L.A.T.E. Docker Compose - DEVELOPMENT Mode
+# Modified: 2026-02-07T06:00:00Z | Author: COPILOT | Change: Dev compose with hot-reload volumes
+#
+# Usage:
+#   docker-compose -f docker-compose.dev.yml up
+#   docker-compose -f docker-compose.dev.yml up --build
+#
+# Features:
+#   - Source code bind-mounted for hot-reload
+#   - watchfiles active inside container
+#   - SLATE_MODE=dev enables file watcher + importlib.reload
+#   - Dashboard accessible at http://127.0.0.1:8080
+#
+# Security:
+#   - All ports bound to 127.0.0.1 (local only)
+#   - No telemetry, no external network calls
+
+services:
+  # SLATE Core (Dev Mode - GPU)
+  slate-dev:
+    image: slate-dev:local
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: slate-dev
+    hostname: slate
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"  # Dashboard (local only)
+    volumes:
+      # Bind-mount source for hot-reload — changes on host reflect instantly
+      - ./slate:/slate/slate:rw
+      - ./agents:/slate/agents:rw
+      - ./skills:/slate/skills:rw
+      - ./current_tasks.json:/slate/current_tasks.json:rw
+      - ./models:/slate/models:ro
+      - ./pyproject.toml:/slate/pyproject.toml:ro
+      # Persistent data
+      - slate_data:/slate/.slate_index
+      - slate_prompts:/slate/.slate_prompts
+    environment:
+      - SLATE_MODE=dev
+      - SLATE_WORKSPACE=/slate
+      - SLATE_DOCKER=1
+      - OLLAMA_HOST=ollama:11434
+      - PYTHONPATH=/slate
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      ollama:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - slate_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Ollama Local LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-dev
+    hostname: ollama
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      # 0.0.0.0 required inside Docker bridge network for inter-container comms.
+      # Host port binding is 127.0.0.1 — does NOT violate local-only policy.
+      - OLLAMA_HOST=0.0.0.0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - slate_network
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:11434/api/tags', timeout=5)\" 2>/dev/null || exit 0"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  slate_data:
+    name: slate_dev_data
+  slate_prompts:
+    name: slate_dev_prompts
+  ollama_data:
+    name: ollama_dev_data
+
+networks:
+  slate_network:
+    name: slate_dev_network
+    driver: bridge

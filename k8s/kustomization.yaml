@@ -1,0 +1,24 @@
+# Modified: 2026-02-07T09:00:00Z | Author: COPILOT | Change: Create Kustomize base for SLATE K8s deployment
+# SLATE Kustomize Configuration
+# Deploy with: kubectl apply -k k8s/
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: slate
+
+resources:
+  - namespace.yaml
+  - rbac.yaml
+  - network-policy.yaml
+  - storage.yaml
+  - secrets.yaml
+  - deployments.yaml
+
+commonLabels:
+  app.kubernetes.io/managed-by: slate
+  app.kubernetes.io/version: "2.4.0"
+
+# Security: Enforce common annotations
+commonAnnotations:
+  slate.io/security-policy: restricted
+  slate.io/network-policy: deny-all-default

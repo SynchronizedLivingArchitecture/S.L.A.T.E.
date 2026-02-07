@@ -436,6 +436,302 @@
 				"reveal": "always",
 				"panel": "dedicated"
 			}
+		},
+		{
+			"label": "SLATE: Agent Registry Discover",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate_core/plugins/agent_registry.py",
+				"--discover"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "SLATE: Agent Registry Status",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate_core/plugins/agent_registry.py",
+				"--status"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "SLATE: Agent Registry Load All",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate_core/plugins/agent_registry.py",
+				"--load-all"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "SLATE: Agent Health Check",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate_core/plugins/agent_registry.py",
+				"--health"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "SLATE: Reload Modules",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/module_registry.py",
+				"--reload-all"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"detail": "Hot-reload all registered modules (kernel-style importlib.reload)"
+		},
+		{
+			"label": "SLATE: Reload Agent",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate_core/plugins/agent_registry.py",
+				"--reload",
+				"${input:agentId}"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"detail": "Hot-reload a specific agent (rmmod + insmod)"
+		},
+		{
+			"label": "SLATE: Scale Runners",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_multi_runner.py",
+				"--scale",
+				"${input:runnerCount}"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"detail": "Scale runner count (max 50)"
+		},
+		{
+			"label": "SLATE: Multi-Runner Status",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_real_multi_runner.py",
+				"--status"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"detail": "Show real GitHub Actions runner status"
+		},
+		{
+			"label": "SLATE: File Watcher",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_watcher.py",
+				"--status"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"detail": "Check file watcher + hot-reload status"
+		},
+		{
+			"label": "SLATE: Docker Status",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--status"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"detail": "Docker daemon, containers, images, volumes status"
+		},
+		{
+			"label": "SLATE: Docker Up (Dev)",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--up",
+				"--profile", "dev"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build",
+			"detail": "Start SLATE containers in dev mode with hot-reload"
+		},
+		{
+			"label": "SLATE: Docker Up (Prod)",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--up",
+				"--profile", "prod"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build",
+			"detail": "Start SLATE containers in prod mode"
+		},
+		{
+			"label": "SLATE: Docker Down",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--down",
+				"--profile", "${input:dockerProfile}"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"detail": "Stop SLATE containers"
+		},
+		{
+			"label": "SLATE: Docker Build",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--build"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build",
+			"detail": "Build all SLATE Docker images (GPU, CPU, Dev)"
+		},
+		{
+			"label": "SLATE: Docker Health",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--health"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"detail": "Health check all SLATE Docker containers"
+		},
+		{
+			"label": "SLATE: Docker GPU Check",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--gpu-check"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"detail": "Validate GPU passthrough in Docker containers"
+		},
+		{
+			"label": "SLATE: Docker Logs",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--logs",
+				"--lines", "100"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"detail": "Show SLATE container logs"
+		},
+		{
+			"label": "SLATE: Docker Stats",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--stats"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"detail": "Show container resource usage (CPU, memory, I/O)"
+		},
+		{
+			"label": "SLATE: Docker Prune",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": [
+				"${workspaceFolder}/slate/slate_docker_daemon.py",
+				"--prune"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"detail": "Clean up unused Docker images and stopped containers"
+		}
+	],
+	"inputs": [
+		{
+			"id": "agentId",
+			"type": "pickString",
+			"description": "Select agent to reload",
+			"options": ["ALPHA", "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "COPILOT"],
+			"default": "ALPHA"
+		},
+		{
+			"id": "runnerCount",
+			"type": "pickString",
+			"description": "Target runner count",
+			"options": ["10", "19", "25", "35", "50"],
+			"default": "19"
+		},
+		{
+			"id": "dockerProfile",
+			"type": "pickString",
+			"description": "Docker Compose profile",
+			"options": ["default", "dev", "prod"],
+			"default": "default"
 		}
 	]
 }

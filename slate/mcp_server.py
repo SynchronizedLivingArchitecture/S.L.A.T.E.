@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Modified: 2026-02-07T00:30:00Z | Author: COPILOT | Change: Add hardware, benchmark, runtime tools; fix AI tool
+# Modified: 2026-02-07T10:45:00Z | Author: COPILOT | Change: Add Claude Code validation tool
 """
 SLATE MCP Server - Model Context Protocol server for Claude Code / Copilot integration.
 
@@ -11,6 +11,7 @@ Provides tools for:
 - Orchestrator control
 - Runner management
 - Benchmark execution
+- Claude Code validation and management
 """
 
 import asyncio
@@ -217,6 +218,48 @@ async def list_tools() -> list[Tool]:
                 }
             }
         ),
+        Tool(
+            name="slate_claude_code",
+            description="Validate and manage Claude Code configuration for SLATE - checks settings, MCP servers, permissions, hooks, and Agent SDK compatibility",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["validate", "report", "status", "agent-options"],
+                        "description": "validate: run checks, report: full report, status: integration status, agent-options: show Agent SDK config",
+                        "default": "status"
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["text", "json"],
+                        "description": "Output format",
+                        "default": "text"
+                    }
+                }
+            }
+        ),
+        Tool(
+            name="slate_spec_kit",
+            description="Process specifications, run AI analysis on sections, and generate wiki pages",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["status", "process-all", "wiki", "analyze"],
+                        "description": "status: show spec-kit state, process-all: parse and process all specs, wiki: generate wiki pages, analyze: run AI analysis",
+                        "default": "status"
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["text", "json"],
+                        "description": "Output format",
+                        "default": "text"
+                    }
+                }
+            }
+        ),
     ]
 
 
@@ -289,6 +332,47 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             result = run_slate_command("slate_gpu_manager.py", "--preload")
         else:
             result = run_slate_command("slate_gpu_manager.py", "--status")
+
+    elif name == "slate_claude_code":
+        action = arguments.get("action", "status")
+        fmt = arguments.get("format", "text")
+        if action == "validate":
+            if fmt == "json":
+                result = run_slate_command("claude_code_manager.py", "--validate", "--json")
+            else:
+                result = run_slate_command("claude_code_manager.py", "--validate")
+        elif action == "report":
+            result = run_slate_command("claude_code_manager.py", "--report")
+        elif action == "agent-options":
+            if fmt == "json":
+                result = run_slate_command("claude_code_manager.py", "--agent-options", "--json")
+            else:
+                result = run_slate_command("claude_code_manager.py", "--agent-options")
+        else:
+            if fmt == "json":
+                result = run_slate_command("claude_code_manager.py", "--status", "--json")
+            else:
+                result = run_slate_command("claude_code_manager.py", "--status")
+
+    elif name == "slate_spec_kit":
+        action = arguments.get("action", "status")
+        fmt = arguments.get("format", "text")
+        if action == "status":
+            if fmt == "json":
+                result = run_slate_command("slate_spec_kit.py", "--status", "--json")
+            else:
+                result = run_slate_command("slate_spec_kit.py", "--status")
+        elif action == "process-all":
+            if fmt == "json":
+                result = run_slate_command("slate_spec_kit.py", "--process-all", "--wiki", "--analyze", "--json")
+            else:
+                result = run_slate_command("slate_spec_kit.py", "--process-all", "--wiki", "--analyze")
+        elif action == "wiki":
+            result = run_slate_command("slate_spec_kit.py", "--process-all", "--wiki")
+        elif action == "analyze":
+            result = run_slate_command("slate_spec_kit.py", "--process-all", "--analyze")
+        else:
+            result = run_slate_command("slate_spec_kit.py", "--status")
 
     else:
         result = {

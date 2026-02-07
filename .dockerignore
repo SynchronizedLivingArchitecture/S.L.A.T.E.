@@ -85,3 +85,30 @@ node_modules/
 # Jupyter notebooks
 *.ipynb
 .ipynb_checkpoints/
+
+# Additional runner directories
+actions-runner-2/
+actions-runner-3/
+actions-runner-4/
+
+# SLATE state files (runtime only)
+.slate_orchestrator.pid
+.slate_orchestrator_state.json
+.slate_docker_state.json
+
+# Plugin builds
+plugins/slate-copilot/out/
+plugins/slate-copilot/node_modules/
+plugins/slate-copilot/*.vsix
+
+# Aurora logs
+aurora_logs/
+slate_logs/
+slate_memory/
+
+# Tools / temp scripts
+_tool/
+About/
+commands/
+grafana/
+grafana_provisioning/

@@ -274,24 +274,23 @@ SLATE workflows are self-documenting and self-maintaining:
 9. **File encoding**: Always use `encoding='utf-8'` when opening files in Python on Windows
 10. **Blocked patterns**: `eval(`, `exec(os`, `rm -rf /`, `base64.b64decode`
 
-## AAA Standards (ENFORCED)
+## Built-In Safeguards (ENFORCED)
 
-1) Testing (Arrange-Act-Assert)
-- Explicit Arrange, Act, Assert sections in tests
-- Use pytest and pytest-asyncio
+1) **ActionGuard** - Blocks dangerous patterns
+   - Destructive: `rm -rf`, `format`, `del /s`
+   - Network: `0.0.0.0` bindings
+   - Dynamic: `eval`, `exec`
+   - External paid API calls
 
-2) Accessibility (WCAG AAA)
-- Keyboard access, visible focus, strong contrast
-- Avoid motion without a disable option
+2) **SDK Source Guard** - Trusted publishers only
+   - Microsoft, NVIDIA, Meta, Google, Hugging Face
 
-3) Security/Compliance
-- Local-only bindings (`127.0.0.1`)
-- No dynamic execution (`eval`, `exec`)
-- No secrets or tokens in code or logs
+3) **PII Scanner** - Before GitHub sync
+   - API keys, tokens, credentials blocked
 
-4) Performance/Reliability
-- Validate with `slate/slate_benchmark.py`
-- Add timeouts and retries for IO
+4) **Resource Limits**
+   - Max concurrent tasks enforced
+   - Stale tasks (>4h) auto-flagged
 
 ## Response Format
 

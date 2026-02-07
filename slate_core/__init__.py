@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Modified: 2025-07-09T12:10:00Z | Author: COPILOT
+# Change: Add plugins subpackage export for agent registry
 """
 SLATE Core Infrastructure
 =========================
@@ -8,6 +10,7 @@ Modules:
 - file_lock: Thread-safe file locking for current_tasks.json
 - gpu_scheduler: GPU resource management for dual-GPU setup
 - memory: Constitution and memory storage
+- plugins: Dynamic agent registry with kernel-style load/unload
 """
 
 from .file_lock import FileLock, file_lock
@@ -21,6 +24,7 @@ __all__ = [
     "get_available_gpu",
     "ConstitutionMemory",
     "get_constitution",
+    "plugins",
 ]
 
 __version__ = "1.0.0"

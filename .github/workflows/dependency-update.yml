@@ -41,6 +41,11 @@ permissions:
   contents: write
   pull-requests: write
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Add concurrency block per GitHub docs
+concurrency:
+  group: dependency-update-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   update-deps:
     name: Update Dependencies

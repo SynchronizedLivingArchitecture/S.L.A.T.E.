@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="S.L.A.T.E. - Synchronized Living Architecture for Transformation and Evolution. Turn your local hardware into an AI operations center for GitHub.">
+    <meta name="keywords" content="local ai, github actions, self-hosted runner, ollama, ai automation, devops ai, free ai development, local llm, ai workflow">
+    <meta name="author" content="Daniel Perry">
+    <meta property="og:title" content="S.L.A.T.E. - Local AI Operations for GitHub">
+    <meta property="og:description" content="Stop paying for cloud AI. Run AI operations locally and integrate seamlessly with GitHub.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>S.L.A.T.E. - Local AI Operations for GitHub</title>
+    <link rel="icon" type="image/svg+xml" href="assets/slate-logo-v2.svg">
+    <style>
+        :root {
+            /* SLATE Natural Theme System */
+            --theme-value: 0.15;
+
+            /* Dark Mode Base Colors (organic earth tones) */
+            --bg-dark: #0a0f0a;
+            --bg-surface: #121812;
+            --bg-card: rgba(20, 28, 20, 0.85);
+            --bg-elevated: rgba(28, 36, 28, 0.9);
+            --bg-overlay: rgba(10, 15, 10, 0.85);
+
+            /* Text Hierarchy */
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --text-muted: #525252;
+            --text-dim: #333333;
+
+            /* Accent Colors */
+            --accent-green: #22c55e;
+            --accent-blue: #3b82f6;
+            --accent-yellow: #eab308;
+            --accent-red: #ef4444;
+
+            /* Border System */
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 40px rgba(255,255,255,0.03);
+
+            /* Spacing */
+            --space-xs: clamp(4px, 0.5vw, 8px);
+            --space-sm: clamp(8px, 1vw, 12px);
+            --space-md: clamp(16px, 2vw, 24px);
+            --space-lg: clamp(24px, 3vw, 36px);
+            --space-xl: clamp(32px, 4vw, 48px);
+            --space-2xl: clamp(48px, 6vw, 80px);
+
+            /* Typography */
+            --font-xs: clamp(0.65rem, 0.6rem + 0.25vw, 0.75rem);
+            --font-sm: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+            --font-base: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+            --font-lg: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+            --font-xl: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+            --font-2xl: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+            --font-3xl: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+            --font-display: clamp(2.5rem, 2rem + 3vw, 5rem);
+
+            /* Border Radius */
+            --rounded-sm: 6px;
+            --rounded-md: 10px;
+            --rounded-lg: 16px;
+            --rounded-xl: 24px;
+            --rounded-full: 9999px;
+
+            /* Transitions */
+            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: var(--bg-dark);
+            background-image:
+                radial-gradient(ellipse at 0% 0%, rgba(34, 197, 94, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 50%, rgba(59, 130, 246, 0.02) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.01) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-surface) 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            font-size: var(--font-base);
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: min(100% - var(--space-lg) * 2, 1200px);
+            margin-inline: auto;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-overlay);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .nav-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--rounded-md);
+        }
+
+        .nav-logo span {
+            font-family: Consolas, 'Courier New', monospace;
+            font-weight: 700;
+            font-size: var(--font-lg);
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-md);
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-sm);
+            transition: color var(--transition-fast);
+            padding: var(--space-xs) var(--space-sm);
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            background: var(--text-primary);
+            color: var(--bg-dark) !important;
+            border-radius: var(--rounded-full);
+            font-weight: 600;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: var(--space-2xl) var(--space-lg);
+            padding-top: calc(var(--space-2xl) + 80px);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-xs) var(--space-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--rounded-full);
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-lg);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        .hero h1 {
+            font-size: var(--font-display);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: var(--space-md);
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero h1 .accent {
+            background: linear-gradient(135deg, var(--accent-green) 0%, #4ade80 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: var(--font-xl);
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin-bottom: var(--space-xl);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--rounded-full);
+            font-weight: 600;
+            font-size: var(--font-base);
+            text-decoration: none;
+            transition: all var(--transition-base);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-dark);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255,255,255,0.15);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-hover);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--text-muted);
+        }
+
+        /* Features Grid */
+        .features {
+            padding: var(--space-2xl) var(--space-lg);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .section-header h2 {
+            font-size: var(--font-3xl);
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: var(--font-lg);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--rounded-xl);
+            padding: var(--space-lg);
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-base);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+            border-radius: var(--rounded-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: var(--space-md);
+            border: 1px solid var(--border);
+        }
+
+        .feature-card h3 {
+            font-size: var(--font-lg);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: var(--font-sm);
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: var(--space-2xl) var(--space-lg);
+            background: var(--bg-surface);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: var(--font-3xl);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-green), #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-item p {
+            color: var(--text-secondary);
+            font-size: var(--font-sm);
+            margin-top: var(--space-xs);
+        }
+
+        /* Architecture Section */
+        .architecture {
+            padding: var(--space-2xl) var(--space-lg);
+        }
+
+        .arch-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--rounded-xl);
+            padding: var(--space-xl);
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: var(--font-sm);
+            overflow-x: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .arch-diagram pre {
+            color: var(--text-secondary);
+            white-space: pre;
+            line-height: 1.4;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: var(--space-2xl) var(--space-lg);
+            text-align: center;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--rounded-xl);
+            padding: var(--space-2xl);
+            backdrop-filter: blur(10px);
+        }
+
+        .cta-box h2 {
+            font-size: var(--font-2xl);
+            margin-bottom: var(--space-md);
+        }
+
+        .cta-box p {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-lg);
+            max-width: 500px;
+            margin-inline: auto;
+        }
+
+        .install-code {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: var(--rounded-lg);
+            padding: var(--space-md);
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: var(--font-sm);
+            color: var(--accent-green);
+            margin-bottom: var(--space-lg);
+            max-width: 600px;
+            margin-inline: auto;
+            overflow-x: auto;
+        }
+
+        /* Footer */
+        footer {
+            padding: var(--space-xl) var(--space-lg);
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .footer-logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--rounded-sm);
+        }
+
+        .footer-logo span {
+            font-family: Consolas, 'Courier New', monospace;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-sm);
+            transition: color var(--transition-fast);
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-author {
+            color: var(--text-muted);
+            font-size: var(--font-xs);
+        }
+
+        .footer-author a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: var(--font-3xl);
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <a href="#" class="nav-logo">
+                <img src="assets/slate-logo-v2.svg" alt="SLATE Logo">
+                <span>S.L.A.T.E.</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki">Docs</a></li>
+                <li><a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E" class="nav-cta">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            <span>v2.4 - Production Ready</span>
+        </div>
+        <h1>Turn Your Hardware Into<br>an <span class="accent">AI Operations Center</span></h1>
+        <p class="hero-subtitle">Stop paying for cloud AI. Stop sending code to external servers. Run AI operations locally and integrate seamlessly with GitHub.</p>
+        <div class="hero-buttons">
+            <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E" class="btn btn-primary">
+                Get Started
+            </a>
+            <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki" class="btn btn-secondary">
+                Documentation
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Built for Developers</h2>
+                <p>Everything you need to run AI locally with GitHub integration</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F4BB;</div>
+                    <h3>Local AI Engine</h3>
+                    <p>Ollama + Foundry running on your GPU. Code analysis, automation, and task routing without API bills.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F9E0;</div>
+                    <h3>Persistent Memory</h3>
+                    <p>ChromaDB stores context about your codebase. Your AI ops get smarter over time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F4CA;</div>
+                    <h3>Live Dashboard</h3>
+                    <p>Monitor services, task queues, and GPU utilization in real-time with glassmorphism UI.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F517;</div>
+                    <h3>GitHub Bridge</h3>
+                    <p>Self-hosted runner connects your local AI to GitHub Actions, Issues, and PRs.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F6E1;</div>
+                    <h3>Built-in Security</h3>
+                    <p>ActionGuard, SDK Source Guard, and PII Scanner protect your automation.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x26A1;</div>
+                    <h3>Multi-GPU Support</h3>
+                    <p>19 parallel runners across dual GPUs with intelligent task distribution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>$0</h3>
+                    <p>Cloud AI Costs</p>
+                </div>
+                <div class="stat-item">
+                    <h3>19</h3>
+                    <p>Parallel Runners</p>
+                </div>
+                <div class="stat-item">
+                    <h3>100%</h3>
+                    <p>Local Processing</p>
+                </div>
+                <div class="stat-item">
+                    <h3>24/7</h3>
+                    <p>Autonomous Ops</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="architecture" id="architecture">
+        <div class="container">
+            <div class="section-header">
+                <h2>System Architecture</h2>
+                <p>Your local hardware runs the AI. Your cloud stays in sync.</p>
+            </div>
+            <div class="arch-diagram">
+<pre>
+&#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;
+&#x2502;                           S.L.A.T.E. v2.4                            &#x2502;
+&#x251C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2524;
+&#x2502;                                                                       &#x2502;
+&#x2502;   &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;   &#x2502;
+&#x2502;   &#x2502;               GitHub Projects V2 (Task Source)                &#x2502;   &#x2502;
+&#x2502;   &#x2502;   KANBAN &#x2192; BUG TRACKING &#x2192; ITERATIVE DEV &#x2192; ROADMAP          &#x2502;   &#x2502;
+&#x2502;   &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x252C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;   &#x2502;
+&#x2502;                               &#x2502;                                       &#x2502;
+&#x2502;                               &#x25BC;                                       &#x2502;
+&#x2502;   &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;   &#x2502;
+&#x2502;   &#x2502;              Multi-Runner System (19 Runners)                &#x2502;   &#x2502;
+&#x2502;   &#x2502;   GPU Runners (7)              CPU Runners (12)              &#x2502;   &#x2502;
+&#x2502;   &#x2502;   &#x251C;&#x2500; 6x Light (2GB VRAM)        &#x251C;&#x2500; 12x Parallel Workers       &#x2502;   &#x2502;
+&#x2502;   &#x2502;   &#x2514;&#x2500; 1x Heavy (12GB VRAM)       &#x2514;&#x2500; 24 CPU Threads             &#x2502;   &#x2502;
+&#x2502;   &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x252C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;   &#x2502;
+&#x2502;                               &#x2502;                                       &#x2502;
+&#x2502;                               &#x25BC;                                       &#x2502;
+&#x2502;   &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;   &#x2502;
+&#x2502;   &#x2502;                   AI Backend Router                         &#x2502;   &#x2502;
+&#x2502;   &#x2502;   Ollama :11434    Foundry :5272    External APIs           &#x2502;   &#x2502;
+&#x2502;   &#x2502;   (mistral-nemo)   (ONNX)           (blocked by default)    &#x2502;   &#x2502;
+&#x2502;   &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;   &#x2502;
+&#x2502;                                                                       &#x2502;
+&#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;
+</pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-box">
+                <h2>Ready to Go Local?</h2>
+                <p>Get started in minutes. One command installs everything.</p>
+                <div class="install-code">
+                    git clone https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git && cd S.L.A.T.E && python install_slate.py
+                </div>
+                <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E" class="btn btn-primary">
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="assets/slate-logo-v2.svg" alt="SLATE">
+                    <span>S.L.A.T.E.</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E">GitHub</a>
+                    <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki">Documentation</a>
+                    <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/issues">Issues</a>
+                    <a href="https://github.com/orgs/SynchronizedLivingArchitecture/projects">Projects</a>
+                </div>
+                <p class="footer-author">
+                    Created by <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/blob/main/AUTHOR.md">Daniel Perry</a> | Canadian Forces Veteran | Afghanistan Veteran
+                    <br>
+                    Copyright &copy; 2024-2026 Daniel Perry. All Rights Reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

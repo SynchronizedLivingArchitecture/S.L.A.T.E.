@@ -1,14 +1,16 @@
-# Modified: 2026-02-07T03:00:00Z | Author: COPILOT | Change: Create SDK source guard module
+# Modified: 2026-02-07T09:00:00Z | Author: COPILOT | Change: Add container image and Helm chart validation for K8s
 """
 SDK Source Guard - Validates package publishers and sources for SLATE.
 
 Enforces trusted package sources, blocks typosquatting packages,
-and validates that only approved publishers are used.
+validates container image registries, and checks Helm chart sources.
 
 Security rules:
 - Only trusted PyPI publishers allowed
 - Known typosquat patterns detected
 - Package name similarity checking
+- Container images must come from trusted registries
+- Helm charts must come from trusted repositories
 """
 
 import logging
@@ -57,6 +59,28 @@ BLOCKED_PACKAGES = [
     "colourama",        # typosquat of colorama
     "python3-dateutil", # typosquat
     "jeIlyfish",        # typosquat of jellyfish (capital I vs l)
+]
+
+# Trusted container registries for Kubernetes deployments
+TRUSTED_CONTAINER_REGISTRIES = [
+    "ghcr.io/synchronizedlivingarchitecture/",
+    "ollama/ollama",
+    "chromadb/chroma",
+    "nvidia/cuda",
+    "python:",
+    "ubuntu:",
+    "docker.io/library/",
+    "mcr.microsoft.com/",
+    "nvcr.io/nvidia/",
+    "registry.k8s.io/",
+]
+
+# Trusted Helm chart repositories
+TRUSTED_HELM_REPOS = [
+    "https://charts.bitnami.com/bitnami",
+    "https://helm.releases.hashicorp.com",
+    "https://kubernetes.github.io/ingress-nginx",
+    "https://prometheus-community.github.io/helm-charts",
 ]
 
 
@@ -152,6 +176,75 @@ class SDKSourceGuard:
             logger.warning(f"Requirements file not found: {requirements_path}")
         return results
 
+    def validate_container_image(self, image: str) -> SourceValidation:
+        """Validate a container image is from a trusted registry.
+
+        Args:
+            image: Container image reference (e.g. 'ghcr.io/org/image:tag')
+
+        Returns:
+            SourceValidation with validity status
+        """
+        for registry in TRUSTED_CONTAINER_REGISTRIES:
+            if image.startswith(registry):
+                return SourceValidation(
+                    valid=True,
+                    package=image,
+                    reason=f"Trusted container registry: {registry}",
+                )
+
+        return SourceValidation(
+            valid=False,
+            package=image,
+            reason=f"Untrusted container registry: {image}",
+        )
+
+    def validate_helm_repo(self, repo_url: str) -> SourceValidation:
+        """Validate a Helm chart repository URL.
+
+        Args:
+            repo_url: Helm repository URL
+
+        Returns:
+            SourceValidation with validity status
+        """
+        for trusted in TRUSTED_HELM_REPOS:
+            if repo_url.startswith(trusted):
+                return SourceValidation(
+                    valid=True,
+                    package="helm-repo",
+                    reason=f"Trusted Helm repo: {trusted}",
+                )
+
+        return SourceValidation(
+            valid=False,
+            package="helm-repo",
+            reason=f"Untrusted Helm repo: {repo_url}",
+        )
+
+    def validate_k8s_manifest_images(self, manifest_path: str) -> list[SourceValidation]:
+        """Scan a Kubernetes manifest file for container image references and validate them.
+
+        Args:
+            manifest_path: Path to YAML manifest file
+
+        Returns:
+            List of validation results for each image found
+        """
+        results = []
+        image_pattern = re.compile(r'image:\s*["\']?([^"\']\S+)', re.MULTILINE)
+
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            for match in image_pattern.finditer(content):
+                image = match.group(1).strip()
+                results.append(self.validate_container_image(image))
+        except FileNotFoundError:
+            logger.warning(f"Manifest file not found: {manifest_path}")
+
+        return results
+
 
 # ── Module-Level Functions ──────────────────────────────────────────────
 
@@ -195,6 +288,16 @@ if __name__ == "__main__":
         ("slate", True),
     ]
 
+    # Container image tests
+    image_tests = [
+        ("ghcr.io/synchronizedlivingarchitecture/slate:latest-gpu", True),
+        ("ollama/ollama:latest", True),
+        ("nvidia/cuda:12.4.1-runtime-ubuntu22.04", True),
+        ("evil-registry.io/malware:latest", False),
+        ("mcr.microsoft.com/dotnet/runtime:8.0", True),
+        ("registry.k8s.io/pause:3.9", True),
+    ]
+
     print("=" * 50)
     print("  SDK Source Guard Self-Test")
     print("=" * 50)
@@ -212,6 +315,20 @@ if __name__ == "__main__":
         print(f"  {status}: {pkg} | expected={expected} got={result.valid} | {result.reason}")
 
     print(f"\n  Results: {passed} passed, {failed} failed")
+
+    # Container image tests
+    print("\n  Container Image Tests:")
+    for image, expected in image_tests:
+        result = guard.validate_container_image(image)
+        ok = result.valid == expected
+        status = "PASS" if ok else "FAIL"
+        if ok:
+            passed += 1
+        else:
+            failed += 1
+        print(f"  {status}: {image} | expected={expected} got={result.valid}")
+
+    print(f"\n  Total Results: {passed} passed, {failed} failed")
     print("=" * 50)
 
     if failed > 0:

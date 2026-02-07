@@ -31,6 +31,11 @@ on:
   schedule:
     - cron: '*/15 * * * *'
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Scheduled workflows should not cancel in-progress runs
+concurrency:
+  group: service-mgmt-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   service-action:
     name: ${{ github.event.inputs.action || 'health-check' }}
@@ -41,12 +46,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Modified: 2026-02-07T07:30:00Z | Author: COPILOT | Change: Add venv to GITHUB_PATH per SLATE conventions
       - name: Setup Python
         run: |
-          # Use workspace venv
+          "${{ github.workspace }}\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
           $env:PYTHONPATH = "${{ github.workspace }}"
           $env:SLATE_WORKSPACE = "${{ github.workspace }}"
-        shell: pwsh
+        shell: powershell
 
       - name: Execute Service Action
         id: service
@@ -138,7 +144,7 @@ jobs:
               exit 1
             }
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Health Check
         if: github.event_name == 'schedule'
@@ -185,8 +191,23 @@ jobs:
           } else {
             Write-Host "Runner: Process not found (may be running as service)" -ForegroundColor Yellow
           }
-        shell: pwsh
+        shell: powershell
 
+      - name: Cleanup Stale Tasks
+        if: github.event_name == 'schedule'
+        run: |
+          $python = ".\.venv\Scripts\python.exe"
+
+          Write-Host ""
+          Write-Host "=== Stale Task Cleanup ===" -ForegroundColor Cyan
+
+          # Run workflow manager cleanup (resets stale, removes test/deprecated tasks)
+          & $python slate/slate_workflow_manager.py --cleanup
+
+          Write-Host ""
+          Write-Host "Task queue status:"
+          & $python slate/slate_workflow_manager.py --status
+        shell: powershell
       - name: Report Status
         if: always()
         run: |
@@ -216,4 +237,4 @@ jobs:
           } else {
             Write-Host "Orchestrator: Stopped" -ForegroundColor Yellow
           }
-        shell: pwsh
+        shell: powershell

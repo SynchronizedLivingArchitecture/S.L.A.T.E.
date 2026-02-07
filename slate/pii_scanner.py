@@ -1,12 +1,15 @@
+# Modified: 2026-02-07T09:00:00Z | Author: COPILOT | Change: Add K8s Secret/ConfigMap/env scanning
 """
-PII Scanner for SLATE Project Boards
+PII Scanner for SLATE Project Boards and Kubernetes Manifests
 
-Prevents personal identifiable information from being exposed in public project boards.
-Scans issue/PR titles, descriptions, and comments before adding to projects.
+Prevents personal identifiable information from being exposed in public project boards
+and Kubernetes Secret/ConfigMap/environment variable definitions.
+Scans issue/PR titles, descriptions, comments, and K8s manifests before deployment.
 """
 
 import re
 import sys
+from pathlib import Path
 from typing import NamedTuple
 
 # PII detection patterns
@@ -166,6 +169,135 @@ def scan_github_content(title: str, body: str | None = None) -> dict:
     return results
 
 
+# ── Kubernetes Scanning ─────────────────────────────────────────────────
+
+# K8s-specific patterns for hardcoded secrets in manifests
+K8S_SECRET_PATTERNS: dict[str, re.Pattern] = {
+    "hardcoded_password": re.compile(
+        r"(?:password|passwd|secret|token|api[_-]?key):\s*[\"']?[A-Za-z0-9+/=]{8,}[\"']?",
+        re.IGNORECASE,
+    ),
+    "base64_secret_data": re.compile(
+        r"data:\s*\n(?:\s+\w+:\s*[A-Za-z0-9+/=]{20,}\s*\n)+",
+        re.MULTILINE,
+    ),
+    "env_secret_inline": re.compile(
+        r"value:\s*[\"']?(?:sk-|pk-|ghp_|gho_|ghu_|AKIA|bearer\s)[A-Za-z0-9_-]+[\"']?",
+        re.IGNORECASE,
+    ),
+    "connection_string": re.compile(
+        r"(?:mongodb|postgres|mysql|redis)://[^\s\"']+:[^\s\"']+@",
+        re.IGNORECASE,
+    ),
+}
+
+# Safe patterns in K8s (template refs, not actual secrets)
+K8S_ALLOWLIST = [
+    re.compile(r"\$\{\{.*\}\}"),  # GitHub Actions template
+    re.compile(r"\$\(.*\)"),  # Shell expansion
+    re.compile(r"secretKeyRef"),  # K8s secret reference (safe)
+    re.compile(r"configMapKeyRef"),  # ConfigMap reference (safe)
+    re.compile(r"valueFrom:"),  # Dynamic value reference (safe)
+]
+
+
+def scan_k8s_manifest(manifest_path: str) -> dict:
+    """Scan a Kubernetes manifest file for hardcoded secrets and PII.
+
+    Checks for:
+    - Hardcoded passwords/tokens in env vars
+    - Base64-encoded secret data that should use sealed-secrets
+    - Connection strings with embedded credentials
+    - Standard PII patterns (emails, keys, etc.)
+
+    Args:
+        manifest_path: Path to the YAML manifest file
+
+    Returns:
+        Dict with scan results including violations and recommendations
+    """
+    results = {
+        "file": manifest_path,
+        "has_secrets": False,
+        "has_pii": False,
+        "violations": [],
+        "pii_matches": [],
+        "recommendations": [],
+        "blocked": False,
+    }
+
+    try:
+        content = Path(manifest_path).read_text(encoding="utf-8")
+    except (FileNotFoundError, PermissionError) as e:
+        results["violations"].append(f"Cannot read file: {e}")
+        return results
+
+    # Check for hardcoded secrets
+    for secret_type, pattern in K8S_SECRET_PATTERNS.items():
+        for match in pattern.finditer(content):
+            matched_text = match.group()
+            # Skip if it's a template reference
+            if any(allow.search(matched_text) for allow in K8S_ALLOWLIST):
+                continue
+            results["has_secrets"] = True
+            results["violations"].append({
+                "type": secret_type,
+                "line_approx": content[:match.start()].count("\n") + 1,
+                "context": matched_text[:80],
+            })
+
+    # Standard PII scan on the full content
+    pii_matches = scan_text(content)
+    if pii_matches:
+        results["has_pii"] = True
+        results["pii_matches"] = [
+            {"type": m.pii_type, "line_approx": content[:m.start].count("\n") + 1}
+            for m in pii_matches
+        ]
+
+    # Generate recommendations
+    if results["has_secrets"]:
+        results["blocked"] = True
+        results["recommendations"].append(
+            "Use Kubernetes Secrets with sealed-secrets operator instead of hardcoded values"
+        )
+        results["recommendations"].append(
+            "Reference secrets via secretKeyRef in env vars, not inline values"
+        )
+
+    if results["has_pii"]:
+        results["recommendations"].append(
+            "Remove PII from manifest files. Use ConfigMaps or external-secrets"
+        )
+
+    return results
+
+
+def scan_k8s_directory(directory: str) -> list[dict]:
+    """Scan all YAML files in a directory for K8s security issues.
+
+    Args:
+        directory: Path to directory containing K8s manifests
+
+    Returns:
+        List of scan results, one per file
+    """
+    results = []
+    dir_path = Path(directory)
+    if not dir_path.exists():
+        return results
+
+    for yaml_file in sorted(dir_path.glob("*.yaml")):
+        result = scan_k8s_manifest(str(yaml_file))
+        results.append(result)
+
+    for yml_file in sorted(dir_path.glob("*.yml")):
+        result = scan_k8s_manifest(str(yml_file))
+        results.append(result)
+
+    return results
+
+
 def main():
     """CLI interface for PII scanner."""
     import argparse
@@ -175,6 +307,8 @@ def main():
     parser.add_argument("--text", help="Text to scan")
     parser.add_argument("--title", help="Issue/PR title")
     parser.add_argument("--body", help="Issue/PR body")
+    parser.add_argument("--k8s-dir", help="Scan K8s manifest directory")
+    parser.add_argument("--k8s-file", help="Scan a single K8s manifest file")
     parser.add_argument("--json", action="store_true", help="Output as JSON")
     parser.add_argument("--test", action="store_true", help="Run self-test")
 
@@ -200,6 +334,34 @@ def main():
             types = ", ".join(m.pii_type for m in matches) if matches else "-"
             print(f"{name:25} | {status:10} | {types}")
         return 0
+
+    if args.k8s_dir:
+        results = scan_k8s_directory(args.k8s_dir)
+        if args.json:
+            print(json.dumps(results, indent=2))
+        else:
+            for r in results:
+                status = "BLOCKED" if r["blocked"] else ("WARNING" if r["has_secrets"] or r["has_pii"] else "CLEAN")
+                print(f"  {status:8} | {r['file']}")
+                for v in r.get("violations", []):
+                    if isinstance(v, dict):
+                        print(f"           -> {v['type']} (line ~{v['line_approx']})")
+                for rec in r.get("recommendations", []):
+                    print(f"           ** {rec}")
+        blocked = any(r["blocked"] for r in results)
+        return 1 if blocked else 0
+
+    if args.k8s_file:
+        result = scan_k8s_manifest(args.k8s_file)
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            status = "BLOCKED" if result["blocked"] else ("WARNING" if result["has_secrets"] else "CLEAN")
+            print(f"{status}: {result['file']}")
+            for v in result.get("violations", []):
+                if isinstance(v, dict):
+                    print(f"  -> {v['type']} (line ~{v['line_approx']})")
+        return 1 if result["blocked"] else 0
 
     if args.title:
         results = scan_github_content(args.title, args.body)

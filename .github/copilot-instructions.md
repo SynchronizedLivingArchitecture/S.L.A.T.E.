@@ -28,26 +28,28 @@ Every code edit MUST include a timestamp + author comment:
 # Modified: YYYY-MM-DDTHH:MM:SSZ | Author: COPILOT | Change: description
 ```
 
-## AAA Standards (ENFORCED)
+## Built-In Safeguards (ENFORCED)
 
-All development must follow AAA standards:
+SLATE enforces these protections automatically:
 
-1) Testing (Arrange-Act-Assert)
-- Explicit Arrange, Act, Assert sections in tests
-- Use pytest and pytest-asyncio
+1) **ActionGuard** - Blocks dangerous patterns
+   - Destructive commands (`rm -rf`, `format`, `del /s`)
+   - Network exposure (`0.0.0.0` bindings)
+   - Dynamic execution (`eval`, `exec`)
+   - External paid API calls
 
-2) Accessibility (WCAG AAA)
-- Keyboard access, visible focus, strong contrast
-- Avoid motion without a disable option
+2) **SDK Source Guard** - Trusted publishers only
+   - Microsoft, NVIDIA, Meta, Google, Hugging Face
+   - Unknown PyPI packages blocked
 
-3) Security/Compliance
-- Local-only bindings (`127.0.0.1`)
-- No dynamic execution (`eval`, `exec`)
-- No secrets or tokens in code or logs
+3) **PII Scanner** - Before GitHub sync
+   - API keys, tokens, credentials detected
+   - Personal info blocked from public boards
 
-4) Performance/Reliability
-- Validate with `slate/slate_benchmark.py`
-- Add timeouts and retries for IO
+4) **Resource Limits**
+   - Max concurrent tasks enforced
+   - Stale tasks (>4h) auto-flagged
+   - GPU memory monitored per-runner
 
 ## System Overview
 SLATE (Synchronized Living Architecture for Transformation and Evolution) is a local-first
@@ -222,7 +224,39 @@ skills/             # Copilot Chat skill definitions
 | test, validate, verify, coverage | BETA | Testing | Yes |
 | analyze, plan, research, document | GAMMA | Planning | No |
 | claude, mcp, sdk, integration | DELTA | External Bridge | No |
+| diagnose, investigate, troubleshoot, interactive, explain | COPILOT_CHAT | Chat Participant | No |
 | complex, multi-step | COPILOT | Full orchestration | Yes |
+
+## @slate Participant as Subagent (COPILOT_CHAT)
+The @slate VS Code chat participant is registered as the **COPILOT_CHAT** agent in the
+SLATE agent registry. This enables bidirectional task flow between the autonomous loop
+and the interactive chat interface.
+
+### Bridge Architecture
+```
+Autonomous Loop ──▶ copilot_agent_bridge.py ──▶ .slate_copilot_bridge.json
+                                                       │
+@slate Participant ◀── slate_agentBridge tool ◀────────┘
+       │
+       ▼
+.slate_copilot_bridge_results.json ──▶ Autonomous Loop picks up results
+```
+
+### Bridge Commands
+```bash
+python slate/copilot_agent_bridge.py --status     # Bridge health
+python slate/copilot_agent_bridge.py --pending     # Pending tasks for @slate
+python slate/copilot_agent_bridge.py --results     # Completed results
+python slate/copilot_agent_bridge.py --cleanup     # Clean stale entries
+```
+
+### How It Works
+1. Autonomous loop classifies a task matching `diagnose|investigate|troubleshoot|interactive|explain`
+2. Task is routed to COPILOT_CHAT agent → enqueued to `.slate_copilot_bridge.json`
+3. @slate participant polls via `slate_agentBridge` tool (action: 'poll')
+4. Participant processes the task using its full tool suite (20+ tools)
+5. Results written back via `slate_agentBridge` tool (action: 'complete')
+6. Copilot Runner picks up results and updates task status
 
 ## Security Rules (ENFORCED by ActionGuard)
 - ALL network bindings: `127.0.0.1` ONLY  never `0.0.0.0`

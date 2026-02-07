@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | S.L.A.T.E.</title>
+    <link rel="icon" type="image/svg+xml" href="assets/slate-logo-v2.svg">
+    <style>
+        :root {
+            --bg-dark: #0a0f0a;
+            --bg-card: rgba(20, 28, 20, 0.85);
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --accent-green: #22c55e;
+            --border: rgba(255, 255, 255, 0.06);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: var(--bg-dark);
+            background-image:
+                radial-gradient(ellipse at 50% 50%, rgba(239, 68, 68, 0.03) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg-dark) 0%, #121812 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-code {
+            font-size: clamp(6rem, 20vw, 12rem);
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 0%, #444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--text-primary);
+            color: var(--bg-dark);
+            border-radius: 9999px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255,255,255,0.15);
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .footer a {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-code">404</div>
+    <h1>Page Not Found</h1>
+    <p>The page you're looking for doesn't exist or has been moved. Let's get you back on track.</p>
+    <a href="/" class="btn">Return Home</a>
+    <div class="footer">
+        <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E">S.L.A.T.E.</a> | Created by Daniel Perry
+    </div>
+</body>
+</html>

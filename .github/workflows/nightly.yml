@@ -1,10 +1,14 @@
-# Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
+# Modified: 2026-02-07T12:00:00Z | Author: Claude | Change: Add concurrency, timeout, and task cleanup
 name: SLATE Nightly
 
 on:
   schedule:
     - cron: '0 4 * * *'
   workflow_dispatch:
+
+concurrency:
+  group: nightly-${{ github.ref }}
+  cancel-in-progress: false  # Let nightly runs complete
 
 permissions:
   contents: read

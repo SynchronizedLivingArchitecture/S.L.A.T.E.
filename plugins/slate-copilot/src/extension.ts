@@ -1,18 +1,44 @@
-// Modified: 2026-02-07T06:00:00Z | Author: Claude | Change: Add service monitor for auto-restart of SLATE dashboard
+// Modified: 2026-02-07T14:30:00Z | Author: COPILOT | Change: Add animated Control Board with SLATE theming above Dashboard
 import * as vscode from 'vscode';
 import { registerSlateParticipant } from './slateParticipant';
 import { registerSlateTools } from './tools';
 import { SlateDashboardViewProvider } from './slateDashboardView';
+import { SlateControlBoardViewProvider } from './slateControlBoardView';
 import { registerServiceMonitor } from './slateServiceMonitor';
 
 const DASHBOARD_URL = 'http://127.0.0.1:8080';
+
+/** Status bar item showing SLATE is installed */
+let slateStatusBarItem: vscode.StatusBarItem;
 
 export function activate(context: vscode.ExtensionContext) {
 	registerSlateTools(context);
 	registerSlateParticipant(context);
 
+	// Create SLATE status bar indicator
+	slateStatusBarItem = vscode.window.createStatusBarItem(
+		vscode.StatusBarAlignment.Left,
+		100
+	);
+	slateStatusBarItem.text = '$(circuit-board) SLATE';
+	slateStatusBarItem.tooltip = 'S.L.A.T.E. — Synchronized Living Architecture for Transformation and Evolution\n\nClick to show system status';
+	slateStatusBarItem.command = 'slate.showStatus';
+	slateStatusBarItem.backgroundColor = undefined;
+	slateStatusBarItem.show();
+	context.subscriptions.push(slateStatusBarItem);
+
 	// Register service monitor for auto-restart
 	const serviceMonitor = registerServiceMonitor(context);
+
+	// Register the sidebar Control Board webview (above Dashboard)
+	const controlBoardViewProvider = new SlateControlBoardViewProvider(context.extensionUri);
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(
+			SlateControlBoardViewProvider.viewType,
+			controlBoardViewProvider,
+			{ webviewOptions: { retainContextWhenHidden: true } }
+		)
+	);
 
 	// Register the sidebar dashboard webview
 	const dashboardViewProvider = new SlateDashboardViewProvider(context.extensionUri);

@@ -70,7 +70,7 @@ REQUIRED_FILES = [
 ]
 
 
-# Modified: 2026-02-08T00:00:00Z | Author: COPILOT | Change: Add fork_source and beta_fork fields
+# Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add personalization fields to fork config
 @dataclass
 class ForkConfig:
     """Configuration for a user's SLATE fork."""
@@ -84,6 +84,10 @@ class ForkConfig:
     last_sync: Optional[str] = None
     local_branch: str = "user-workspace"
 
+    # Personalization fields
+    fork_identity_name: Optional[str] = None  # Custom name like "PHOENIX", "NOVA"
+    personalized: bool = False
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "user_name": self.user_name,
@@ -95,6 +99,8 @@ class ForkConfig:
             "created_at": self.created_at,
             "last_sync": self.last_sync,
             "local_branch": self.local_branch,
+            "fork_identity_name": self.fork_identity_name,
+            "personalized": self.personalized,
         }
 
     @classmethod
@@ -202,7 +208,9 @@ class SlateForkManager:
         self,
         user_name: str,
         user_email: str,
-        fork_url: Optional[str] = None
+        fork_url: Optional[str] = None,
+        fork_identity_name: Optional[str] = None,
+        run_personalization: bool = True,
     ) -> Dict[str, Any]:
         """
         Initialize a new user's SLATE workspace with local git.
@@ -212,11 +220,14 @@ class SlateForkManager:
         2. User-specific branch for their work
         3. Upstream remote pointing to main SLATE repo
         4. Optional fork remote for contributions
+        5. Personalized identity (custom name, logo, theme)
 
         Args:
             user_name: Git user name
             user_email: Git user email
             fork_url: Optional URL to user's GitHub fork
+            fork_identity_name: Custom name for the fork (e.g., "PHOENIX")
+            run_personalization: Whether to run personalization setup
 
         Returns:
             Status dict with initialization results
@@ -288,24 +299,100 @@ class SlateForkManager:
                         f.write("\n# SLATE user fork data (local only)\n.slate_fork/\n")
                     results["steps"].append("Added .slate_fork to .gitignore")
 
+            # Step 8: Run personalization if requested
+            personalization_result = None
+            if run_personalization:
+                personalization_result = self._run_personalization(
+                    fork_identity_name=fork_identity_name,
+                    interactive=fork_identity_name is None,
+                )
+                if personalization_result.get("success"):
+                    results["steps"].append(
+                        f"Personalized as: {personalization_result.get('fork_name', 'SLATE')}"
+                    )
+                    fork_identity_name = personalization_result.get("fork_name")
+
             # Save configuration
             self.config = ForkConfig(
                 user_name=user_name,
                 user_email=user_email,
                 fork_url=fork_url,
                 local_branch=branch_name,
+                fork_identity_name=fork_identity_name,
+                personalized=personalization_result.get("success", False) if personalization_result else False,
             )
             self.state.initialized = True
             self._save()
 
             results["success"] = True
             results["steps"].append("Fork manager initialized successfully")
+            if fork_identity_name:
+                results["fork_name"] = fork_identity_name
 
         except Exception as e:
             results["errors"].append(str(e))
             logger.exception("Fork initialization failed")
 
         return results
+
+    def _run_personalization(
+        self,
+        fork_identity_name: Optional[str] = None,
+        interactive: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Run the personalization setup for the fork.
+
+        Args:
+            fork_identity_name: Pre-set fork name (skips name prompt)
+            interactive: Whether to run interactive setup
+
+        Returns:
+            Personalization result dict
+        """
+        result = {
+            "success": False,
+            "fork_name": None,
+            "error": None,
+        }
+
+        try:
+            from slate.slate_personalization import PersonalizationManager
+        except ImportError as e:
+            result["error"] = f"Personalization module not available: {e}"
+            logger.warning(result["error"])
+            return result
+
+        try:
+            manager = PersonalizationManager(workspace_dir=self.workspace)
+
+            if manager.is_configured():
+                # Already configured
+                config = manager.get_config()
+                result["success"] = True
+                result["fork_name"] = config.fork_name
+                result["already_configured"] = True
+                return result
+
+            if interactive and not fork_identity_name:
+                # Full interactive setup
+                config = manager.run_interactive_setup()
+            else:
+                # Quick setup with provided or default name
+                config = manager.quick_setup(
+                    fork_name=fork_identity_name or "SLATE",
+                )
+
+            result["success"] = True
+            result["fork_name"] = config.fork_name
+
+        except KeyboardInterrupt:
+            result["error"] = "Personalization cancelled by user"
+        except Exception as e:
+            result["error"] = str(e)
+            logger.exception("Personalization failed")
+
+        return result
 
     def validate_prerequisites(self) -> Dict[str, Any]:
         """
@@ -556,6 +643,8 @@ class SlateForkManager:
         user_name: str,
         user_email: str,
         fork_url: Optional[str] = None,
+        fork_identity_name: Optional[str] = None,
+        run_personalization: bool = True,
     ) -> Dict[str, Any]:
         """
         Initialize a user workspace from S.L.A.T.E.-BETA instead of upstream.
@@ -564,11 +653,14 @@ class SlateForkManager:
         1. Fork S.L.A.T.E.-BETA on GitHub
         2. Clone their fork locally
         3. Run this to configure remotes and workspace
+        4. Personalize with custom name, logo, and theme
 
         Args:
             user_name: Git user name
             user_email: Git user email
             fork_url: URL of the user's fork of S.L.A.T.E.-BETA
+            fork_identity_name: Custom name for the fork (e.g., "PHOENIX")
+            run_personalization: Whether to run personalization setup
 
         Returns:
             Status dict with initialization results
@@ -578,6 +670,8 @@ class SlateForkManager:
             user_name=user_name,
             user_email=user_email,
             fork_url=fork_url,
+            fork_identity_name=fork_identity_name,
+            run_personalization=run_personalization,
         )
 
         if result["success"] and self.config:
@@ -631,8 +725,11 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Initialize your SLATE workspace
+  # Initialize your SLATE workspace with personalization
   python slate_fork_manager.py --init --name "Your Name" --email "you@example.com"
+
+  # Initialize with a custom fork name (skip interactive prompts)
+  python slate_fork_manager.py --init --name "Your Name" --email "you@example.com" --fork-name PHOENIX
 
   # Set up your GitHub fork
   python slate_fork_manager.py --setup-fork https://github.com/yourusername/S.L.A.T.E.git
@@ -652,6 +749,9 @@ Examples:
   # Initialize from BETA repo (recommended for new users)
   python slate_fork_manager.py --init --beta --name "Your Name" --email "you@example.com"
 
+  # Skip personalization during init
+  python slate_fork_manager.py --init --name "Your Name" --email "you@example.com" --no-personalize
+
   # Configure beta remote on existing workspace
   python slate_fork_manager.py --setup-beta
 """
@@ -669,6 +769,12 @@ Examples:
     parser.add_argument("--sync", action="store_true", help="Sync with upstream SLATE")
     parser.add_argument("--status", action="store_true", help="Show fork status")
     parser.add_argument("--json", action="store_true", dest="json_output", help="Output as JSON")
+
+    # Personalization options
+    parser.add_argument("--fork-name", type=str, dest="fork_identity_name",
+                        help="Custom name for your SLATE fork (e.g., PHOENIX, NOVA, ATLAS)")
+    parser.add_argument("--no-personalize", action="store_true", dest="no_personalize",
+                        help="Skip personalization setup")
 
     args = parser.parse_args()
 
@@ -689,19 +795,24 @@ Examples:
             result = manager.initialize_from_beta(
                 user_name=args.name,
                 user_email=args.email,
-                fork_url=args.setup_fork
+                fork_url=args.setup_fork,
+                fork_identity_name=args.fork_identity_name,
+                run_personalization=not args.no_personalize,
             )
         else:
             result = manager.initialize_user_workspace(
                 user_name=args.name,
                 user_email=args.email,
-                fork_url=args.setup_fork
+                fork_url=args.setup_fork,
+                fork_identity_name=args.fork_identity_name,
+                run_personalization=not args.no_personalize,
             )
 
         if args.json_output:
             print(json.dumps(result, indent=2))
         else:
-            print("\n🚀 SLATE Fork Manager Initialization")
+            fork_name = result.get("fork_name", "SLATE")
+            print(f"\n🚀 {fork_name} Fork Manager Initialization")
             print("=" * 50)
             if result["success"]:
                 print("✅ Success!")
@@ -804,7 +915,11 @@ Examples:
         if args.json_output:
             print(json.dumps(result, indent=2))
         else:
-            print("\n📊 SLATE Fork Status")
+            fork_name = "SLATE"
+            if result["config"] and result["config"].get("fork_identity_name"):
+                fork_name = result["config"]["fork_identity_name"]
+
+            print(f"\n📊 {fork_name} Fork Status")
             print("=" * 50)
             print(f"  Initialized:     {'✅' if result['initialized'] else '❌'}")
             print(f"  Git Repository:  {'✅' if result['is_git_repo'] else '❌'}")
@@ -816,6 +931,14 @@ Examples:
                 print(f"  Fork URL:        {result['config']['fork_url'] or 'Not configured'}")
                 print(f"  Beta Fork URL:   {result['config'].get('beta_fork_url') or 'Not configured'}")
                 print(f"  Last Sync:       {result['config']['last_sync'] or 'Never'}")
+
+                # Personalization info
+                identity_name = result['config'].get('fork_identity_name')
+                personalized = result['config'].get('personalized', False)
+                if identity_name or personalized:
+                    print(f"\n  Personalization:")
+                    print(f"    Identity Name: {identity_name or 'SLATE'}")
+                    print(f"    Customized:    {'✅' if personalized else '❌'}")
 
             if result["remotes"]:
                 print("\n  Remotes:")

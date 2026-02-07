@@ -1,25 +1,76 @@
-S.L.A.T.E. Experimental Open Source License (EOSL) v1.0
+# S.L.A.T.E. License
 
-Copyright (c) 2026 SynchronizedLivingArchitecture
+## Copyright and Ownership
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Copyright (c) 2024-2026 Daniel Perry. All Rights Reserved.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+S.L.A.T.E. (Synchronized Living Architecture for Transformation and Evolution) is the sole intellectual property of Daniel Perry, a retired Canadian Forces Veteran and Afghanistan Veteran who served with the PPCLI Battlegroup on Task Force 3-09.
 
-Experimental and AI-Assisted Notice:
-This Software is experimental, may change without notice, and is built with AI
-assistance. It may contain errors or incomplete features. Use at your own risk.
+## Experimental Software Disclaimer
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+**THIS SOFTWARE IS EXPERIMENTAL AND PROVIDED "AS IS".**
+
+THE AUTHOR (DANIEL PERRY) SHALL NOT BE HELD LIABLE FOR ANY DAMAGES, LOSSES, DATA CORRUPTION, SYSTEM FAILURES, SECURITY BREACHES, FINANCIAL LOSSES, OR ANY OTHER CONSEQUENCES ARISING FROM THE USE, MISUSE, OR INABILITY TO USE THIS SOFTWARE.
+
+BY USING S.L.A.T.E., YOU ACKNOWLEDGE AND AGREE THAT:
+
+1. **Experimental Nature**: This software is in active development and may contain bugs, errors, or unexpected behaviors. It is not intended for production use in critical systems.
+
+2. **AI Automation Risks**: S.L.A.T.E. includes AI-powered automation features that may take actions on your system, including but not limited to:
+   - Executing code and scripts
+   - Modifying files and configurations
+   - Interacting with external services (GitHub, etc.)
+   - Managing system resources
+
+3. **No Warranty**: There is NO WARRANTY of any kind, express or implied, including but not limited to warranties of MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, or NON-INFRINGEMENT.
+
+4. **User Responsibility**: You are solely responsible for:
+   - Reviewing all actions taken by the software
+   - Maintaining backups of your data
+   - Ensuring the software operates within your acceptable risk tolerance
+   - Complying with all applicable laws and regulations
+
+5. **Limitation of Liability**: IN NO EVENT SHALL DANIEL PERRY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+## Permitted Use
+
+Subject to the terms above, you may:
+
+- Use S.L.A.T.E. for personal, educational, or research purposes
+- Fork and modify the code for your own use
+- Contribute improvements back to the project via pull requests
+
+## Restrictions
+
+You may NOT:
+
+- Claim ownership or authorship of S.L.A.T.E.
+- Remove or alter copyright notices, author attribution, or this license
+- Use the S.L.A.T.E. name or branding for derivative works without permission
+- Redistribute modified versions as "S.L.A.T.E." without explicit written permission
+- Use this software for any illegal or malicious purposes
+- Hold the author liable for any damages arising from use of this software
+
+## Attribution Requirement
+
+Any use, fork, or derivative work must retain:
+
+1. This LICENSE file in its entirety
+2. The AUTHOR.md file with proper attribution to Daniel Perry
+3. Copyright notices in source files
+
+## Third-Party Components
+
+S.L.A.T.E. incorporates third-party open-source components, each governed by their respective licenses. See individual component licenses for details.
+
+## Governing Law
+
+This license shall be governed by and construed in accordance with the laws of Canada.
+
+---
+
+**S.L.A.T.E.** - Synchronized Living Architecture for Transformation and Evolution
+
+Created by Daniel Perry - Canadian Forces Veteran - Afghanistan Veteran
+
+Copyright (c) 2024-2026 Daniel Perry. All Rights Reserved.

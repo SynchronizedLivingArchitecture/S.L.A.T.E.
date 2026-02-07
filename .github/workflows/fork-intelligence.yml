@@ -22,6 +22,11 @@ on:
           - upstream-only
           - downstream-only
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Scheduled workflows should not cancel in-progress runs
+concurrency:
+  group: fork-intelligence-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   fork-intelligence:
     name: Fork Analysis
@@ -46,7 +51,7 @@ jobs:
             Write-Host "Ollama not available - AI analysis will be limited"
           }
           "ollama_available=$ollamaRunning" | Out-File -Append $env:GITHUB_OUTPUT
-        shell: pwsh
+        shell: powershell
 
       - name: Run Fork Intelligence
         id: analyze
@@ -83,7 +88,7 @@ jobs:
               & $python slate/slate_fork_intelligence.py --downstream
             }
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Sync Forks (if scheduled)
         if: github.event_name == 'schedule'
@@ -93,7 +98,7 @@ jobs:
           Write-Host ""
           Write-Host "Scheduled sync of upstream forks..."
           & $python slate/slate_fork_intelligence.py --sync
-        shell: pwsh
+        shell: powershell
 
       - name: Check for Breaking Changes
         if: steps.analyze.outputs.breaking_changes > 0
@@ -125,7 +130,7 @@ jobs:
           } else {
             Write-Host "Issue already exists: #$($existingIssue[0].number)"
           }
-        shell: pwsh
+        shell: powershell
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -137,7 +142,7 @@ jobs:
           Write-Host "${{ steps.analyze.outputs.downstream_changes }} fork(s) have contributions"
 
           # Could auto-create PRs or issues for valuable contributions
-        shell: pwsh
+        shell: powershell
 
       - name: Generate Summary
         if: always()
@@ -158,7 +163,7 @@ jobs:
           "@
 
           $summary | Out-File -Append $env:GITHUB_STEP_SUMMARY
-        shell: pwsh
+        shell: powershell
 
       - name: Upload Analysis Artifact
         if: always()
@@ -176,6 +181,7 @@ jobs:
     needs: fork-intelligence
     if: failure() || needs.fork-intelligence.outputs.breaking_changes > 0
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Log notification

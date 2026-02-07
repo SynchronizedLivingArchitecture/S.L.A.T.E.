@@ -30,6 +30,10 @@ on:
         type: string
         default: ''
 
+concurrency:
+  group: discussion-${{ github.event_name }}-${{ github.event.discussion.number || github.run_id }}
+  cancel-in-progress: false
+
 env:
   PROJECT_OWNER: SynchronizedLivingArchitecture
   REPO_NAME: S.L.A.T.E

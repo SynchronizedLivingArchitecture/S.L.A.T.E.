@@ -96,8 +96,9 @@ services:
               capabilities: [gpu]
     networks:
       - slate_network
+    # Modified: 2026-02-07T07:30:00Z | Author: COPILOT | Change: Remove curl from healthcheck - use Python only
     healthcheck:
-      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:11434/api/tags', timeout=5)\" 2>/dev/null || curl -sf http://localhost:11434/api/tags"]
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:11434/api/tags', timeout=5)\" 2>/dev/null || wget -q -O /dev/null http://localhost:11434/api/tags"]
       interval: 30s
       timeout: 10s
       retries: 5

@@ -45,6 +45,11 @@ on:
 permissions:
   contents: read
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Add concurrency block per GitHub docs
+concurrency:
+  group: fork-sync-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   fork-sync:
     name: Dependency Fork Sync

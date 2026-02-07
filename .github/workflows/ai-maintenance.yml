@@ -50,6 +50,11 @@ on:
     branches:
       - main
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Scheduled workflows should not cancel in-progress runs
+concurrency:
+  group: ai-maintenance-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pull-requests: write
@@ -91,7 +96,7 @@ jobs:
           # Check if training should run
           $shouldTrain = ($mode -eq 'train') -or ($mode -eq 'all') -or ('${{ inputs.force_training }}' -eq 'true')
           "should_train=$shouldTrain" | Out-File -Append $env:GITHUB_OUTPUT
-        shell: pwsh
+        shell: powershell
 
       - name: Verify Ollama
         id: ollama
@@ -123,7 +128,7 @@ jobs:
 
           "available=$ollamaOk" | Out-File -Append $env:GITHUB_OUTPUT
           "models=$models" | Out-File -Append $env:GITHUB_OUTPUT
-        shell: pwsh
+        shell: powershell
 
       - name: Warm up AI models
         if: steps.ollama.outputs.available == 'True'
@@ -137,7 +142,7 @@ jobs:
           Write-Host ""
 
           & $python slate/slate_ai_orchestrator.py --warmup
-        shell: pwsh
+        shell: powershell
 
       - name: Quick Analysis
         if: contains(fromJSON('["quick", "full", "all"]'), steps.mode.outputs.mode) && steps.ollama.outputs.available == 'True'
@@ -159,7 +164,7 @@ jobs:
             "files_analyzed=$($analysis.files_analyzed)" | Out-File -Append $env:GITHUB_OUTPUT
             "issues_found=$($analysis.issues_found)" | Out-File -Append $env:GITHUB_OUTPUT
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Full Codebase Analysis
         if: contains(fromJSON('["full", "all"]'), steps.mode.outputs.mode) && steps.ollama.outputs.available == 'True'
@@ -181,7 +186,7 @@ jobs:
             "code_quality=$($analysis.code_quality)" | Out-File -Append $env:GITHUB_OUTPUT
             "recommendations=$($analysis.recommendations_count)" | Out-File -Append $env:GITHUB_OUTPUT
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Documentation Update
         if: contains(fromJSON('["quick", "docs", "all"]'), steps.mode.outputs.mode) && steps.ollama.outputs.available == 'True'
@@ -212,7 +217,7 @@ jobs:
           } else {
             "has_changes=false" | Out-File -Append $env:GITHUB_OUTPUT
           }
-        shell: pwsh
+        shell: powershell
 
       - name: GitHub Integration Monitor
         if: contains(fromJSON('["monitor", "full", "all"]'), steps.mode.outputs.mode) && steps.ollama.outputs.available == 'True'
@@ -234,7 +239,7 @@ jobs:
             "issues_open=$($monitor.issues_open)" | Out-File -Append $env:GITHUB_OUTPUT
             "prs_open=$($monitor.prs_open)" | Out-File -Append $env:GITHUB_OUTPUT
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Training Data Collection
         if: steps.mode.outputs.should_train == 'True' && steps.ollama.outputs.available == 'True'
@@ -256,7 +261,7 @@ jobs:
             "samples_collected=$($training.samples_collected)" | Out-File -Append $env:GITHUB_OUTPUT
             "training_ready=$($training.training_ready)" | Out-File -Append $env:GITHUB_OUTPUT
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Model Training Session
         if: steps.mode.outputs.should_train == 'True' && steps.training.outputs.training_ready == 'True' && steps.ollama.outputs.available == 'True'
@@ -278,7 +283,7 @@ jobs:
             "training_completed=$($result.completed)" | Out-File -Append $env:GITHUB_OUTPUT
             "model_name=$($result.model_name)" | Out-File -Append $env:GITHUB_OUTPUT
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Commit Documentation Updates
         if: steps.docs.outputs.has_changes == 'true'
@@ -297,7 +302,47 @@ jobs:
           Co-Authored-By: SLATE AI <slate-ai@slate.local>"
 
           git push
-        shell: pwsh
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Modified: 2026-02-07T12:00:00Z | Author: Claude | Change: Spec-Kit Wiki Integration
+      - name: Spec-Kit Wiki Sync
+        if: contains(fromJSON('["docs", "full", "all"]'), steps.mode.outputs.mode) && steps.ollama.outputs.available == 'True'
+        id: speckit
+        run: |
+          $python = "$env:GITHUB_WORKSPACE\.venv\Scripts\python.exe"
+
+          Write-Host ""
+          Write-Host "═══════════════════════════════════════════════════════════════"
+          Write-Host "  Spec-Kit Wiki Integration"
+          Write-Host "═══════════════════════════════════════════════════════════════"
+          Write-Host ""
+
+          & $python slate/slate_spec_kit.py --process-all --wiki --analyze --json > speckit_results.json
+
+          $results = Get-Content speckit_results.json -Raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+          if ($results) {
+            "specs_processed=$($results.specs_processed)" | Out-File -Append $env:GITHUB_OUTPUT
+            "wiki_pages=$($results.wiki_pages_generated)" | Out-File -Append $env:GITHUB_OUTPUT
+            "sections_analyzed=$($results.sections_analyzed)" | Out-File -Append $env:GITHUB_OUTPUT
+          }
+        shell: powershell
+
+      - name: Commit Spec Wiki Updates
+        if: steps.speckit.outputs.wiki_pages > 0
+        run: |
+          git config user.name "SLATE Spec-Kit"
+          git config user.email "slate-spec-kit@slate.local"
+
+          $changes = git status --porcelain docs/wiki/ specs/*/analysis/
+          if ($changes) {
+            git add docs/wiki/ specs/*/analysis/
+            $msg = "docs: Auto-sync wiki from specs`n`nSpecs: ${{ steps.speckit.outputs.specs_processed }}`nWiki pages: ${{ steps.speckit.outputs.wiki_pages }}`nSections analyzed: ${{ steps.speckit.outputs.sections_analyzed }}`n`nCo-Authored-By: SLATE AI <slate-ai@slate.local>"
+            git commit -m $msg
+            git push
+          }
+        shell: powershell
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -332,7 +377,7 @@ jobs:
               gh issue create --title "$title" --body "$body" --label "ai-analysis,automated"
             }
           }
-        shell: pwsh
+        shell: powershell
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -382,7 +427,7 @@ jobs:
           "@
 
           $summary | Out-File -Append $env:GITHUB_STEP_SUMMARY
-        shell: pwsh
+        shell: powershell
 
       - name: Upload Analysis Artifacts
         if: always()
@@ -405,6 +450,7 @@ jobs:
     runs-on: [self-hosted, slate]
     needs: ai-maintenance
     if: contains(fromJSON('["full", "all"]'), needs.ai-maintenance.outputs.mode)
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -421,7 +467,7 @@ jobs:
           Write-Host ""
 
           & $python slate/slate_fork_intelligence.py --analyze --json > fork_ai_analysis.json
-        shell: pwsh
+        shell: powershell
 
       - name: Upload Fork Analysis
         uses: actions/upload-artifact@v4

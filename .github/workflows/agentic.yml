@@ -30,9 +30,10 @@ on:
     # Run autonomous agent every 6 hours
     - cron: '0 */6 * * *'
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Scheduled workflows should not cancel in-progress runs
 concurrency:
   group: agentic-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write

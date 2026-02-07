@@ -1,5 +1,5 @@
 # Contributing to SLATE
-# Modified: 2026-02-07T04:57:00Z | Author: COPILOT | Change: Add AAA standards and update license guidance
+# Modified: 2026-02-08T06:00:00Z | Author: COPILOT | Change: Add agent development guide, kernel-style contribution workflow
 
 Thank you for your interest in contributing to S.L.A.T.E. (Synchronized Living Architecture for Transformation and Evolution)!
 
@@ -131,6 +131,88 @@ SLATE is a **local-only** system. All contributions must:
 - Check the [wiki](https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki)
 - Open an [issue](https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/issues)
 - Read `CLAUDE.md` for project guidelines
+- See `docs/specs/agents-capacity.md` for system capacity planning
+
+## Creating a New Agent (Kernel-Style Plugins)
+
+SLATE uses a kernel-style modular agent system. Each agent is a Python file in
+`slate_core/plugins/agents/` that subclasses `AgentBase`.
+
+### 1. Create the Agent File
+
+```python
+# slate_core/plugins/agents/your_agent.py
+# Modified: YYYY-MM-DDTHH:MM:SSZ | Author: YOUR_NAME | Change: description
+
+from slate_core.plugins.agent_registry import AgentBase, AgentCapability
+
+class YourAgent(AgentBase):
+    AGENT_ID = "YOUR_AGENT"
+    AGENT_NAME = "Your Agent Name"
+    AGENT_VERSION = "1.0.0"
+    AGENT_DESCRIPTION = "What your agent does"
+    REQUIRES_GPU = False
+    DEPENDENCIES = []  # Other agent IDs required
+
+    def capabilities(self):
+        return [
+            AgentCapability(
+                name="your_capability",
+                patterns=["keyword1", "keyword2"],
+                requires_gpu=False,
+                priority=50,
+                description="What tasks this handles",
+            ),
+        ]
+
+    def execute(self, task: dict) -> dict:
+        # Process the task
+        return {"success": True, "result": "done"}
+
+    def health_check(self) -> dict:
+        base = super().health_check()
+        base["healthy"] = True
+        return base
+```
+
+### 2. Test Your Agent
+
+```bash
+# Discover & load
+python slate_core/plugins/agent_registry.py --discover
+python slate_core/plugins/agent_registry.py --load YOUR_AGENT
+
+# Health check
+python slate_core/plugins/agent_registry.py --health
+```
+
+### 3. Add Tests (Required)
+
+Create `tests/test_your_agent.py` following Arrange-Act-Assert pattern.
+
+### Agent Registry CLI (Kernel Commands)
+
+| Command | Linux Kernel Equivalent | Description |
+|---------|------------------------|-------------|
+| `--discover` | `modprobe --list` | Find available agents |
+| `--load AGENT` | `insmod` | Load agent into memory |
+| `--unload AGENT` | `rmmod` | Remove agent from memory |
+| `--reload AGENT` | `rmmod + insmod` | Hot-reload agent |
+| `--load-all` | — | Load all discovered agents |
+| `--status` | `lsmod` | Show loaded agents |
+| `--health` | — | Run health checks |
+
+### Current Agent Roster
+
+| Agent | Role | Routing Patterns |
+|-------|------|-----------------|
+| ALPHA | Coding | implement, code, build, fix, create, add, refactor |
+| BETA | Testing | test, validate, verify, coverage, check, lint |
+| GAMMA | Planning | analyze, plan, research, document, review, design |
+| DELTA | Integration | claude, mcp, sdk, integration, api, plugin |
+| EPSILON | Spec-Weaver | spec, architecture, blueprint, schema, rfc, capacity |
+| ZETA | Benchmark Oracle | benchmark, performance, profile, throughput, optimize |
+| COPILOT | Orchestration | complex, multi-step, orchestrate, deploy, release |
 
 ## License
 

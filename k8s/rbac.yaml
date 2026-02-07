@@ -1,0 +1,109 @@
+# Modified: 2026-02-07T09:00:00Z | Author: COPILOT | Change: Create SLATE RBAC with least-privilege access
+# SLATE RBAC Configuration
+# Principle: Least privilege — agents get only the access they need
+---
+# ServiceAccount for SLATE core workloads
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: slate-core
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: slate
+    app.kubernetes.io/component: core
+automountServiceAccountToken: false
+
+---
+# ServiceAccount for SLATE agents (read-only)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: slate-agent
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: slate
+    app.kubernetes.io/component: agent
+automountServiceAccountToken: false
+
+---
+# Role: SLATE core — can manage pods, configmaps, secrets in slate namespace only
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: slate-core-role
+  namespace: slate
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/status"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+    # NOTE: No create/update/delete on secrets — use sealed-secrets or external-secrets operator
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list", "watch"]
+
+---
+# RoleBinding: SLATE core SA -> core role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: slate-core-binding
+  namespace: slate
+subjects:
+  - kind: ServiceAccount
+    name: slate-core
+    namespace: slate
+roleRef:
+  kind: Role
+  name: slate-core-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Role: SLATE agent — read-only access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: slate-agent-role
+  namespace: slate
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/status", "services", "configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
+
+---
+# RoleBinding: SLATE agent SA -> agent role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: slate-agent-binding
+  namespace: slate
+subjects:
+  - kind: ServiceAccount
+    name: slate-agent
+    namespace: slate
+roleRef:
+  kind: Role
+  name: slate-agent-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ClusterRole: Deny cluster-wide access (explicit deny-all)
+# SLATE agents must NEVER have cluster-admin or cluster-wide resource access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: slate-deny-all
+  labels:
+    app.kubernetes.io/name: slate
+rules: []  # Empty = no cluster-wide permissions

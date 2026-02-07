@@ -1,7 +1,7 @@
 # Specification: Dashboard Monochrome Theme
 
 **Spec ID**: 005-monochrome-theme
-**Status**: implementing
+**Status**: completed
 **Created**: 2026-02-06
 
 ## Overview

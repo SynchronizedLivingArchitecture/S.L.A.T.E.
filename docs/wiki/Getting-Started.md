@@ -1,6 +1,21 @@
 # Getting Started
+<!-- Modified: 2026-02-07T08:00:00Z | Author: CLAUDE | Change: Simplify install, add GitHub integration -->
 
-This guide will walk you through installing and setting up SLATE on your system.
+Turn your local hardware into an AI operations center for GitHub. One command.
+
+## Quick Install
+
+```bash
+git clone https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git && cd S.L.A.T.E && python install_slate.py
+```
+
+That's it. The installer handles everything:
+- Python virtual environment
+- PyTorch with GPU detection
+- Ollama local LLM setup
+- VS Code extension
+- GitHub runner configuration
+- ChromaDB vector store
 
 ## Prerequisites
 
@@ -12,49 +27,38 @@ This guide will walk you through installing and setting up SLATE on your system.
 ### Recommended
 - **NVIDIA GPU** with CUDA support (RTX 20xx or newer)
 - **16GB+ RAM**
-- **Ollama** for local LLM inference
+- **VS Code** with Claude Code extension
 
-## Installation
+## What Gets Installed
 
-### Step 1: Clone the Repository
+| Component | Purpose |
+|-----------|---------|
+| **Ollama** | Local LLM inference (mistral-nemo, llama3.2) |
+| **ChromaDB** | Vector store for codebase memory |
+| **PyTorch** | GPU-optimized for your hardware |
+| **GitHub Runner** | Self-hosted Actions runner with AI access |
+| **Dashboard** | Real-time monitoring at localhost:8080 |
+
+## Manual Installation
+
+If you prefer step-by-step:
 
 ```bash
+# Clone
 git clone https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git
 cd S.L.A.T.E
-```
 
-### Step 2: Create Virtual Environment
-
-**Windows:**
-```bash
+# Virtual environment
 python -m venv .venv
-.venv\Scripts\activate
-```
+.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # Linux/macOS
 
-**Linux/macOS:**
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-### Step 3: Install Dependencies
-
-```bash
+# Dependencies
 pip install -r requirements.txt
-```
 
-### Step 4: Run Installation Script
-
-```bash
+# Full install with dashboard
 python install_slate.py
 ```
-
-This script will:
-1. Detect your hardware (GPU, CPU, RAM)
-2. Install appropriate PyTorch version
-3. Configure Ollama integration (if available)
-4. Set up configuration files
-5. Verify the installation
 
 ## Quick Start
 

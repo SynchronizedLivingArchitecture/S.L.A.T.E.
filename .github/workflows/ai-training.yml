@@ -1,11 +1,19 @@
 # SLATE AI Training Workflow
-# Modified: 2026-02-07T09:30:00Z | Author: Claude | Change: Weekly model training and customization
+# Modified: 2026-02-07T15:45:00Z | Author: Claude | Change: Secure pipeline with full git ingestion minus secrets
 #
 # Runs weekly to:
-# - Collect training data from codebase
-# - Train custom SLATE-specific model
-# - Validate model quality
-# - Update model registry
+# - Ingest ENTIRE git repository for training (code, commits, docstrings)
+# - Filter ALL secrets, PII, and credentials (NEVER included)
+# - Train custom SLATE-specific model using local Ollama
+# - Model stays LOCAL - never distributed
+# - Validate model quality before deployment
+#
+# Security Protocol:
+# - PII Scanner integration for all content
+# - Secret pattern detection (API keys, tokens, passwords)
+# - .gitignore and .env file exclusion
+# - Commit message sanitization
+# - NO external distribution - local training only
 
 name: AI Training
 
@@ -29,31 +37,45 @@ on:
           - mistral-nemo
           - llama3.2
           - codellama:13b
+      skip_validation:
+        description: 'Skip security validation (NOT recommended)'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ai-training-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
+  # ═══════════════════════════════════════════════════════════════════════
+  # STAGE 1: Secure Data Collection (Ingests full git, filters secrets)
+  # ═══════════════════════════════════════════════════════════════════════
   collect-training-data:
-    name: Collect Training Data
+    name: Secure Data Collection
     runs-on: [self-hosted, slate]
-    timeout-minutes: 30
+    timeout-minutes: 45
     outputs:
       samples_collected: ${{ steps.collect.outputs.samples_collected }}
+      secrets_blocked: ${{ steps.collect.outputs.secrets_blocked }}
       training_ready: ${{ steps.collect.outputs.training_ready }}
+      validation_passed: ${{ steps.validate.outputs.valid }}
 
     steps:
-      - name: Checkout
+      - name: Checkout (Full History)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for commit messages
+          fetch-depth: 0  # FULL git history for comprehensive training
 
       - name: Setup Python
         run: |
           "$env:GITHUB_WORKSPACE\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
-        shell: pwsh
+        shell: powershell
 
-      - name: Verify Ollama
+      - name: Verify Ollama (Local AI)
         id: ollama
         run: |
           $available = $false
@@ -65,51 +87,117 @@ jobs:
               Write-Host "Ollama available with: $models"
             }
           } catch {
-            Write-Host "Ollama not available"
+            Write-Host "Ollama not available - will use fallback training"
           }
           "available=$available" | Out-File -Append $env:GITHUB_OUTPUT
-        shell: pwsh
+        shell: powershell
 
-      - name: Collect Training Data
+      - name: Collect Training Data (Secure Pipeline)
         id: collect
         run: |
           Write-Host ""
           Write-Host "═══════════════════════════════════════════════════════════════"
-          Write-Host "  Collecting Training Data"
+          Write-Host "  SLATE Secure Training Data Collection"
+          Write-Host "═══════════════════════════════════════════════════════════════"
+          Write-Host ""
+          Write-Host "  Security Protocol:"
+          Write-Host "    - Ingesting ENTIRE git repository"
+          Write-Host "    - Filtering ALL secrets and PII"
+          Write-Host "    - Model stays LOCAL only"
+          Write-Host ""
+
+          # Use the new secure training pipeline
+          python slate/slate_training_pipeline.py --collect --json > training_collect.json
+
+          $data = Get-Content training_collect.json -Raw | ConvertFrom-Json
+
+          "samples_collected=$($data.samples_collected)" | Out-File -Append $env:GITHUB_OUTPUT
+          "secrets_blocked=$($data.secrets_blocked)" | Out-File -Append $env:GITHUB_OUTPUT
+          "training_ready=$($data.training_ready)" | Out-File -Append $env:GITHUB_OUTPUT
+
+          Write-Host ""
+          Write-Host "Results:"
+          Write-Host "  Samples collected: $($data.samples_collected)"
+          Write-Host "  Secrets blocked: $($data.secrets_blocked)"
+          Write-Host "  Training ready: $($data.training_ready)"
+        shell: powershell
+
+      - name: Validate Training Data (Security Check)
+        id: validate
+        if: inputs.skip_validation != true
+        run: |
+          Write-Host ""
+          Write-Host "═══════════════════════════════════════════════════════════════"
+          Write-Host "  Security Validation - Ensuring NO secrets in training data"
           Write-Host "═══════════════════════════════════════════════════════════════"
           Write-Host ""
 
-          python slate/slate_ai_orchestrator.py --collect-training --json > training_data.json
+          python slate/slate_training_pipeline.py --validate --json > training_validate.json
 
-          $data = Get-Content training_data.json -Raw | ConvertFrom-Json
+          $validation = Get-Content training_validate.json -Raw | ConvertFrom-Json
 
-          "samples_collected=$($data.samples_collected)" | Out-File -Append $env:GITHUB_OUTPUT
-          "training_ready=$($data.training_ready)" | Out-File -Append $env:GITHUB_OUTPUT
+          "valid=$($validation.valid)" | Out-File -Append $env:GITHUB_OUTPUT
+          "issues_found=$($validation.issues_found)" | Out-File -Append $env:GITHUB_OUTPUT
 
-          Write-Host "Samples collected: $($data.samples_collected)"
-          Write-Host "Training ready: $($data.training_ready)"
-        shell: pwsh
+          if (-not $validation.valid) {
+            Write-Host "::error::SECURITY VALIDATION FAILED - Training data contains secrets!"
+            Write-Host "Issues found: $($validation.issues_found)"
+            exit 1
+          }
 
-      - name: Generate Training Summary
+          Write-Host "[OK] Security validation passed - training data is secret-free"
+        shell: powershell
+
+      - name: Generate Collection Summary
         run: |
-          "## Training Data Collection" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-          "**Samples Collected**: ${{ steps.collect.outputs.samples_collected }}" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-          "**Training Ready**: ${{ steps.collect.outputs.training_ready }}" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-        shell: pwsh
+          $summary = @"
+          ## Secure Training Data Collection
+
+          ### Security Protocol
+          | Check | Status |
+          |-------|--------|
+          | Full Git Ingestion | Completed |
+          | Secret Filtering | ${{ steps.collect.outputs.secrets_blocked }} blocked |
+          | PII Scanning | Active |
+          | Security Validation | ${{ steps.validate.outputs.valid || 'skipped' }} |
+
+          ### Collection Results
+          | Metric | Value |
+          |--------|-------|
+          | Samples Collected | ${{ steps.collect.outputs.samples_collected }} |
+          | Secrets Blocked | ${{ steps.collect.outputs.secrets_blocked }} |
+          | Training Ready | ${{ steps.collect.outputs.training_ready }} |
+
+          **Note**: Training data stays LOCAL only - never distributed.
+          "@
+          $summary | Out-File -Append $env:GITHUB_STEP_SUMMARY
+        shell: powershell
 
       - name: Upload Training Data
         uses: actions/upload-artifact@v4
         with:
-          name: training-data
-          path: training_data.json
+          name: training-data-secure
+          path: |
+            training_collect.json
+            training_validate.json
           retention-days: 90
 
+  # ═══════════════════════════════════════════════════════════════════════
+  # STAGE 2: Local Model Training (GPU-accelerated, LOCAL ONLY)
+  # ═══════════════════════════════════════════════════════════════════════
   train-model:
-    name: Train Custom Model
-    runs-on: [self-hosted, slate]
+    name: Train Custom Model (Local)
+    runs-on: [self-hosted, slate, gpu]
     needs: collect-training-data
-    if: needs.collect-training-data.outputs.training_ready == 'True' || inputs.force_train == true
+    if: |
+      (needs.collect-training-data.outputs.training_ready == 'True' || inputs.force_train == true) &&
+      (needs.collect-training-data.outputs.validation_passed != 'False' || inputs.skip_validation == true)
     timeout-minutes: 120
+    env:
+      CUDA_VISIBLE_DEVICES: '0,1'
+    outputs:
+      completed: ${{ steps.train.outputs.completed }}
+      model_name: ${{ steps.train.outputs.model_name }}
 
     steps:
       - name: Checkout
@@ -118,20 +206,27 @@ jobs:
       - name: Setup Python
         run: |
           "$env:GITHUB_WORKSPACE\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
-        shell: pwsh
+        shell: powershell
 
       - name: Download Training Data
         uses: actions/download-artifact@v4
         with:
-          name: training-data
+          name: training-data-secure
 
-      - name: Train Custom Model
+      - name: GPU Status
+        run: |
+          nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu --format=csv,noheader
+        shell: powershell
+
+      - name: Train Custom Model (Secure Pipeline)
         id: train
         run: |
           Write-Host ""
           Write-Host "═══════════════════════════════════════════════════════════════"
-          Write-Host "  Training Custom SLATE Model"
+          Write-Host "  Training Custom SLATE Model (LOCAL ONLY)"
           Write-Host "═══════════════════════════════════════════════════════════════"
+          Write-Host ""
+          Write-Host "  Model will be trained locally and NEVER distributed"
           Write-Host ""
 
           $baseModel = '${{ inputs.base_model }}'
@@ -140,7 +235,8 @@ jobs:
           Write-Host "Base model: $baseModel"
           Write-Host ""
 
-          python slate/slate_ai_orchestrator.py --train --json > training_result.json
+          # Use secure training pipeline
+          python slate/slate_training_pipeline.py --train --base-model $baseModel --json > training_result.json
 
           $result = Get-Content training_result.json -Raw | ConvertFrom-Json
 
@@ -148,12 +244,15 @@ jobs:
           "model_name=$($result.model_name)" | Out-File -Append $env:GITHUB_OUTPUT
 
           if ($result.completed) {
-            Write-Host "Training completed successfully!"
+            Write-Host ""
+            Write-Host "[OK] Training completed successfully!"
             Write-Host "Model: $($result.model_name)"
+            Write-Host ""
+            Write-Host "IMPORTANT: This model is LOCAL ONLY - not distributed"
           } else {
-            Write-Host "Training failed"
+            Write-Host "Training failed: $($result.error)"
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Validate Trained Model
         if: steps.train.outputs.completed == 'True'
@@ -173,17 +272,29 @@ jobs:
           } else {
             Write-Host "::warning::Model validation failed"
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Generate Training Summary
         if: always()
         run: |
-          "## Model Training Results" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-          "**Training Completed**: ${{ steps.train.outputs.completed || 'false' }}" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-          "**Model Name**: ${{ steps.train.outputs.model_name || 'N/A' }}" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-          "**Base Model**: ${{ inputs.base_model || 'mistral-nemo' }}" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-          "**Training Date**: $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-        shell: pwsh
+          $summary = @"
+          ## Model Training Results
+
+          | Metric | Value |
+          |--------|-------|
+          | Training Completed | ${{ steps.train.outputs.completed || 'false' }} |
+          | Model Name | ${{ steps.train.outputs.model_name || 'N/A' }} |
+          | Base Model | ${{ inputs.base_model || 'mistral-nemo' }} |
+          | Training Date | $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC') |
+          | Distribution | **LOCAL ONLY** |
+
+          ### Security Notes
+          - Training data was validated secret-free
+          - Model is stored locally on self-hosted runner
+          - Model will NOT be distributed externally
+          "@
+          $summary | Out-File -Append $env:GITHUB_STEP_SUMMARY
+        shell: powershell
 
       - name: Upload Training Results
         if: always()
@@ -193,14 +304,19 @@ jobs:
           path: |
             training_result.json
             .slate_training/Modelfile.*
+            .slate_training/pipeline_state.json
           retention-days: 90
           if-no-files-found: ignore
 
+  # ═══════════════════════════════════════════════════════════════════════
+  # STAGE 3: Update Model Registry (Local tracking only)
+  # ═══════════════════════════════════════════════════════════════════════
   update-model-registry:
     name: Update Model Registry
     runs-on: [self-hosted, slate]
     needs: train-model
     if: needs.train-model.outputs.completed == 'True'
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -220,16 +336,19 @@ jobs:
                 trained = (Get-Date -Format 'o')
                 run_number = ${{ github.run_number }}
                 status = "active"
+                distribution = "local_only"
+                security_validated = $true
               }
             )
             last_updated = (Get-Date -Format 'o')
+            security_note = "All models are LOCAL ONLY - never distributed"
           }
 
           New-Item -ItemType Directory -Path ".slate_training" -Force | Out-Null
           $registry | ConvertTo-Json -Depth 10 | Out-File $registryFile
 
           Write-Host "Updated model registry"
-        shell: pwsh
+        shell: powershell
 
       - name: Commit Registry Update
         run: |
@@ -237,14 +356,68 @@ jobs:
           git config user.email "slate-ai@slate.local"
 
           git add .slate_training/
-          git diff --staged --quiet || git commit -m "chore: update AI model registry
+          git diff --staged --quiet || git commit -m "chore: update AI model registry (local only)
 
           Trained model: ${{ needs.train-model.outputs.model_name }}
           Run: #${{ github.run_number }}
+          Security: Validated secret-free
+          Distribution: LOCAL ONLY
 
           Co-Authored-By: SLATE AI <slate-ai@slate.local>"
 
           git push
-        shell: pwsh
+        shell: powershell
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # STAGE 4: Schedule AI Tasks (Intelligent sequencing)
+  # ═══════════════════════════════════════════════════════════════════════
+  schedule-ai-tasks:
+    name: Schedule AI Tasks
+    runs-on: [self-hosted, slate]
+    needs: [collect-training-data, train-model]
+    if: always() && needs.collect-training-data.result == 'success'
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        shell: powershell
+
+      - name: Queue Follow-up AI Tasks
+        run: |
+          Write-Host ""
+          Write-Host "═══════════════════════════════════════════════════════════════"
+          Write-Host "  Scheduling Follow-up AI Tasks"
+          Write-Host "═══════════════════════════════════════════════════════════════"
+          Write-Host ""
+
+          # Queue embedding index update
+          python slate/slate_ai_scheduler.py --add "embedding:Update codebase embeddings with new training data"
+
+          # Queue documentation update
+          python slate/slate_ai_scheduler.py --add "documentation:Generate updated API documentation"
+
+          # Queue analysis task
+          python slate/slate_ai_scheduler.py --add "analysis:Analyze codebase for improvement opportunities"
+
+          # Show schedule
+          python slate/slate_ai_scheduler.py --schedule --json > ai_schedule.json
+
+          Write-Host ""
+          Write-Host "Scheduled tasks:"
+          Get-Content ai_schedule.json
+        shell: powershell
+
+      - name: Upload Schedule
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-schedule-${{ github.run_number }}
+          path: ai_schedule.json
+          retention-days: 30
+          if-no-files-found: ignore

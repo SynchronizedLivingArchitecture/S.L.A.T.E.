@@ -46,13 +46,17 @@ TASK_FILE = WORKSPACE_ROOT / "current_tasks.json"
 STATE_FILE = WORKSPACE_ROOT / ".slate_autonomous_state.json"
 LOG_DIR = WORKSPACE_ROOT / "slate_logs" / "autonomous"
 
+# Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add COPILOT_CHAT agent routing for @slate participant bridge
 # Agent routing patterns
 AGENT_PATTERNS = {
     "ALPHA": ["implement", "code", "build", "fix", "create", "add", "refactor", "write"],
     "BETA": ["test", "validate", "verify", "coverage", "check", "lint", "format"],
     "GAMMA": ["analyze", "plan", "research", "document", "review", "design"],
     "DELTA": ["claude", "mcp", "sdk", "integration", "api", "plugin"],
+    "EPSILON": ["spec", "specification", "architecture", "blueprint", "schema", "rfc", "capacity"],
+    "ZETA": ["benchmark", "performance", "profile", "throughput", "latency", "optimize", "capacity"],
     "COPILOT": ["complex", "multi-step", "orchestrate", "deploy", "release"],
+    "COPILOT_CHAT": ["diagnose", "investigate", "troubleshoot", "interactive", "explain", "full protocol", "comprehensive"],
 }
 
 
@@ -237,22 +241,33 @@ class UnifiedAutonomousLoop:
             self._log(f"GitHub Issues fetch failed: {e}", "WARN")
         return tasks[:5]  # Cap at 5
 
+    # Modified: 2026-02-07T12:50:00Z | Author: COPILOT | Change: Fix self-scan false positives — exclude scanner's own pattern definitions
     def _discover_from_codebase(self) -> list[dict]:
         """Find TODOs and FIXMEs in codebase."""
         tasks = []
-        patterns = ["TODO:", "FIXME:", "HACK:", "BUG:"]
+        # Split pattern markers from colon to prevent self-detection
+        _markers = [("TO" + "DO:"), ("FIX" + "ME:"), ("HA" + "CK:"), ("BU" + "G:")]
         scan_dirs = ["slate", "agents"]
+        # Exclude this file to avoid detecting pattern definitions as issues
+        self_path = Path(__file__).resolve()
 
         for dir_name in scan_dirs:
             dir_path = self.workspace / dir_name
             if not dir_path.exists():
                 continue
             for py_file in dir_path.rglob("*.py"):
+                # Skip self to prevent false positives from pattern string literals
+                if py_file.resolve() == self_path:
+                    continue
                 try:
                     content = py_file.read_text(encoding="utf-8", errors="replace")
                     for i, line in enumerate(content.split("\n"), 1):
-                        for pattern in patterns:
-                            if pattern in line:
+                        stripped = line.strip()
+                        # Only match patterns in comments, not string literals
+                        if not stripped.startswith("#"):
+                            continue
+                        for pattern in _markers:
+                            if pattern in stripped:
                                 rel = str(py_file.relative_to(self.workspace))
                                 msg = line.strip().lstrip("#").strip()
                                 tasks.append({
@@ -365,12 +380,15 @@ class UnifiedAutonomousLoop:
 
         try:
             # Execute based on agent type
+            # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: add COPILOT_CHAT routing
             if agent in ("ALPHA", "BETA"):
                 result = self._execute_code_task(task, agent)
             elif agent == "GAMMA":
                 result = self._execute_analysis_task(task)
             elif agent == "DELTA":
                 result = self._execute_integration_task(task)
+            elif agent == "COPILOT_CHAT":
+                result = self._execute_copilot_chat_task(task)
             else:
                 result = self._execute_complex_task(task)
 
@@ -557,6 +575,47 @@ class UnifiedAutonomousLoop:
                 "success": True,
                 "agent": "COPILOT",
                 "plan": plan_result.get("response", ""),
+                "duration_s": round(time.time() - start, 1),
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e), "duration_s": round(time.time() - start, 1)}
+
+    # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: COPILOT_CHAT bridge execution
+    def _execute_copilot_chat_task(self, task: dict) -> dict:
+        """Route task to the @slate VS Code chat participant via the agent bridge.
+
+        This dispatches work to the COPILOT_CHAT agent, which enqueues tasks
+        into the bridge queue file. The @slate TypeScript participant polls
+        this queue and processes tasks using its full tool suite interactively.
+        """
+        start = time.time()
+        try:
+            from slate.copilot_agent_bridge import CopilotAgentBridge
+            bridge = CopilotAgentBridge()
+
+            task_id = task.get("id", f"auto_{int(time.time())}")
+            title = task.get("title", "untitled")
+            desc = task.get("description", title)
+
+            # Enqueue to bridge for @slate participant pickup
+            bridge.enqueue_task(
+                task_id=task_id,
+                title=title,
+                description=desc,
+                priority=task.get("priority", "medium"),
+                agent="COPILOT_CHAT",
+                source="autonomous_loop",
+            )
+
+            self._log(f"  Dispatched to @slate participant bridge: {title[:50]}")
+
+            # Don't block — return immediately with pending status
+            # The Copilot Runner or @slate participant will poll and complete it
+            return {
+                "success": True,
+                "agent": "COPILOT_CHAT",
+                "response": f"Task dispatched to @slate chat participant via bridge queue. Task ID: {task_id}",
+                "bridge_task_id": task_id,
                 "duration_s": round(time.time() - start, 1),
             }
         except Exception as e:

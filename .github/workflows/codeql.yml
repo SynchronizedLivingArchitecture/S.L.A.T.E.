@@ -18,9 +18,10 @@ on:
     - cron: '30 3 * * 1'
   workflow_dispatch:
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Fix concurrency for mixed push/PR/schedule triggers
 concurrency:
-  group: codeql-${{ github.ref }}
-  cancel-in-progress: true
+  group: codeql-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
 
 permissions:
   actions: read

@@ -1,0 +1,283 @@
+{
+  "spec_id": "005-monochrome-theme",
+  "analyzed_at": "2026-02-07T13:19:04.771518+00:00",
+  "sections": [
+    {
+      "level": 2,
+      "title": "Overview",
+      "anchor": "overview",
+      "content_length": 218,
+      "line_range": [
+        6,
+        9
+      ],
+      "subsections": [],
+      "analysis": {
+        "requirements": [
+          "Implement black and white monochrome theme",
+          "Use minimal color for critical status indicators (success/error)",
+          "Add 'Workflow Pipeline' section to visualize task execution pipeline"
+        ],
+        "implementation_notes": "Ensure accessibility compliance with sufficient contrast between text and background colors.",
+        "risks": [
+          "Colorblindness accessibility issues if not properly addressed",
+          "Potential performance impact due to complex visualizations in the new section"
+        ],
+        "dependencies": [
+          "Dashboard Monochrome Theme specification"
+        ],
+        "summary": "Redesign SLATE dashboard with monochrome theme and add 'Workflow Pipeline' visualization."
+      }
+    },
+    {
+      "level": 2,
+      "title": "Design Principles",
+      "anchor": "design-principles",
+      "content_length": 389,
+      "line_range": [
+        10,
+        17
+      ],
+      "subsections": [],
+      "analysis": {
+        "requirements": [
+          "Use near-black background (#0a0a0a) with white/gray text hierarchy",
+          "Limit colors to red (#ef4444) for errors and green (#22c55e) for success",
+          "Maintain 80% opacity cards with backdrop blur (Glassmorphism)",
+          "Display GitHub Actions workflow activity in real-time",
+          "Visualize Tasks -> Runner -> Workflows -> Results pipeline flow"
+        ],
+        "implementation_notes": "Ensure proper contrast ratio for accessibility, consider performance impact of Glassmorphism effect.",
+        "risks": [
+          "Difficulty maintaining sufficient contrast with near-black background",
+          "Potential performance issues due to real-time workflow activity display"
+        ],
+        "dependencies": [
+          "GitHub Actions API"
+        ],
+        "summary": "Implement a monochrome theme with minimal color usage, Glassmorphism effect, and real-time GitHub Actions workflow visibility."
+      }
+    },
+    {
+      "level": 2,
+      "title": "Color Palette",
+      "anchor": "color-palette",
+      "content_length": 0,
+      "line_range": [
+        18,
+        19
+      ],
+      "subsections": [
+        {
+          "level": 3,
+          "title": "Base Colors",
+          "anchor": "base-colors",
+          "content_length": 227,
+          "line_range": [
+            20,
+            26
+          ],
+          "subsections": [],
+          "analysis": {
+            "requirements": [
+              "Define dark background color for pages",
+              "Define card background colors with different opacity levels for normal and hover states"
+            ],
+            "implementation_notes": "Use CSS variables to define colors for easy maintenance.",
+            "risks": [],
+            "dependencies": [
+              "CSS"
+            ],
+            "summary": "This section specifies base colors for dark-themed dashboard pages."
+          }
+        },
+        {
+          "level": 3,
+          "title": "Text Hierarchy",
+          "anchor": "text-hierarchy",
+          "content_length": 205,
+          "line_range": [
+            27,
+            33
+          ],
+          "subsections": [],
+          "analysis": {
+            "requirements": [
+              "Define primary, secondary and muted text colors",
+              "Use `--text-primary`, `--text-secondary` and `--text-muted` variables"
+            ],
+            "implementation_notes": "Colors should be defined as CSS custom properties.",
+            "risks": [
+              "Color choices may not provide sufficient contrast for accessibility"
+            ],
+            "dependencies": [
+              "Dashboard Monochrome Theme",
+              "Color Palette"
+            ],
+            "summary": "This section specifies text colors for primary, secondary and muted content in the Dashboard Monochrome Theme."
+          }
+        },
+        {
+          "level": 3,
+          "title": "Status Colors (Minimal)",
+          "anchor": "status-colors-minimal",
+          "content_length": 265,
+          "line_range": [
+            34,
+            41
+          ],
+          "subsections": [],
+          "analysis": {
+            "requirements": [
+              "Define colors for status success, error, pending and active",
+              "Use `--status-<status>` naming convention"
+            ],
+            "implementation_notes": "Use CSS variables to define colors",
+            "risks": [],
+            "dependencies": [
+              "Dashboard Monochrome Theme"
+            ],
+            "summary": "Defines color codes for different status states in a monochrome theme."
+          }
+        },
+        {
+          "level": 3,
+          "title": "Pipeline Colors",
+          "anchor": "pipeline-colors",
+          "content_length": 253,
+          "line_range": [
+            42,
+            49
+          ],
+          "subsections": [],
+          "analysis": {
+            "requirements": [
+              "Define colors for pipeline stages",
+              "Use monochrome theme"
+            ],
+            "implementation_notes": "Use predefined hex color codes for each stage.",
+            "risks": [],
+            "dependencies": [
+              "Color Palette"
+            ],
+            "summary": "Specify colors for different pipeline stages using a monochrome theme."
+          }
+        }
+      ],
+      "analysis": {
+        "requirements": [
+          "Define a monochrome color palette for the dashboard"
+        ],
+        "implementation_notes": "Use shades of gray to create the monochrome theme",
+        "risks": [],
+        "dependencies": [],
+        "summary": "Create a monochrome color palette for the dashboard."
+      }
+    },
+    {
+      "level": 2,
+      "title": "UI Components",
+      "anchor": "ui-components",
+      "content_length": 0,
+      "line_range": [
+        50,
+        51
+      ],
+      "subsections": [
+        {
+          "level": 3,
+          "title": "Workflow Pipeline Section",
+          "anchor": "workflow-pipeline-section",
+          "content_length": 161,
+          "line_range": [
+            52,
+            57
+          ],
+          "subsections": [],
+          "analysis": {
+            "requirements": [
+              "Display full-width card for workflow pipeline",
+              "Show four stages with animated connectors",
+              "Update counts in real-time"
+            ],
+            "implementation_notes": "Consider using a library like D3.js or Three.js for animations and interactions.",
+            "risks": [
+              "Complexity in animating connectors between stages",
+              "Performance issues with real-time updates"
+            ],
+            "dependencies": [
+              "UI Components"
+            ],
+            "summary": "Implement an animated workflow pipeline card with four stages and real-time count updates."
+          }
+        }
+      ],
+      "analysis": {
+        "requirements": [
+          "Design monochrome theme for dashboard"
+        ],
+        "implementation_notes": "Use grayscale colors and ensure accessibility compliance.",
+        "risks": [
+          "Color contrast issues affecting readability",
+          "Compatibility with existing UI components"
+        ],
+        "dependencies": [
+          "Dashboard UI components"
+        ],
+        "summary": "Develop a monochrome theme for the dashboard UI."
+      }
+    },
+    {
+      "level": 2,
+      "title": "Accessibility",
+      "anchor": "accessibility",
+      "content_length": 137,
+      "line_range": [
+        58,
+        63
+      ],
+      "subsections": [],
+      "analysis": {
+        "requirements": [
+          "Ensure text contrast is at least 16:1 for white on near-black",
+          "Indicate status using text labels, not just color",
+          "Respect user's prefers-reduced-motion preference"
+        ],
+        "implementation_notes": "Use WCAG guidelines for color contrast and ensure animations are optional or adjustable.",
+        "risks": [
+          "Difficulty meeting exact contrast ratio without causing visual discomfort",
+          "Ensuring consistency in status indication across different components"
+        ],
+        "dependencies": [
+          "WCAG guidelines"
+        ],
+        "summary": "Implement accessibility features including proper text contrast, clear status labels, and respect for reduced motion preference."
+      }
+    },
+    {
+      "level": 2,
+      "title": "Files Modified",
+      "anchor": "files-modified",
+      "content_length": 59,
+      "line_range": [
+        64,
+        67
+      ],
+      "subsections": [],
+      "analysis": {
+        "requirements": [
+          "Update CSS and HTML files for monochrome theme"
+        ],
+        "implementation_notes": "Changes will affect the visual appearance of the dashboard.",
+        "risks": [
+          "Incompatibility with existing styles",
+          "Potential breaking changes in UI layout"
+        ],
+        "dependencies": [
+          "agents/slate_dashboard_server.py"
+        ],
+        "summary": "This section requires updating CSS and HTML files for a monochrome theme."
+      }
+    }
+  ]
+}

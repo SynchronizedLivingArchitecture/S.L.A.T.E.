@@ -14,6 +14,11 @@ on:
       - '.github/labels.yml'
   workflow_dispatch:
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Add concurrency block per GitHub docs
+concurrency:
+  group: label-sync-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   issues: write
 

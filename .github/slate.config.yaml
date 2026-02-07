@@ -134,11 +134,13 @@ release:
       platforms: [linux/amd64]
 
 # Agents
+# Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add COPILOT_CHAT agent for @slate participant bridge
 agents:
   ALPHA: {role: coding, gpu: true}
   BETA: {role: testing, gpu: true}
   GAMMA: {role: planning, gpu: false}
   DELTA: {role: external_bridge, gpu: false}
+  COPILOT_CHAT: {role: chat_participant, gpu: false}
 
 # Routing
 routing:
@@ -146,4 +148,5 @@ routing:
   test|validate|verify|coverage: BETA
   analyze|plan|research|document: GAMMA
   claude|mcp|sdk|integration: DELTA
+  diagnose|investigate|troubleshoot|interactive|explain: COPILOT_CHAT
   complex|multi-step: COPILOT

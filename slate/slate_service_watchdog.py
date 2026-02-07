@@ -110,10 +110,19 @@ class ServiceWatchdog:
         return None
 
     def check_dashboard(self) -> bool:
-        """Check if dashboard server is responding."""
+        """Check if dashboard server is responding.
+
+        Uses http.client for reliable connection handling.
+        """
+        # Modified: 2026-02-07T07:30:00Z | Author: COPILOT | Change: Use http.client for robust health check
         try:
-            req = urllib.request.urlopen(DASHBOARD_URL, timeout=5)
-            return req.status == 200
+            import http.client
+            conn = http.client.HTTPConnection("127.0.0.1", DASHBOARD_PORT, timeout=5)
+            conn.request("GET", "/health")
+            resp = conn.getresponse()
+            ok = resp.status == 200
+            conn.close()
+            return ok
         except Exception:
             return False
 

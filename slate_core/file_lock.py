@@ -31,10 +31,10 @@ Usage:
         pass
 """
 
-import fcntl
+# Modified: 2025-07-09T12:00:00Z | Author: COPILOT
+# Change: Fix fcntl import to be conditional on Unix only
 import json
 import os
-import sys
 import threading
 import time
 from contextlib import contextmanager
@@ -57,6 +57,8 @@ if os.name == "nt":
         except Exception:
             pass
 else:
+    import fcntl
+
     def lock_file(f: TextIO, exclusive: bool = True) -> None:
         """Lock a file on Unix."""
         fcntl.flock(f.fileno(), fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)

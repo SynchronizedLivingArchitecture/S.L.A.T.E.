@@ -1,0 +1,291 @@
+{
+  "name": "SLATE Design Inspiration Sources",
+  "version": "3.0.0",
+  "description": "Engineering-focused design system for SLATE generative UI - blueprints, guided setup, and machine-like architecture visualization",
+  "lastUpdated": "2026-02-07T16:00:00Z",
+  "engineeringTheme": {
+    "philosophy": "Present system integrations like engineering blueprints - showing how components link together like a machine",
+    "visualLanguage": "Technical precision with organic warmth, schematic-style connection visualization",
+    "userExperience": "Product website feel with guided onboarding - hold user's hand through setup and development"
+  },
+  "sources": [
+    {
+      "id": "m3-material",
+      "name": "Google M3 Material Design",
+      "url": "https://m3.material.io/",
+      "type": "primary",
+      "category": "design-system",
+      "description": "Google's Material Design 3 - comprehensive design system for modern UI",
+      "usageContext": [
+        "Design token architecture",
+        "Dynamic color theming",
+        "Component patterns",
+        "Elevation system",
+        "State layers",
+        "Motion principles"
+      ],
+      "extractedPatterns": {
+        "colorSystem": {
+          "approach": "Dynamic color with tonal palettes",
+          "primary": "#6442d6",
+          "secondary": "#5d5d74",
+          "error": "#ff6240",
+          "tonalPalettes": {
+            "primary80": "#cbbeff",
+            "primary30": "#4b21bd",
+            "primary20": "#340098"
+          },
+          "surfaces": {
+            "light": "#fefbff",
+            "dark": "#303030"
+          }
+        },
+        "typography": {
+          "displayFont": "Google Sans",
+          "bodyFont": "Google Sans Text",
+          "weights": [400, 475, 500, 700],
+          "scale": ["body-s", "body-m", "body-l", "title", "headline", "display"]
+        },
+        "elevation": {
+          "levels": [1, 2, 3],
+          "shadowSystem": "Layered box-shadows with tonal overlays"
+        },
+        "stateLayers": {
+          "hover": "8% opacity overlay",
+          "active": "10-12% opacity overlay",
+          "focus": "Focus ring with primary color",
+          "pressed": "Ripple effect"
+        },
+        "breakpoints": {
+          "mobile": "<=600px",
+          "tablet": "601-1294px",
+          "desktop": ">=1295px"
+        }
+      },
+      "addedDate": "2026-02-07",
+      "addedBy": "claude-opus-4.5"
+    },
+    {
+      "id": "anthropic-geometric",
+      "name": "Anthropic Geometric Art Framework",
+      "url": "https://geist.co/work/anthropic",
+      "type": "primary",
+      "category": "brand-identity",
+      "description": "Anthropic's visual identity - geometric starburst, warm palette, human-centered design",
+      "usageContext": [
+        "Logo generation patterns",
+        "Geometric art elements",
+        "AI interface aesthetics",
+        "Brand-aligned color usage",
+        "Typography pairing"
+      ],
+      "extractedPatterns": {
+        "iconography": {
+          "primary": "Starburst/pinwheel radiating outward",
+          "symbolism": "Ideas radiating, forward-thinking",
+          "logoType": "Typographic with slash detail (code reference)"
+        },
+        "colorPalette": {
+          "primary": "#C15F3C",
+          "primaryName": "Crail (warm rust-orange)",
+          "neutrals": ["off-white", "light-grey"],
+          "philosophy": "Warmth balanced with technical precision"
+        },
+        "typography": {
+          "primary": "Styrene (Commercial Type)",
+          "secondary": "Tiempos (Klim)",
+          "characteristics": "Technically refined, charmingly quirky"
+        },
+        "designPhilosophy": {
+          "core": "Human-centered mission aligned with technical craft",
+          "avoids": "Typical AI product aesthetics",
+          "emphasizes": "Helpful, harmless, honest"
+        },
+        "geometricPatterns": {
+          "radiatingLines": "Outward expansion from center",
+          "symmetry": "Balanced, intentional structure",
+          "minimalism": "Clean forms, purposeful elements"
+        }
+      },
+      "addedDate": "2026-02-07",
+      "addedBy": "claude-opus-4.5"
+    },
+    {
+      "id": "awwwards",
+      "name": "Awwwards",
+      "url": "https://www.awwwards.com/",
+      "type": "primary",
+      "category": "design-gallery",
+      "description": "Premier web design awards - modern dashboard and UI patterns",
+      "usageContext": [
+        "Dashboard UI design",
+        "Data visualization patterns",
+        "Card-based architecture",
+        "Navigation patterns",
+        "Interactive controls"
+      ],
+      "extractedPatterns": {
+        "cardArchitecture": {
+          "layeredDepth": "Subtle shadow hierarchies",
+          "borderRadius": "8px (--rounded-normal)",
+          "flexibleContent": "flex-direction: column for dynamic heights"
+        },
+        "dataVisualization": {
+          "progress": "Concentric SVG circles with stroke-dasharray",
+          "charts": "CSS-driven with smooth animations",
+          "indicators": "Semantic color coding"
+        },
+        "interactiveControls": {
+          "dropdowns": "Fixed overlays with opacity transitions",
+          "toggles": "translateX() for smooth state changes",
+          "search": "max-height reveal patterns"
+        },
+        "colorStrategy": {
+          "categories": 11,
+          "overlays": "rgba(0,0,0,0.7) for hierarchy",
+          "stateColors": "primary, error, featured, awards, learn, jobs"
+        },
+        "modernTrends": {
+          "containerQueries": true,
+          "cssGrid": "grid-auto-flow: row dense",
+          "staggeredAnimations": true,
+          "grayscaleFilters": "Avatar treatments"
+        }
+      },
+      "addedDate": "2026-02-07",
+      "addedBy": "claude-opus-4.5"
+    }
+  ],
+  "designSystem": {
+    "name": "SLATE Design System",
+    "version": "2.0.0",
+    "principles": [
+      "Geometric precision with organic warmth",
+      "Radiating information architecture",
+      "Dynamic theming with tonal palettes",
+      "Human-centered AI interface design",
+      "Modular, composable components"
+    ],
+    "colorPhilosophy": {
+      "primary": "Warm accent (inspired by Anthropic's Crail)",
+      "neutrals": "Natural earth tones with green undertones",
+      "semantic": "M3 Material state colors",
+      "theming": "Procedural 0-1 dark/light interpolation"
+    }
+  },
+  "categories": {
+    "design-system": "Comprehensive design token and component systems",
+    "brand-identity": "Visual identity and brand language references",
+    "design-gallery": "Curated collections of award-winning designs",
+    "pattern-library": "Common UI/UX pattern documentation"
+  },
+  "integrationNotes": {
+    "usage": "Sources are integrated into generative UI pipeline",
+    "logoGeneration": "Starburst/geometric patterns for SLATE identity",
+    "installPipeline": "Design tokens injected during slate_installer.py execution"
+  },
+  "engineeringPatterns": {
+    "blueprintDiagram": {
+      "description": "Technical schematic-style visualization of system architecture",
+      "cssClasses": {
+        "diagramContainer": "position: relative; background: var(--slate-blueprint-bg); border: 1px solid var(--slate-blueprint-grid);",
+        "connectionLine": "stroke: var(--slate-connection-color); stroke-width: 2px; stroke-linecap: round;",
+        "nodeBox": "border: 2px solid var(--slate-node-border); border-radius: 4px; background: var(--slate-node-bg);",
+        "gridOverlay": "background-image: linear-gradient(var(--slate-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--slate-grid-line) 1px, transparent 1px); background-size: 20px 20px;"
+      },
+      "connectionTypes": {
+        "dataFlow": "solid line with arrow",
+        "dependency": "dashed line",
+        "integration": "double line",
+        "optional": "dotted line"
+      }
+    },
+    "setupWizard": {
+      "description": "Step-by-step guided installation and configuration",
+      "structure": {
+        "introduction": "Value proposition and system overview",
+        "detection": "Auto-discover installed services and dependencies",
+        "configuration": "Configure core services step by step",
+        "integration": "Connect external dependencies (Docker, GitHub, etc.)",
+        "validation": "Test all connections and verify setup",
+        "completion": "Summary and next steps"
+      },
+      "stateManagement": {
+        "currentStep": "Track active step",
+        "completedSteps": "Array of finished step IDs",
+        "formData": "User inputs per step",
+        "resumable": "Save state for later resumption"
+      }
+    },
+    "serviceCards": {
+      "description": "Card-based service status with connection visualization",
+      "elements": {
+        "header": "Service name + status badge",
+        "metrics": "CPU, memory, request count",
+        "connections": "Upstream/downstream dependency list",
+        "actions": "Start, stop, configure buttons"
+      },
+      "statusIndicators": {
+        "active": "#4CAF50 with pulse animation",
+        "inactive": "#9E9E9E solid",
+        "error": "#F44336 with glow",
+        "pending": "#FF9800 with pulse"
+      }
+    },
+    "copilotGuidance": {
+      "description": "AI-assisted user guidance throughout the interface",
+      "elements": {
+        "contextualTips": "Inline help text based on current action",
+        "suggestedActions": "AI-recommended next steps",
+        "validationFeedback": "Real-time error correction hints",
+        "progressTracking": "Overall setup completion percentage"
+      },
+      "integrationPoints": {
+        "installation": "Guide through each install step",
+        "configuration": "Suggest optimal settings",
+        "troubleshooting": "Diagnose and fix issues",
+        "optimization": "Recommend performance improvements"
+      }
+    }
+  },
+  "onboardingFlow": {
+    "stages": [
+      {
+        "id": "welcome",
+        "title": "Welcome to S.L.A.T.E.",
+        "description": "Synchronized Living Architecture for Transformation and Evolution",
+        "type": "introduction"
+      },
+      {
+        "id": "system-scan",
+        "title": "System Detection",
+        "description": "Detecting installed services and hardware capabilities",
+        "type": "auto-detection"
+      },
+      {
+        "id": "core-setup",
+        "title": "Core Configuration",
+        "description": "Configure essential SLATE services",
+        "steps": ["Python environment", "GPU detection", "Ollama LLM", "Dashboard server"]
+      },
+      {
+        "id": "integrations",
+        "title": "Integrations",
+        "description": "Connect external services",
+        "steps": ["GitHub", "Docker", "VS Code", "Claude Code"]
+      },
+      {
+        "id": "validation",
+        "title": "Validation",
+        "description": "Test all connections and verify setup",
+        "type": "testing"
+      },
+      {
+        "id": "complete",
+        "title": "Setup Complete",
+        "description": "Your SLATE system is ready",
+        "type": "completion"
+      }
+    ]
+  }
+}

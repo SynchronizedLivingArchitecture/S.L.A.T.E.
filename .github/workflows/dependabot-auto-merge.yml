@@ -10,6 +10,11 @@ name: Dependabot Auto-Merge
 on:
   pull_request:
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Add concurrency block per GitHub docs
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pull-requests: write

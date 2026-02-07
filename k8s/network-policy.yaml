@@ -1,0 +1,147 @@
+# Modified: 2026-02-07T09:00:00Z | Author: COPILOT | Change: Create network isolation policies for SLATE pods
+# SLATE Network Policies
+# Enforces local-only networking: pods can only talk to each other within slate namespace
+# No external egress except for GitHub API (required for CI/CD)
+---
+# Default deny all ingress and egress for the slate namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: slate
+    app.kubernetes.io/component: security
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+# Allow SLATE core <-> SLATE core communication within namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-intra-slate
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: slate
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: slate-system
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: slate
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: slate-system
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow intra-namespace communication
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: slate
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: slate-system
+
+---
+# Allow dashboard to accept localhost ingress only (NodePort or port-forward)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dashboard-ingress
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: slate
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: dashboard
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
+
+---
+# Allow SLATE core egress to GitHub API (required for CI/CD runner management)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-github-egress
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: slate
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: core
+  policyTypes:
+    - Egress
+  egress:
+    # DNS
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # HTTPS to GitHub (443)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+    # Intra-namespace
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: slate
+
+---
+# Allow Ollama pod to accept connections from SLATE core only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ollama-from-slate
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: slate
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: ollama
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: slate-system
+      ports:
+        - protocol: TCP
+          port: 11434
+  egress:
+    # DNS only — Ollama should NOT have external internet access
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

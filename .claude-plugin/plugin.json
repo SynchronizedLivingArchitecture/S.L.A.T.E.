@@ -19,7 +19,9 @@
     "./commands/slate-runner.md",
     "./commands/slate-multirunner.md",
     "./commands/slate-discussions.md",
-    "./commands/slate-gpu.md"
+    "./commands/slate-gpu.md",
+    "./commands/slate-claude.md",
+    "./commands/slate-spec-kit.md"
   ],
   "mcpServers": {
     "slate": {

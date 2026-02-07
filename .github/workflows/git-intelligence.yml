@@ -1,0 +1,670 @@
+# Modified: 2026-02-07T07:15:00Z | Author: COPILOT | Change: Create AI-powered git analysis workflow
+name: SLATE Git Intelligence
+
+on:
+  workflow_dispatch:
+    inputs:
+      analysis_mode:
+        description: 'Analysis scope'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full           # Full repo analysis (commit patterns, contributors, hotspots)
+          - recent         # Last 50 commits only
+          - failures       # Analyze failed workflow patterns
+          - security       # Security-focused code scan
+          - codebase       # AI-powered codebase understanding
+      ai_model:
+        description: 'AI model for analysis'
+        required: false
+        default: 'slate-planner'
+        type: choice
+        options:
+          - slate-planner   # 7B planning/analysis
+          - slate-coder     # 12B code generation  
+          - slate-fast      # 3B fast classification
+          - mistral-nemo    # 12B general
+  schedule:
+    # Weekly deep analysis every Monday at 5am
+    - cron: '0 5 * * 1'
+
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Scheduled workflows should not cancel in-progress runs
+concurrency:
+  group: git-intelligence-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: powershell
+
+jobs:
+  # ---- Verify AI Services ----
+  verify-ai:
+    name: Verify AI Services
+    runs-on: [self-hosted, slate, gpu]
+    timeout-minutes: 5
+    outputs:
+      ollama_ok: ${{ steps.check.outputs.ollama_ok }}
+      model_available: ${{ steps.check.outputs.model_available }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: Verify Ollama and models
+        id: check
+        run: |
+          python -c @"
+          import urllib.request, json, sys
+          
+          # Check Ollama
+          try:
+              r = urllib.request.urlopen('http://127.0.0.1:11434/api/tags', timeout=5)
+              data = json.loads(r.read())
+              models = [m['name'] for m in data.get('models', [])]
+              print(f'Ollama: OK ({len(models)} models)')
+              for m in models:
+                  print(f'  - {m}')
+              
+              # Check requested model
+              target = '${{ github.event.inputs.ai_model || 'slate-planner' }}'
+              # Handle model name matching (ollama may add :latest)
+              available = any(target in m for m in models)
+              print(f'Target model {target}: {"Available" if available else "NOT FOUND"}')
+              
+              with open(r'${{ runner.temp }}\ai_check.txt', 'w') as f:
+                  f.write(f'ollama_ok=true\nmodel_available={str(available).lower()}\n')
+          except Exception as e:
+              print(f'Ollama: FAILED - {e}')
+              with open(r'${{ runner.temp }}\ai_check.txt', 'w') as f:
+                  f.write('ollama_ok=false\nmodel_available=false\n')
+              sys.exit(1)
+          "@
+          Get-Content "${{ runner.temp }}\ai_check.txt" | ForEach-Object { $_ | Out-File -Append $env:GITHUB_OUTPUT }
+      - name: GPU status
+        run: nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu --format=csv,noheader
+
+  # ---- Git History Analysis ----
+  git-analysis:
+    name: Git History Analysis
+    needs: verify-ai
+    if: needs.verify-ai.outputs.ollama_ok == 'true'
+    runs-on: [self-hosted, slate, gpu]
+    timeout-minutes: 30
+    env:
+      CUDA_VISIBLE_DEVICES: '0,1'
+      OLLAMA_HOST: '127.0.0.1:11434'
+      SLATE_RUNNER: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full git history
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: Collect git statistics
+        run: |
+          python -c @"
+          # Modified: 2026-02-07T07:15:00Z | Author: COPILOT | Change: Git statistics collector
+          import subprocess, json, pathlib, collections
+          
+          def git(*args):
+              r = subprocess.run(['git'] + list(args), capture_output=True, text=True, timeout=30)
+              return r.stdout.strip()
+          
+          stats = {}
+          
+          # Total commits
+          total = git('rev-list', '--count', 'HEAD')
+          stats['total_commits'] = int(total) if total.isdigit() else 0
+          
+          # Recent commits (last 50)
+          mode = '${{ github.event.inputs.analysis_mode || 'full' }}'
+          limit = 50 if mode == 'recent' else 500
+          log = git('log', f'--max-count={limit}', '--pretty=format:%H|%an|%ae|%at|%s', '--no-merges')
+          commits = []
+          for line in log.split('\n'):
+              if '|' in line:
+                  parts = line.split('|', 4)
+                  if len(parts) >= 5:
+                      commits.append({
+                          'hash': parts[0][:8],
+                          'author': parts[1],
+                          'email': parts[2],
+                          'timestamp': int(parts[3]) if parts[3].isdigit() else 0,
+                          'subject': parts[4][:120]
+                      })
+          stats['analyzed_commits'] = len(commits)
+          
+          # Author distribution
+          authors = collections.Counter(c['author'] for c in commits)
+          stats['authors'] = dict(authors.most_common(20))
+          
+          # File change frequency (hotspots)
+          numstat = git('log', f'--max-count={limit}', '--pretty=format:', '--numstat', '--no-merges')
+          file_changes = collections.Counter()
+          for line in numstat.split('\n'):
+              parts = line.split('\t')
+              if len(parts) >= 3 and parts[2]:
+                  file_changes[parts[2]] += 1
+          stats['hotspot_files'] = dict(file_changes.most_common(30))
+          
+          # Directory-level changes
+          dir_changes = collections.Counter()
+          for f, count in file_changes.items():
+              d = f.split('/')[0] if '/' in f else '.'
+              dir_changes[d] += count
+          stats['hotspot_dirs'] = dict(dir_changes.most_common(15))
+          
+          # Commit message patterns
+          patterns = collections.Counter()
+          for c in commits:
+              subj = c['subject'].lower()
+              for kw in ['fix', 'add', 'update', 'remove', 'refactor', 'test', 'doc', 'ci', 'build', 'feat', 'chore']:
+                  if kw in subj:
+                      patterns[kw] += 1
+          stats['commit_patterns'] = dict(patterns.most_common(15))
+          
+          # Branch info
+          branches = git('branch', '-a', '--list').split('\n')
+          stats['branch_count'] = len([b for b in branches if b.strip()])
+          
+          # Tags
+          tags = git('tag', '--list')
+          stats['tag_count'] = len([t for t in tags.split('\n') if t.strip()])
+          
+          # Recent activity (commits per day, last 30 days)
+          import time
+          now = int(time.time())
+          daily = collections.Counter()
+          for c in commits:
+              if c['timestamp'] > 0:
+                  days_ago = (now - c['timestamp']) // 86400
+                  if days_ago < 30:
+                      daily[days_ago] += 1
+          stats['daily_activity_30d'] = dict(sorted(daily.items()))
+          
+          # Save for next step
+          out = pathlib.Path('git_stats.json')
+          out.write_text(json.dumps(stats, indent=2), encoding='utf-8')
+          
+          # Print summary
+          print(f'Total commits: {stats["total_commits"]}')
+          print(f'Analyzed: {stats["analyzed_commits"]}')
+          print(f'Authors: {len(stats["authors"])}')
+          print(f'Hotspot files: {len(stats["hotspot_files"])}')
+          print(f'Branches: {stats["branch_count"]}')
+          print(f'Tags: {stats["tag_count"]}')
+          "@
+      - name: AI-powered analysis
+        run: |
+          python -c @"
+          # Modified: 2026-02-07T07:15:00Z | Author: COPILOT | Change: AI analysis of git patterns
+          import json, pathlib, urllib.request, time
+          
+          stats = json.loads(pathlib.Path('git_stats.json').read_text(encoding='utf-8'))
+          model = '${{ github.event.inputs.ai_model || 'slate-planner' }}'
+          
+          # Build analysis prompt
+          prompt = f'''Analyze this git repository statistics for the S.L.A.T.E. project (Synchronized Living Architecture for Transformation and Evolution).
+          
+          Repository Statistics:
+          - Total commits: {stats.get('total_commits', 0)}
+          - Analyzed: {stats.get('analyzed_commits', 0)}
+          - Authors: {json.dumps(stats.get('authors', {}), indent=2)}
+          - Hotspot directories: {json.dumps(stats.get('hotspot_dirs', {}), indent=2)}
+          - Top changed files: {json.dumps(dict(list(stats.get('hotspot_files', {}).items())[:15]), indent=2)}
+          - Commit patterns: {json.dumps(stats.get('commit_patterns', {}), indent=2)}
+          - Branches: {stats.get('branch_count', 0)}
+          - Tags: {stats.get('tag_count', 0)}
+          
+          Provide a concise analysis covering:
+          1. Development velocity and patterns
+          2. Code hotspots that may need refactoring
+          3. Areas with high churn (potential instability)
+          4. Recommendations for code quality improvement
+          5. CI/CD workflow optimization suggestions
+          '''
+          
+          payload = json.dumps({
+              'model': model,
+              'prompt': prompt,
+              'stream': False,
+              'options': {'num_predict': 1024, 'temperature': 0.3}
+          }).encode()
+          
+          req = urllib.request.Request(
+              'http://127.0.0.1:11434/api/generate',
+              data=payload,
+              headers={'Content-Type': 'application/json'},
+              method='POST'
+          )
+          
+          print(f'Querying {model} for analysis...')
+          start = time.time()
+          try:
+              with urllib.request.urlopen(req, timeout=120) as resp:
+                  data = json.loads(resp.read())
+              
+              elapsed = time.time() - start
+              response = data.get('response', '')
+              tokens = data.get('eval_count', 0)
+              eval_dur = data.get('eval_duration', 1)
+              tps = tokens / max(eval_dur / 1e9, 0.001)
+              
+              print(f'\\nAnalysis ({tokens} tokens @ {tps:.1f} tok/s in {elapsed:.1f}s):')
+              print('=' * 60)
+              print(response)
+              print('=' * 60)
+              
+              # Save analysis
+              analysis = {
+                  'model': model,
+                  'tokens': tokens,
+                  'tok_per_sec': round(tps, 1),
+                  'elapsed': round(elapsed, 1),
+                  'analysis': response,
+                  'stats': stats
+              }
+              pathlib.Path('git_analysis.json').write_text(
+                  json.dumps(analysis, indent=2), encoding='utf-8'
+              )
+          except Exception as e:
+              print(f'AI analysis failed: {e}')
+              print('Falling back to statistical summary...')
+              print(json.dumps(stats, indent=2))
+          "@
+      - name: Upload analysis artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: git-analysis-${{ github.run_number }}
+          path: |
+            git_stats.json
+            git_analysis.json
+          retention-days: 30
+
+  # ---- Workflow Failure Analysis ----
+  failure-analysis:
+    name: Workflow Failure Analysis
+    needs: verify-ai
+    if: |
+      needs.verify-ai.outputs.ollama_ok == 'true' && 
+      (github.event.inputs.analysis_mode == 'failures' || github.event.inputs.analysis_mode == 'full')
+    runs-on: [self-hosted, slate, gpu]
+    timeout-minutes: 15
+    env:
+      CUDA_VISIBLE_DEVICES: '0,1'
+      OLLAMA_HOST: '127.0.0.1:11434'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: Analyze workflow failures
+        run: |
+          python -c @"
+          # Modified: 2026-02-07T07:15:00Z | Author: COPILOT | Change: Workflow failure analyzer
+          import subprocess, json, urllib.request, time, collections
+          
+          # Get GitHub token
+          result = subprocess.run(
+              ['git', 'credential', 'fill'],
+              input='protocol=https\nhost=github.com\n',
+              capture_output=True, text=True, timeout=10
+          )
+          token = None
+          for line in result.stdout.splitlines():
+              if line.startswith('password='):
+                  token = line.split('=', 1)[1]
+                  break
+          
+          if not token:
+              print('No GitHub token - skipping API analysis')
+              import sys; sys.exit(0)
+          
+          base = 'https://api.github.com/repos/SynchronizedLivingArchitecture/S.L.A.T.E'
+          headers = {
+              'Authorization': f'token {token}',
+              'Accept': 'application/vnd.github.v3+json'
+          }
+          
+          # Fetch failed runs
+          all_failures = []
+          for page in range(1, 6):  # Up to 5 pages
+              req = urllib.request.Request(
+                  f'{base}/actions/runs?status=failure&per_page=50&page={page}',
+                  headers=headers
+              )
+              try:
+                  with urllib.request.urlopen(req, timeout=15) as resp:
+                      data = json.loads(resp.read())
+                  runs = data.get('workflow_runs', [])
+                  if not runs:
+                      break
+                  all_failures.extend(runs)
+              except Exception as e:
+                  print(f'API error on page {page}: {e}')
+                  break
+          
+          print(f'Fetched {len(all_failures)} failed runs')
+          
+          # Analyze patterns
+          by_workflow = collections.Counter()
+          by_date = collections.Counter()
+          for r in all_failures:
+              by_workflow[r['name']] += 1
+              by_date[r['created_at'][:10]] += 1
+          
+          failure_data = {
+              'total_failures': len(all_failures),
+              'by_workflow': dict(by_workflow.most_common(20)),
+              'by_date': dict(sorted(by_date.items())[-14:]),  # Last 14 days
+              'recent_10': [{
+                  'run': r['run_number'],
+                  'name': r['name'],
+                  'conclusion': r['conclusion'],
+                  'date': r['created_at'][:16]
+              } for r in all_failures[:10]]
+          }
+          
+          print(f'\\nFailure Distribution:')
+          for wf, count in by_workflow.most_common(10):
+              print(f'  {wf}: {count} failures')
+          
+          # AI analysis of failure patterns
+          model = '${{ github.event.inputs.ai_model || 'slate-planner' }}'
+          prompt = f'''Analyze these CI/CD workflow failure patterns for the S.L.A.T.E. project.
+
+          Failure Data:
+          {json.dumps(failure_data, indent=2)}
+
+          Provide:
+          1. Root cause patterns (what types of failures dominate)
+          2. Temporal patterns (are failures clustered in time)
+          3. Which workflows need the most attention
+          4. Specific recommendations to reduce failure rate
+          5. Whether failures are infrastructure-related (runner, Ollama) vs code-related
+          '''
+          
+          payload = json.dumps({
+              'model': model,
+              'prompt': prompt,
+              'stream': False,
+              'options': {'num_predict': 768, 'temperature': 0.3}
+          }).encode()
+          
+          req = urllib.request.Request(
+              'http://127.0.0.1:11434/api/generate',
+              data=payload,
+              headers={'Content-Type': 'application/json'},
+              method='POST'
+          )
+          
+          try:
+              print(f'\\nQuerying {model} for failure analysis...')
+              with urllib.request.urlopen(req, timeout=120) as resp:
+                  ai_data = json.loads(resp.read())
+              print('\\n' + '=' * 60)
+              print(ai_data.get('response', 'No response'))
+              print('=' * 60)
+          except Exception as e:
+              print(f'AI analysis skipped: {e}')
+          "@
+
+  # ---- Security Scan with AI ----
+  security-scan:
+    name: AI Security Scan
+    needs: verify-ai
+    if: |
+      needs.verify-ai.outputs.ollama_ok == 'true' && 
+      (github.event.inputs.analysis_mode == 'security' || github.event.inputs.analysis_mode == 'full')
+    runs-on: [self-hosted, slate, gpu]
+    timeout-minutes: 20
+    env:
+      CUDA_VISIBLE_DEVICES: '0,1'
+      OLLAMA_HOST: '127.0.0.1:11434'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: AI security analysis
+        run: |
+          python -c @"
+          # Modified: 2026-02-07T07:15:00Z | Author: COPILOT | Change: AI-powered security scan
+          import pathlib, json, urllib.request, time
+          
+          workspace = pathlib.Path('.')
+          
+          # Collect code samples for analysis
+          findings = []
+          
+          # Check for security anti-patterns
+          patterns = {
+              '0.0.0.0': 'Network binding to all interfaces',
+              'eval(': 'Dynamic code execution',
+              'exec(': 'Dynamic code execution',
+              'base64.b64decode': 'Base64 decoding (potential obfuscation)',
+              'subprocess.call(': 'Shell command execution (prefer subprocess.run)',
+              'shell=True': 'Shell injection risk',
+              'password': 'Potential credential exposure',
+              'secret': 'Potential secret in code',
+              'token': 'Potential token in code',
+          }
+          
+          for py_file in sorted(workspace.rglob('*.py')):
+              # Skip venv, node_modules, etc
+              path_str = str(py_file)
+              if any(skip in path_str for skip in ['.venv', 'node_modules', '__pycache__', '.git', 'actions-runner']):
+                  continue
+              try:
+                  content = py_file.read_text(encoding='utf-8', errors='ignore')
+                  for pattern, desc in patterns.items():
+                      if pattern in content:
+                          # Get line numbers
+                          for i, line in enumerate(content.split('\\n'), 1):
+                              if pattern in line and not line.strip().startswith('#'):
+                                  findings.append({
+                                      'file': str(py_file),
+                                      'line': i,
+                                      'pattern': pattern,
+                                      'description': desc,
+                                      'context': line.strip()[:120]
+                                  })
+              except Exception:
+                  pass
+          
+          print(f'Security scan: {len(findings)} findings')
+          for f in findings[:30]:
+              print(f'  [{f["pattern"]}] {f["file"]}:{f["line"]} - {f["context"][:80]}')
+          
+          # AI analysis of critical findings
+          if findings:
+              model = '${{ github.event.inputs.ai_model || 'slate-planner' }}'
+              sample = findings[:20]
+              
+              prompt = f'''Analyze these security findings from the S.L.A.T.E. codebase.
+              This is a LOCAL-ONLY AI orchestration framework. All network bindings MUST be 127.0.0.1.
+              
+              Findings ({len(findings)} total, showing {len(sample)}):
+              {json.dumps(sample, indent=2)}
+              
+              Classify each as:
+              - CRITICAL: Must fix immediately (actual security risk)
+              - WARNING: Should review (potential issue)
+              - INFO: Acceptable in context (e.g., password in test fixtures)
+              
+              For each CRITICAL finding, suggest a specific fix.
+              '''
+              
+              payload = json.dumps({
+                  'model': model,
+                  'prompt': prompt,
+                  'stream': False,
+                  'options': {'num_predict': 768, 'temperature': 0.2}
+              }).encode()
+              
+              req = urllib.request.Request(
+                  'http://127.0.0.1:11434/api/generate',
+                  data=payload,
+                  headers={'Content-Type': 'application/json'},
+                  method='POST'
+              )
+              
+              try:
+                  with urllib.request.urlopen(req, timeout=120) as resp:
+                      ai_data = json.loads(resp.read())
+                  print('\\n' + '=' * 60)
+                  print('AI Security Analysis:')
+                  print(ai_data.get('response', 'No response'))
+                  print('=' * 60)
+              except Exception as e:
+                  print(f'AI analysis skipped: {e}')
+          "@
+
+  # ---- Codebase Understanding with AI ----
+  codebase-analysis:
+    name: AI Codebase Analysis
+    needs: verify-ai
+    if: |
+      needs.verify-ai.outputs.ollama_ok == 'true' && 
+      (github.event.inputs.analysis_mode == 'codebase' || github.event.inputs.analysis_mode == 'full')
+    runs-on: [self-hosted, slate, gpu]
+    timeout-minutes: 20
+    env:
+      CUDA_VISIBLE_DEVICES: '0,1'
+      OLLAMA_HOST: '127.0.0.1:11434'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: Index codebase with ChromaDB
+        run: python slate/slate_chromadb.py --index
+        continue-on-error: true
+      - name: AI codebase analysis
+        run: |
+          python -c @"
+          # Modified: 2026-02-07T07:15:00Z | Author: COPILOT | Change: AI codebase architecture analysis
+          import pathlib, json, urllib.request, collections
+          
+          workspace = pathlib.Path('.')
+          
+          # Collect module information
+          modules = {}
+          for py_file in sorted((workspace / 'slate').glob('*.py')):
+              if py_file.name.startswith('_'):
+                  continue
+              content = py_file.read_text(encoding='utf-8', errors='ignore')
+              lines = content.split('\\n')
+              
+              # Extract docstring
+              docstring = ''
+              if len(lines) > 1 and ('\"\"\"' in lines[0] or '\"\"\"' in lines[1]):
+                  in_doc = False
+                  for line in lines[:20]:
+                      if '\"\"\"' in line:
+                          if in_doc:
+                              break
+                          in_doc = True
+                          docstring += line.split('\"\"\"', 1)[-1]
+                      elif in_doc:
+                          docstring += line + ' '
+              
+              # Count imports, functions, classes
+              imports = [l for l in lines if l.startswith('import ') or l.startswith('from ')]
+              functions = [l for l in lines if l.startswith('def ')]
+              classes = [l for l in lines if l.startswith('class ')]
+              
+              modules[py_file.name] = {
+                  'lines': len(lines),
+                  'imports': len(imports),
+                  'functions': len(functions),
+                  'classes': len(classes),
+                  'docstring': docstring[:200].strip(),
+              }
+          
+          # Module summary
+          total_lines = sum(m['lines'] for m in modules.values())
+          total_funcs = sum(m['functions'] for m in modules.values())
+          total_classes = sum(m['classes'] for m in modules.values())
+          
+          print(f'Codebase: {len(modules)} modules, {total_lines} lines, {total_funcs} functions, {total_classes} classes')
+          
+          # Top modules by size
+          by_size = sorted(modules.items(), key=lambda x: x[1]['lines'], reverse=True)
+          print('\\nLargest modules:')
+          for name, info in by_size[:10]:
+              print(f'  {name}: {info[\"lines\"]} lines, {info[\"functions\"]} funcs, {info[\"classes\"]} classes')
+          
+          # AI architecture analysis
+          model = '${{ github.event.inputs.ai_model || 'slate-planner' }}'
+          prompt = f'''Analyze the architecture of the S.L.A.T.E. (Synchronized Living Architecture for Transformation and Evolution) codebase.
+
+          Module Summary ({len(modules)} modules, {total_lines} total lines):
+          {json.dumps(dict(list(by_size[:20])), indent=2)}
+
+          This is a local-first AI agent orchestration framework with:
+          - Self-hosted GitHub Actions runner with dual GPUs
+          - Ollama for local LLM inference
+          - ChromaDB for vector storage
+          - Autonomous task discovery and execution loops
+          - Custom SLATE models (slate-coder 12B, slate-fast 3B, slate-planner 7B)
+
+          Provide:
+          1. Architecture assessment (strengths and weaknesses)
+          2. Module coupling analysis (which modules are too large/complex)
+          3. Refactoring recommendations
+          4. Missing capabilities or modules
+          5. Code organization improvements
+          '''
+          
+          payload = json.dumps({
+              'model': model,
+              'prompt': prompt,
+              'stream': False,
+              'options': {'num_predict': 1024, 'temperature': 0.3}
+          }).encode()
+          
+          req = urllib.request.Request(
+              'http://127.0.0.1:11434/api/generate',
+              data=payload,
+              headers={'Content-Type': 'application/json'},
+              method='POST'
+          )
+          
+          try:
+              with urllib.request.urlopen(req, timeout=120) as resp:
+                  ai_data = json.loads(resp.read())
+              print('\\n' + '=' * 60)
+              print('AI Architecture Analysis:')
+              print(ai_data.get('response', 'No response'))
+              print('=' * 60)
+          except Exception as e:
+              print(f'AI analysis skipped: {e}')
+          "@
+
+  # ---- Summary ----
+  summary:
+    name: Intelligence Summary
+    runs-on: [self-hosted, slate]
+    needs: [verify-ai, git-analysis, failure-analysis, security-scan, codebase-analysis]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          "## SLATE Git Intelligence Report" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "Run: #${{ github.run_number }} | Mode: ${{ github.event.inputs.analysis_mode || 'full' }} | Model: ${{ github.event.inputs.ai_model || 'slate-planner' }}" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Analysis | Status |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "|----------|--------|" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| AI Services | ${{ needs.verify-ai.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Git History | ${{ needs.git-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Failure Analysis | ${{ needs.failure-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Security Scan | ${{ needs.security-scan.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Codebase Analysis | ${{ needs.codebase-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY

@@ -5,7 +5,7 @@ SLATE Multi-Runner Benchmark - Determine optimal runner count per GPU.
 Benchmarks system resources to calculate how many concurrent runners
 can be supported based on GPU memory, CPU cores, and RAM.
 
-Modified: 2026-02-06T23:00:00Z | Author: COPILOT | Change: Initial implementation
+Modified: 2026-02-08T06:00:00Z | Author: COPILOT | Change: Scale capacity cap from 20 to 50 runners
 """
 
 import json
@@ -182,7 +182,7 @@ class RunnerBenchmark:
 
         return RunnerCapacity(
             profile=profile_id,
-            max_total=min(max_total, 20),  # Cap at 20 runners
+            max_total=min(max_total, 50),  # Cap at 50 runners
             max_per_gpu=max_per_gpu,
             max_cpu_bound=max_cpu,
             max_ram_bound=max_ram,
@@ -231,18 +231,23 @@ class RunnerBenchmark:
         # Reserve 1 GPU for heavy tasks, use rest for light/standard
 
         if res.gpu_count >= 2:
-            # Dual GPU: 1 heavy + multiple light
+            # Dual GPU: scaled to 50 runners with mixed profiles
+            # GPU 0: heavy inference (1) + light (4)
+            # GPU 1: light inference (6) + standard (4)
+            # CPU-only: standard (10) + light (25)
             return {
-                "strategy": "dual_gpu_mixed",
-                "description": "GPU 0 for heavy inference, GPU 1 for parallel light tasks",
+                "strategy": "dual_gpu_scaled",
+                "description": "50-runner config: GPU 0/1 for inference, CPU pool for parallelism",
                 "configuration": [
                     {"gpu": 0, "profile": "gpu_heavy", "count": 1},
+                    {"gpu": 0, "profile": "gpu_light", "count": 4},
                     {"gpu": 1, "profile": "gpu_light", "count": 6},
-                    {"gpu": "cpu", "profile": "standard", "count": 4},
-                    {"gpu": "cpu", "profile": "light", "count": 8},
+                    {"gpu": 1, "profile": "standard", "count": 4},
+                    {"gpu": "cpu", "profile": "standard", "count": 10},
+                    {"gpu": "cpu", "profile": "light", "count": 25},
                 ],
-                "total_runners": 19,
-                "parallel_workflows": 4,
+                "total_runners": 50,
+                "parallel_workflows": 8,
             }
         elif res.gpu_count == 1:
             return {

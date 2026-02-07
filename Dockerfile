@@ -54,10 +54,11 @@ USER slate
 # Expose dashboard port
 EXPOSE 8080
 
+# Modified: 2026-02-07T09:00:00Z | Author: COPILOT | Change: Fix healthcheck to use Python instead of curl
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/api/health || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health', timeout=5)" || exit 1
 
 # Default entrypoint: start SLATE orchestrator
 ENTRYPOINT ["python", "slate/slate_orchestrator.py"]
-CMD ["start"]
+CMD ["start", "--mode", "prod"]

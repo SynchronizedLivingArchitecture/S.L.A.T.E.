@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
-# Modified: 2026-02-06T22:30:00Z | Author: COPILOT | Change: Full ecosystem installer for SLATE
+# Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add personalization support for fork creation
 """
 S.L.A.T.E. Ecosystem Installer
 ================================
 Comprehensive installer that sets up the entire SLATE ecosystem on a new system.
 Handles: git clone, venv, pip deps, PyTorch (GPU-aware), Ollama, Docker, VS Code
-extension, and system validation.
+extension, personalization, and system validation.
 
 Triggered by:
     - @slate /install   → Full fresh install from git
     - @slate /update    → Pull latest + re-validate ecosystem
     - python slate/slate_installer.py --install   → CLI fresh install
     - python slate/slate_installer.py --update    → CLI update
+    - python slate/slate_installer.py --install --personalize → Full install with personalization
 
 Architecture:
     slate_installer.py → InstallTracker → install_state.json ← Dashboard reads
                        → slateRunner.ts  → VS Code extension ← /install /update
+                       → slate_personalization.py → Custom logo/theme generation
 """
 
 import argparse
@@ -27,14 +29,14 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 
-# Modified: 2026-02-07T04:57:00Z | Author: COPILOT | Change: Update extension version constant
+# Modified: 2026-02-07T06:00:00Z | Author: COPILOT | Change: Sync extension version to 2.6.1
 SLATE_REPO = "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git"
 SLATE_BETA_REPO = "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.-BETA.git"
 SLATE_VERSION = "2.4.0"
 EXTENSION_ID = "slate.slate-copilot"
-EXTENSION_VERSION = "2.5.0"
+EXTENSION_VERSION = "2.6.1"
 OLLAMA_DOWNLOAD_WIN = "https://ollama.com/download/OllamaSetup.exe"
 OLLAMA_DOWNLOAD_LINUX = "https://ollama.ai/install.sh"
 DOCKER_DOWNLOAD_WIN = "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe"
@@ -822,16 +824,98 @@ class SlateInstaller:
         self.results["slate_models"] = {"status": "built", "built": built, "total": len(needed)}
         return True
 
-    # ── Step 10: Workspace Directories & Config ──────────────────────────
+    # ── Step 10: Personalization (Fork Identity) ─────────────────────────
+
+    def step_personalization(self, interactive: bool = True, fork_name: str = None) -> bool:
+        """Set up personalized fork identity with custom name, logo, and theme."""
+        _print_header("Step 10: Personalization - Create Your SLATE Identity")
+
+        try:
+            from slate.slate_personalization import (
+                PersonalizationManager,
+                validate_fork_name,
+                get_name_suggestions,
+                COLOR_PALETTES,
+            )
+        except ImportError as e:
+            self._log("⚠", f"Personalization module not available: {e}")
+            self.results["personalization"] = {"status": "skipped", "reason": "module_missing"}
+            return True  # Non-fatal
+
+        manager = PersonalizationManager(workspace_dir=self.workspace)
+
+        # Check if already configured
+        if manager.is_configured():
+            config = manager.get_config()
+            self._log("✓", f"Already personalized as: {config.fork_name}")
+            self.results["personalization"] = {"status": "exists", "name": config.fork_name}
+            return True
+
+        if not interactive:
+            # Non-interactive mode - use provided name or default
+            if fork_name:
+                valid, error = validate_fork_name(fork_name)
+                if not valid:
+                    self._log("⚠", f"Invalid fork name '{fork_name}': {error}")
+                    fork_name = "SLATE"
+            else:
+                fork_name = "SLATE"
+
+            try:
+                config = manager.quick_setup(fork_name=fork_name)
+                self._log("✓", f"Created identity: {config.fork_name}")
+                self.results["personalization"] = {"status": "created", "name": config.fork_name}
+                return True
+            except Exception as e:
+                self._log("⚠", f"Quick personalization failed: {e}")
+                self.results["personalization"] = {"status": "failed", "error": str(e)}
+                return True  # Non-fatal
+
+        # Interactive mode
+        print()
+        print("  Would you like to give your SLATE fork a unique identity?")
+        print("  This includes:")
+        print("    • A custom name (e.g., PHOENIX, NOVA, ATLAS)")
+        print("    • A personalized logo with your name")
+        print("    • Custom color theme and UI preferences")
+        print()
+
+        response = input("  Set up personalization now? (y/n) [y]: ").strip().lower()
+
+        if response == 'n':
+            self._log("ℹ", "Skipping personalization (run later with: python slate/slate_personalization.py --setup)")
+            self.results["personalization"] = {"status": "skipped", "reason": "user_declined"}
+            return True
+
+        try:
+            config = manager.run_interactive_setup()
+            self._log("✓", f"Created identity: {config.fork_name}")
+            self.results["personalization"] = {
+                "status": "created",
+                "name": config.fork_name,
+                "palette": config.color_palette,
+                "theme": config.ui_theme,
+            }
+            return True
+        except KeyboardInterrupt:
+            self._log("ℹ", "Personalization cancelled")
+            self.results["personalization"] = {"status": "cancelled"}
+            return True
+        except Exception as e:
+            self._log("⚠", f"Personalization failed: {e}")
+            self.results["personalization"] = {"status": "failed", "error": str(e)}
+            return True  # Non-fatal
+
+    # ── Step 11: Workspace Directories & Config ──────────────────────────
 
     def step_workspace_setup(self) -> bool:
         """Create workspace directories and configuration."""
-        _print_header("Step 10: Workspace Configuration")
+        _print_header("Step 11: Workspace Configuration")
 
         dirs = [
             "slate", "agents", "tests", "slate_web", "slate_logs",
             "slate_memory", "models", "plugins", "skills",
-            ".github", ".slate_install", "logs", "data",
+            ".github", ".slate_install", ".slate_identity", "logs", "data",
         ]
         created = 0
         for d in dirs:
@@ -850,9 +934,15 @@ class SlateInstaller:
         # Create .env if it doesn't exist
         env_file = self.workspace / ".env"
         if not env_file.exists():
+            # Get fork identity name if personalization was run
+            fork_name = "SLATE"
+            if "personalization" in self.results:
+                fork_name = self.results["personalization"].get("name", "SLATE")
+
             env_content = (
-                "# S.L.A.T.E. Environment Configuration\n"
+                f"# {fork_name} Environment Configuration\n"
                 f"# Generated: {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}\n"
+                f"SLATE_FORK_NAME={fork_name}\n"
                 "SLATE_VERSION=2.4.0\n"
                 f"SLATE_WORKSPACE={self.workspace}\n"
                 "SLATE_HOST=127.0.0.1\n"
@@ -868,11 +958,70 @@ class SlateInstaller:
         self.results["workspace"] = {"status": "configured", "created_dirs": created}
         return True
 
-    # ── Step 11: Final Validation ────────────────────────────────────────
+    # ── Step 11b: Generative UI Setup (Logo + Design Tokens) ─────────────
+
+    def step_generative_ui(self) -> bool:
+        """Generate logos and design tokens for the SLATE UI."""
+        _print_header("Step 11b: Generative UI Assets")
+
+        identity_dir = self.workspace / ".slate_identity"
+        identity_dir.mkdir(parents=True, exist_ok=True)
+        logos_dir = identity_dir / "logos"
+        logos_dir.mkdir(parents=True, exist_ok=True)
+
+        # 1. Generate design tokens
+        try:
+            result = _run([
+                str(self._python()), "-c",
+                "from slate.design_tokens import DesignTokens; from pathlib import Path; "
+                f"t = DesignTokens(); t.save_css(Path('{identity_dir}/design-tokens.css')); "
+                f"t.save_json(Path('{identity_dir}/design-tokens.json')); print('Tokens generated')"
+            ], timeout=30, cwd=str(self.workspace))
+            if result.returncode == 0:
+                self._log("✓", "Design tokens generated")
+            else:
+                self._log("⚠", "Design tokens generation failed (non-critical)")
+        except Exception as e:
+            self._log("⚠", f"Design tokens: {e}")
+
+        # 2. Generate starburst logo
+        try:
+            result = _run([
+                str(self._python()), "-c",
+                "from slate.logo_generator.starburst import StarburstLogo, StarburstConfig; "
+                "from pathlib import Path; "
+                f"logos_dir = Path('{logos_dir}'); "
+                "logo = StarburstLogo(); logo.save(logos_dir / 'slate-logo.svg'); "
+                "dark = StarburstLogo(StarburstConfig(ray_color='#D4785A', center_fill='#D4785A', "
+                "letter_color='#1A1816', background='#1A1816')); "
+                "dark.save(logos_dir / 'slate-logo-dark.svg'); "
+                "animated = StarburstLogo(StarburstConfig(animate_pulse=True)); "
+                "animated.save(logos_dir / 'slate-logo-animated.svg'); "
+                "print('Logos generated')"
+            ], timeout=30, cwd=str(self.workspace))
+            if result.returncode == 0:
+                self._log("✓", "Starburst logos generated (default, dark, animated)")
+            else:
+                self._log("⚠", f"Logo generation failed: {result.stderr.strip()[:100]}")
+        except Exception as e:
+            self._log("⚠", f"Logo generation: {e}")
+
+        # 3. Initialize theme value
+        theme_file = identity_dir / "theme_value.json"
+        if not theme_file.exists():
+            theme_file.write_text('{"value": 0.15}', encoding='utf-8')
+            self._log("✓", "Theme preference initialized (dark mode)")
+        else:
+            self._log("✓", "Theme preference exists")
+
+        self.results["generative_ui"] = {"status": "configured", "logos_dir": str(logos_dir)}
+        return True
+
+    # ── Step 12: Final Validation ────────────────────────────────────────
 
     def step_validate(self) -> bool:
         """Run final validation of the SLATE ecosystem."""
-        _print_header("Step 11: Final Validation")
+        _print_header("Step 12: Final Validation")
 
         checks = []
 
@@ -927,9 +1076,25 @@ class SlateInstaller:
 
     # ── Orchestrators ────────────────────────────────────────────────────
 
-    def run_install(self, target_dir: str = None, beta: bool = False) -> dict:
-        """Run full SLATE ecosystem installation."""
-        # Modified: 2026-02-06T22:30:00Z | Author: COPILOT | Change: Full install orchestration
+    def run_install(
+        self,
+        target_dir: str = None,
+        beta: bool = False,
+        personalize: bool = True,
+        fork_name: str = None,
+        interactive: bool = True,
+    ) -> dict:
+        """
+        Run full SLATE ecosystem installation.
+
+        Args:
+            target_dir: Target directory for installation
+            beta: Use BETA fork as source
+            personalize: Run personalization setup (custom name, logo, theme)
+            fork_name: Pre-set fork name for non-interactive personalization
+            interactive: Allow interactive prompts
+        """
+        # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add personalization support
         print()
         print("═" * 64)
         print("  S.L.A.T.E. Ecosystem Installer v2.4.0")
@@ -947,7 +1112,9 @@ class SlateInstaller:
             ("SLATE SDK", self.step_slate_sdk),
             ("VS Code Extension", self.step_vscode_extension),
             ("SLATE Models", self.step_slate_models),
+            ("Personalization", lambda: self.step_personalization(interactive=interactive, fork_name=fork_name) if personalize else True),
             ("Workspace Config", self.step_workspace_setup),
+            ("Generative UI", self.step_generative_ui),
             ("Final Validation", self.step_validate),
         ]
 
@@ -972,12 +1139,20 @@ class SlateInstaller:
                 failed += 1
 
         elapsed = time.time() - start_time
+
+        # Get personalization info for display
+        fork_display = "S.L.A.T.E."
+        if "personalization" in self.results:
+            p_result = self.results["personalization"]
+            if p_result.get("status") == "created" or p_result.get("status") == "exists":
+                fork_display = p_result.get("name", "S.L.A.T.E.")
+
         print()
         print("═" * 64)
         if failed == 0:
-            print(f"  ✓ S.L.A.T.E. Installation Complete! ({elapsed:.1f}s)")
+            print(f"  ✓ {fork_display} Installation Complete! ({elapsed:.1f}s)")
         else:
-            print(f"  ⚠ Installation completed with {failed} warning(s) ({elapsed:.1f}s)")
+            print(f"  ⚠ {fork_display} installed with {failed} warning(s) ({elapsed:.1f}s)")
         print("═" * 64)
         print()
         print("  Next steps:")
@@ -988,6 +1163,13 @@ class SlateInstaller:
         print("    2. In VS Code: Open workspace and use @slate /status")
         print("    3. System check: python slate/slate_status.py --quick")
         print("    4. Start services: python slate/slate_orchestrator.py start")
+
+        if "personalization" in self.results and self.results["personalization"].get("status") == "skipped":
+            print()
+            print("  Personalization:")
+            print("    To customize your SLATE later, run:")
+            print("    python slate/slate_personalization.py --setup")
+
         print()
 
         return {
@@ -997,6 +1179,7 @@ class SlateInstaller:
             "elapsed_seconds": round(elapsed, 1),
             "errors": self.errors,
             "results": self.results,
+            "fork_name": fork_display,
         }
 
     def run_update(self) -> dict:
@@ -1201,14 +1384,16 @@ class SlateInstaller:
 
 def main():
     """CLI entry point for SLATE installer."""
-    # Modified: 2026-02-06T22:30:00Z | Author: COPILOT | Change: CLI argument handling
+    # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add personalization CLI options
     parser = argparse.ArgumentParser(
         description="S.L.A.T.E. Ecosystem Installer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python slate/slate_installer.py --install                    # Full install in current directory
+  python slate/slate_installer.py --install                    # Full install with personalization
   python slate/slate_installer.py --install --target ~/slate   # Install to specific directory
+  python slate/slate_installer.py --install --fork-name PHOENIX  # Install with preset fork name
+  python slate/slate_installer.py --install --no-personalize   # Skip personalization
   python slate/slate_installer.py --update                     # Update existing installation
   python slate/slate_installer.py --check                      # Check dependencies only
   python slate/slate_installer.py --install --beta             # Install from BETA fork
@@ -1220,6 +1405,14 @@ Examples:
     parser.add_argument("--target", type=str, help="Target directory for fresh install")
     parser.add_argument("--beta", action="store_true", help="Use BETA fork")
     parser.add_argument("--json", action="store_true", help="JSON output")
+
+    # Personalization options
+    parser.add_argument("--fork-name", type=str, dest="fork_name",
+                        help="Custom name for your SLATE fork (e.g., PHOENIX, NOVA)")
+    parser.add_argument("--no-personalize", action="store_true", dest="no_personalize",
+                        help="Skip personalization setup")
+    parser.add_argument("--non-interactive", action="store_true", dest="non_interactive",
+                        help="Run without interactive prompts")
 
     args = parser.parse_args()
 
@@ -1239,7 +1432,13 @@ Examples:
         return 0 if result["success"] else 1
 
     if args.install:
-        result = installer.run_install(target_dir=args.target, beta=args.beta)
+        result = installer.run_install(
+            target_dir=args.target,
+            beta=args.beta,
+            personalize=not args.no_personalize,
+            fork_name=args.fork_name,
+            interactive=not args.non_interactive,
+        )
         if args.json:
             print(json.dumps(result, indent=2, default=str))
         return 0 if result["success"] else 1

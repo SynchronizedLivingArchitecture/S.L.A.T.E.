@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://127.0.0.1:* ws://127.0.0.1:*; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:*; img-src 'self' data:;">
+    <title>S.L.A.T.E.</title>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           SLATE Design System v3.0
+           M3 Material + Awwwards Editorial + Anthropic Geometric
+           ═══════════════════════════════════════════════════════════════ */
+
+        :root {
+            --sl-bg-root: #09150e;
+            --sl-bg-surface: #0f2317;
+            --sl-bg-surface-dim: #060d09;
+            --sl-bg-surface-bright: #193d28;
+            --sl-bg-container: #122a1c;
+            --sl-bg-container-high: #193d28;
+            --sl-bg-container-highest: #204f33;
+            --sl-bg-inverse: #dbefe3;
+            --sl-elevation-1: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 #193d2820;
+            --sl-elevation-2: 0 2px 6px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 #204f3325;
+            --sl-elevation-3: 0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+            --sl-elevation-4: 0 8px 24px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);
+            --sl-elevation-5: 0 12px 32px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4);
+            --sl-text-primary: #dbefe3;
+            --sl-text-secondary: #b6e1c8;
+            --sl-text-tertiary: #68c98f;
+            --sl-text-disabled: #35965c;
+            --sl-text-on-primary: #0f2317;
+            --sl-text-on-accent: #000000;
+            --sl-accent: #a2f5ce;
+            --sl-accent-dim: #06c56c;
+            --sl-accent-container: #095c35;
+            --sl-accent-on-container: #d2f8e6;
+            --sl-accent-glow: #39f89f30;
+            --sl-border: #2a6e4640;
+            --sl-border-variant: #35965c30;
+            --sl-border-focus: #39f89f;
+            --sl-outline: #3ec07350;
+            --sl-success: #00e676;
+            --sl-warning: #ffab00;
+            --sl-error: #ff5252;
+            --sl-info: #40c4ff;
+            --sl-success-container: #00e67618;
+            --sl-warning-container: #ffab0018;
+            --sl-error-container: #ff525218;
+            --sl-info-container: #40c4ff18;
+            --sl-glass-bg: rgba(10, 18, 14, 0.72);
+            --sl-glass-border: rgba(255, 255, 255, 0.06);
+            --sl-glass-blur: 20px;
+            --sl-glass-saturate: 1.2;
+            --sl-font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --sl-font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+            --sl-font-display: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            --sl-space-1: 4px;
+            --sl-space-2: 8px;
+            --sl-space-3: 12px;
+            --sl-space-4: 16px;
+            --sl-space-5: 20px;
+            --sl-space-6: 24px;
+            --sl-space-8: 32px;
+            --sl-space-10: 40px;
+            --sl-space-12: 48px;
+            --sl-space-16: 64px;
+            --sl-radius-xs: 4px;
+            --sl-radius-sm: 8px;
+            --sl-radius-md: 12px;
+            --sl-radius-lg: 16px;
+            --sl-radius-xl: 28px;
+            --sl-radius-full: 9999px;
+            --sl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+            --sl-ease-decelerate: cubic-bezier(0, 0, 0, 1);
+            --sl-ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+            --sl-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+            --sl-duration-short: 150ms;
+            --sl-duration-medium: 300ms;
+            --sl-duration-long: 500ms;
+        }
+
+        /* ─── Reset & Base ─────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-size: 15px;
+        }
+
+        body {
+            font-family: var(--sl-font-sans);
+            background: var(--sl-bg-root);
+            color: var(--sl-text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ─── Geometric Background ─────────────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIwIDEwODAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIHNsaWNlIj4KICA8bGluZSB4MT0iMTMyOSIgeTE9IjI0OCIgeDI9IjE0MDUiIHkyPSIxOTgiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNjUpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMzI5IiB5MT0iMjQ4IiB4Mj0iMTI1MiIgeTI9Ijc0IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTMyOSIgeTE9IjI0OCIgeDI9IjE0NjIiIHkyPSIxNjIiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMzI5IiB5MT0iMjQ4IiB4Mj0iMTQ1NyIgeTI9IjE2NiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjEzMjkiIHkxPSIyNDgiIHgyPSIxMjY3IiB5Mj0iMzcwIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDM4KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iNzEiIHkxPSI1ODMiIHgyPSIyMTEiIHkyPSI0NjciIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSI3MSIgeTE9IjU4MyIgeDI9IjExMyIgeTI9IjQ4NiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA1NykiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjcxIiB5MT0iNTgzIiB4Mj0iMTgzIiB5Mj0iNDk2IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDM1KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iNzEiIHkxPSI1ODMiIHgyPSIxNTUiIHkyPSI0NTIiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSI1MjEiIHkxPSI0NzciIHgyPSIzMzgiIHkyPSI0NjAiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIzMDUiIHkxPSIyMjkiIHgyPSIyMjkiIHkyPSIyMDkiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNzMpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNDA1IiB5MT0iMTk4IiB4Mj0iMTI1MiIgeTI9Ijc0IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTQwNSIgeTE9IjE5OCIgeDI9IjE0NjIiIHkyPSIxNjIiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wODApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNDA1IiB5MT0iMTk4IiB4Mj0iMTQ1NyIgeTI9IjE2NiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA4MykiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9Ijg1IiB5MT0iODEiIHgyPSIyMjkiIHkyPSIyMDkiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIyMTEiIHkxPSI0NjciIHgyPSIzMzgiIHkyPSI0NjAiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNDQpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIyMTEiIHkxPSI0NjciIHgyPSIxMTMiIHkyPSI0ODYiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNjApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIyMTEiIHkxPSI0NjciIHgyPSIxODMiIHkyPSI0OTYiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wOTYpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIyMTEiIHkxPSI0NjciIHgyPSIxNTUiIHkyPSI0NTIiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wODUpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIyMTEiIHkxPSI0NjciIHgyPSIzMTIiIHkyPSI1NjIiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzcpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIyMTEiIHkxPSI0NjciIHgyPSIzMDUiIHkyPSI1MjUiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNTQpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSI0OTYiIHkxPSIxMDU0IiB4Mj0iNDcxIiB5Mj0iOTM5IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDQ5KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iNDk2IiB5MT0iMTA1NCIgeDI9IjM1NCIgeTI9Ijk2NiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjQ5NiIgeTE9IjEwNTQiIHgyPSI0NTUiIHkyPSIxMDQyIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDk0KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTE2OSIgeTE9IjQyNyIgeDI9IjEyMjYiIHkyPSI1ODkiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMTY5IiB5MT0iNDI3IiB4Mj0iMTI1NiIgeTI9IjU2MSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjExNjkiIHkxPSI0MjciIHgyPSIxMTE4IiB5Mj0iMjc1IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTE2OSIgeTE9IjQyNyIgeDI9IjExNTAiIHkyPSI2MjAiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMTY5IiB5MT0iNDI3IiB4Mj0iMTIwMiIgeTI9IjQxMyIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA5OCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjExNjkiIHkxPSI0MjciIHgyPSIxMjY3IiB5Mj0iMzcwIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDUyKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTE2OSIgeTE9IjQyNyIgeDI9IjExMTMiIHkyPSI1MjEiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNTQpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMTY5IiB5MT0iNDI3IiB4Mj0iMTMzMCIgeTI9IjQ2OSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE0ODYiIHkxPSI4NzkiIHgyPSIxNDQ5IiB5Mj0iODg1IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDk4KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTQ4NiIgeTE9Ijg3OSIgeDI9IjE1ODMiIHkyPSI3MDkiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNDg2IiB5MT0iODc5IiB4Mj0iMTUxNCIgeTI9Ijk2MCIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA2OSkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE0ODYiIHkxPSI4NzkiIHgyPSIxNTQ5IiB5Mj0iODk3IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDgxKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iNDcxIiB5MT0iOTM5IiB4Mj0iMzUzIiB5Mj0iNzc4IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iNDcxIiB5MT0iOTM5IiB4Mj0iMzU0IiB5Mj0iOTY2IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDQ4KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iNDcxIiB5MT0iOTM5IiB4Mj0iNDU1IiB5Mj0iMTA0MiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA1NykiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjEyMjYiIHkxPSI1ODkiIHgyPSIxMjU2IiB5Mj0iNTYxIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDk1KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTIyNiIgeTE9IjU4OSIgeDI9IjExNTAiIHkyPSI2MjAiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNzEpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMjI2IiB5MT0iNTg5IiB4Mj0iMTIwMiIgeTI9IjQxMyIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjEyMjYiIHkxPSI1ODkiIHgyPSIxMzkyIiB5Mj0iNTY2IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTIyNiIgeTE9IjU4OSIgeDI9IjExMTMiIHkyPSI1MjEiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNDEpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMjI2IiB5MT0iNTg5IiB4Mj0iMTMzMCIgeTI9IjQ2OSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE2NzciIHkxPSIzMyIgeDI9IjE2NzIiIHkyPSIxMDgiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNzUpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNjc3IiB5MT0iMzMiIHgyPSIxNzQ2IiB5Mj0iMTM0IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDQ3KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTQ0OSIgeTE9Ijg4NSIgeDI9IjE1MTQiIHkyPSI5NjAiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNjApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNDQ5IiB5MT0iODg1IiB4Mj0iMTU0OSIgeTI9Ijg5NyIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA2MCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjcxNiIgeTE9IjU4OSIgeDI9Ijc1NSIgeTI9IjcyNCIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzNikiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjcxNiIgeTE9IjU4OSIgeDI9Ijc5OCIgeTI9IjU4OSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA3MSkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjcxNiIgeTE9IjU4OSIgeDI9Ijc0NyIgeTI9IjQ0OSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzNCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjcxNiIgeTE9IjU4OSIgeDI9Ijc5NyIgeTI9IjU3MiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA3MCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjcxNiIgeTE9IjU4OSIgeDI9Ijg0MSIgeTI9IjU2OCIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA0NCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjMzOCIgeTE9IjQ2MCIgeDI9IjE4MyIgeTI9IjQ5NiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjMzOCIgeTE9IjQ2MCIgeDI9IjE1NSIgeTI9IjQ1MiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjMzOCIgeTE9IjQ2MCIgeDI9IjMxMiIgeTI9IjU2MiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA1NykiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjMzOCIgeTE9IjQ2MCIgeDI9IjMwNSIgeTI9IjUyNSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA3NikiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE1ODMiIHkxPSI3MDkiIHgyPSIxNzE4IiB5Mj0iNzYwIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMzKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTU4MyIgeTE9IjcwOSIgeDI9IjE2MDMiIHkyPSI2MTIiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNjEpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNTgzIiB5MT0iNzA5IiB4Mj0iMTQyMiIgeTI9IjY4NCIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE1ODMiIHkxPSI3MDkiIHgyPSIxNjY4IiB5Mj0iNjY2IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDYzKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTU4MyIgeTE9IjcwOSIgeDI9IjE1NDUiIHkyPSI1NTgiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNTgzIiB5MT0iNzA5IiB4Mj0iMTU0OSIgeTI9Ijg5NyIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9Ijc5OCIgeTE9IjIxOCIgeDI9Ijc5NSIgeTI9IjE4MSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA5OCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9Ijc1NSIgeTE9IjcyNCIgeDI9Ijc5OCIgeTI9IjU4OSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzNSkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9Ijc1NSIgeTE9IjcyNCIgeDI9Ijk0OCIgeTI9Ijc2NyIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9Ijc1NSIgeTE9IjcyNCIgeDI9Ijc5NyIgeTI9IjU3MiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9Ijc1NSIgeTE9IjcyNCIgeDI9Ijg0MSIgeTI9IjU2OCIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjEyNTYiIHkxPSI1NjEiIHgyPSIxMTUwIiB5Mj0iNjIwIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDQ3KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTI1NiIgeTE9IjU2MSIgeDI9IjEyMDIiIHkyPSI0MTMiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMjU2IiB5MT0iNTYxIiB4Mj0iMTM5MiIgeTI9IjU2NiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzOCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjEyNTYiIHkxPSI1NjEiIHgyPSIxMjY3IiB5Mj0iMzcwIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTI1NiIgeTE9IjU2MSIgeDI9IjExMTMiIHkyPSI1MjEiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzEpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMjU2IiB5MT0iNTYxIiB4Mj0iMTMzMCIgeTI9IjQ2OSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA0OSkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE2NzIiIHkxPSIxMDgiIHgyPSIxNzk0IiB5Mj0iMjI2IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTY3MiIgeTE9IjEwOCIgeDI9IjE3NDYiIHkyPSIxMzQiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNzMpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNTE0IiB5MT0iOTYwIiB4Mj0iMTU0OSIgeTI9Ijg5NyIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA3NykiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjExMTgiIHkxPSIyNzUiIHgyPSIxMjAyIiB5Mj0iNDEzIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTExOCIgeTE9IjI3NSIgeDI9IjEyNjciIHkyPSIzNzAiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMTUwIiB5MT0iNjIwIiB4Mj0iMTExMyIgeTI9IjUyMSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA1NykiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE3MTgiIHkxPSI3NjAiIHgyPSIxNjAzIiB5Mj0iNjEyIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTcxOCIgeTE9Ijc2MCIgeDI9IjE2NjgiIHkyPSI2NjYiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNTYpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNzE4IiB5MT0iNzYwIiB4Mj0iMTg5MCIgeTI9IjY2NCIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjEyMDIiIHkxPSI0MTMiIHgyPSIxMjY3IiB5Mj0iMzcwIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDczKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTIwMiIgeTE9IjQxMyIgeDI9IjExMTMiIHkyPSI1MjEiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzYpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMjAyIiB5MT0iNDEzIiB4Mj0iMTMzMCIgeTI9IjQ2OSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzNikiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE0NjIiIHkxPSIxNjIiIHgyPSIxNDU3IiB5Mj0iMTY2IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMTE2KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTEzIiB5MT0iNDg2IiB4Mj0iMTgzIiB5Mj0iNDk2IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDc4KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTEzIiB5MT0iNDg2IiB4Mj0iMTU1IiB5Mj0iNDUyIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDg4KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTEzIiB5MT0iNDg2IiB4Mj0iMzA1IiB5Mj0iNTI1IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTYwMyIgeTE9IjYxMiIgeDI9IjE0MjIiIHkyPSI2ODQiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNjAzIiB5MT0iNjEyIiB4Mj0iMTY2OCIgeTI9IjY2NiIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA2OSkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE2MDMiIHkxPSI2MTIiIHgyPSIxNTQ1IiB5Mj0iNTU4IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDcyKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTgzIiB5MT0iNDk2IiB4Mj0iMTU1IiB5Mj0iNDUyIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDg5KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTgzIiB5MT0iNDk2IiB4Mj0iMzEyIiB5Mj0iNTYyIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMzKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTgzIiB5MT0iNDk2IiB4Mj0iMzA1IiB5Mj0iNTI1IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDQ1KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTc5NCIgeTE9IjIyNiIgeDI9IjE3NDYiIHkyPSIxMzQiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNTgpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSI3OTgiIHkxPSI1ODkiIHgyPSI3NDciIHkyPSI0NDkiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzEpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSI3OTgiIHkxPSI1ODkiIHgyPSI3OTciIHkyPSI1NzIiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4xMTApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSI3OTgiIHkxPSI1ODkiIHgyPSI4NDEiIHkyPSI1NjgiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wOTEpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIzNTMiIHkxPSI3NzgiIHgyPSIzNTQiIHkyPSI5NjYiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSI3NDciIHkxPSI0NDkiIHgyPSI3OTciIHkyPSI1NzIiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNDApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSI3NDciIHkxPSI0NDkiIHgyPSI4NDEiIHkyPSI1NjgiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMzkyIiB5MT0iNTY2IiB4Mj0iMTMzMCIgeTI9IjQ2OSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA1MSkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjEzOTIiIHkxPSI1NjYiIHgyPSIxNDIyIiB5Mj0iNjg0IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDQ3KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTM5MiIgeTE9IjU2NiIgeDI9IjE1NDUiIHkyPSI1NTgiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wMzApIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxMjY3IiB5MT0iMzcwIiB4Mj0iMTMzMCIgeTI9IjQ2OSIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjA1MCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjM1NCIgeTE9Ijk2NiIgeDI9IjQ1NSIgeTI9IjEwNDIiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wNDQpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSI3OTciIHkxPSI1NzIiIHgyPSI4NDEiIHkyPSI1NjgiIHN0cm9rZT0icmdiYSgwLDI1NSwxMzYsMC4wOTMpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxsaW5lIHgxPSIxNDIyIiB5MT0iNjg0IiB4Mj0iMTU0NSIgeTI9IjU1OCIgc3Ryb2tlPSJyZ2JhKDAsMjU1LDEzNiwwLjAzMCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PGxpbmUgeDE9IjE2NjgiIHkxPSI2NjYiIHgyPSIxNTQ1IiB5Mj0iNTU4IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTU1IiB5MT0iNDUyIiB4Mj0iMzEyIiB5Mj0iNTYyIiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMTU1IiB5MT0iNDUyIiB4Mj0iMzA1IiB5Mj0iNTI1IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDMwKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48bGluZSB4MT0iMzEyIiB5MT0iNTYyIiB4Mj0iMzA1IiB5Mj0iNTI1IiBzdHJva2U9InJnYmEoMCwyNTUsMTM2LDAuMDk3KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KICA8Y2lyY2xlIGN4PSIxMzI5IiBjeT0iMjQ4IiByPSIyLjc5NTY0NTc2NzIwNDk1NCIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4yMikiLz48Y2lyY2xlIGN4PSI3MSIgY3k9IjU4MyIgcj0iMS40Mzg2NDE1MTgzMTQ1NjY3IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjQwKSIvPjxjaXJjbGUgY3g9IjUyMSIgY3k9IjQ3NyIgcj0iMi4wMTkwNTI1ODczNTI5MjkzIiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjEzKSIvPjxjaXJjbGUgY3g9IjMwNSIgY3k9IjIyOSIgcj0iMS4wOTQyMzI3NTA4NDk0NjkxIiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjEzKSIvPjxjaXJjbGUgY3g9IjE0MDUiIGN5PSIxOTgiIHI9IjIuMjU0ODkyMDgzNDA2MTgiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMzQpIi8+PGNpcmNsZSBjeD0iMTIyOSIgY3k9Ijg4NCIgcj0iMS44NDQzMTk5MzM1OTkzNjgiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMTIpIi8+PGNpcmNsZSBjeD0iODUiIGN5PSI4MSIgcj0iMS43NjMyMzg1NzMwMTMwNzM1IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjQwKSIvPjxjaXJjbGUgY3g9IjIxMSIgY3k9IjQ2NyIgcj0iMi4wNTgyMjg2OTAxOTgyNzQzIiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjM5KSIvPjxjaXJjbGUgY3g9IjQ5NiIgY3k9IjEwNTQiIHI9IjIuNzIxNTU5NDA0NDY4OTk2IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjEwKSIvPjxjaXJjbGUgY3g9IjEyNTIiIGN5PSI3NCIgcj0iMi40NDE0NDM2Mzg3MjAzODkiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMzApIi8+PGNpcmNsZSBjeD0iMTE2OSIgY3k9IjQyNyIgcj0iMi4wNzM5NDA2NjA4MTc1OTAzIiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjE4KSIvPjxjaXJjbGUgY3g9IjE0ODYiIGN5PSI4NzkiIHI9IjIuMjgxOTIzNTk3MTU5NjE2IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjEzKSIvPjxjaXJjbGUgY3g9IjQ3MSIgY3k9IjkzOSIgcj0iMS44Njk1MzA1MDEzMzgyMSIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4yNCkiLz48Y2lyY2xlIGN4PSIxMjI2IiBjeT0iNTg5IiByPSIyLjkwNzYzMTg1NTA0MjE2IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjM2KSIvPjxjaXJjbGUgY3g9IjE2NzciIGN5PSIzMyIgcj0iMS41MjY3NzgxMDE1MDIxODE1IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjI1KSIvPjxjaXJjbGUgY3g9IjE1NzQiIGN5PSIzNDYiIHI9IjEuMzU3MzAzNzYxMDYwMjYyNyIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4zNykiLz48Y2lyY2xlIGN4PSIxNDQ5IiBjeT0iODg1IiByPSIyLjc0MTAzNzEzOTY3MzUzMzYiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMTkpIi8+PGNpcmNsZSBjeD0iNzE2IiBjeT0iNTg5IiByPSIyLjI3Nzg5ODk4OTczMjAxMDUiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMjgpIi8+PGNpcmNsZSBjeD0iMzM4IiBjeT0iNDYwIiByPSIxLjMwNTY3ODUzNzA5OTI2OTYiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMzMpIi8+PGNpcmNsZSBjeD0iMTU4MyIgY3k9IjcwOSIgcj0iMi4wNzg3NTgwNjAyMzkyNTE1IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjMzKSIvPjxjaXJjbGUgY3g9IjIyOSIgY3k9IjIwOSIgcj0iMi4wNjA3MDczNDQzOTAzNTUiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMTApIi8+PGNpcmNsZSBjeD0iNzk4IiBjeT0iMjE4IiByPSIxLjY0ODMxMjExNDAwOTM0NjIiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMTEpIi8+PGNpcmNsZSBjeD0iNzU1IiBjeT0iNzI0IiByPSIyLjg1ODE5NzIzMjUyOTIzNCIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4zNikiLz48Y2lyY2xlIGN4PSIxMjU2IiBjeT0iNTYxIiByPSIyLjY2MzMzMTA1ODcyMjM1OSIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4xOSkiLz48Y2lyY2xlIGN4PSIxNjcyIiBjeT0iMTA4IiByPSIxLjExNTg1MDMzMjk4ODM3NSIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4zNikiLz48Y2lyY2xlIGN4PSIxNTE0IiBjeT0iOTYwIiByPSIyLjg5Mzg5ODg5MDU5NTk4OCIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4xMykiLz48Y2lyY2xlIGN4PSIxMTE4IiBjeT0iMjc1IiByPSIxLjk3MTk4MDkyNjYzMzIyNzUiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMTIpIi8+PGNpcmNsZSBjeD0iNzk1IiBjeT0iMTgxIiByPSIyLjUyMTIwNDMzMDUxNDQ2MyIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4zMykiLz48Y2lyY2xlIGN4PSIxMTUwIiBjeT0iNjIwIiByPSIxLjI1Njc4MjkyODk5OTUyNTYiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMjQpIi8+PGNpcmNsZSBjeD0iMTcxOCIgY3k9Ijc2MCIgcj0iMi4wOTk2MDcxODY5ODk4ODgiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMTgpIi8+PGNpcmNsZSBjeD0iMTIwMiIgY3k9IjQxMyIgcj0iMi43NDQ4NjYwODIxNzA1MTUiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMjMpIi8+PGNpcmNsZSBjeD0iMTQ2MiIgY3k9IjE2MiIgcj0iMS40MjM1OTY0MTA4ODQxNjQiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMjYpIi8+PGNpcmNsZSBjeD0iMTEzIiBjeT0iNDg2IiByPSIyLjQ1OTg2MjEzODE3OTk1MiIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4xNikiLz48Y2lyY2xlIGN4PSIxNjAzIiBjeT0iNjEyIiByPSIxLjYyMzQzMjU4MjYwMTc5IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjQwKSIvPjxjaXJjbGUgY3g9IjE4MyIgY3k9IjQ5NiIgcj0iMi4yOTk3NTYxMTUyNzg5MDY4IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjIzKSIvPjxjaXJjbGUgY3g9IjE3OTQiIGN5PSIyMjYiIHI9IjIuMDM1MTUxNjgyMDcxMTgxMiIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4xNCkiLz48Y2lyY2xlIGN4PSI3OTgiIGN5PSI1ODkiIHI9IjEuNDQ5Mzk0Njc0MDYzMTE0NyIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4yMCkiLz48Y2lyY2xlIGN4PSI5NDgiIGN5PSI3NjciIHI9IjIuMTc2NjE3NDM2OTE0NDY2NiIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4xNykiLz48Y2lyY2xlIGN4PSIzNTMiIGN5PSI3NzgiIHI9IjEuNDQwNDM0NzY4OTAzMTE5IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjEyKSIvPjxjaXJjbGUgY3g9Ijc0NyIgY3k9IjQ0OSIgcj0iMi4yNjIyMDU5MTQ1NDAxOTgiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMTcpIi8+PGNpcmNsZSBjeD0iMTM5MiIgY3k9IjU2NiIgcj0iMi44MTA4NDAwMjYwMTIyNTYiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuMzYpIi8+PGNpcmNsZSBjeD0iMTQ1NyIgY3k9IjE2NiIgcj0iMS4xNDE3MTQ2OTk3NzczMDY5IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjE3KSIvPjxjaXJjbGUgY3g9IjEyNjciIGN5PSIzNzAiIHI9IjIuMzM3OTU1NTU2NTkyNTYxNCIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4xNikiLz48Y2lyY2xlIGN4PSIxMTEzIiBjeT0iNTIxIiByPSIxLjI2NDYyMzY5NzQ1MDA1IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjM4KSIvPjxjaXJjbGUgY3g9IjM1NCIgY3k9Ijk2NiIgcj0iMi4xNDIwODYxODY2NTA1Njg3IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjI0KSIvPjxjaXJjbGUgY3g9Ijc5NyIgY3k9IjU3MiIgcj0iMi41NjkyMzg4NDg1ODE1MDY4IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjM0KSIvPjxjaXJjbGUgY3g9IjEzMzAiIGN5PSI0NjkiIHI9IjEuMzgwODE5ODI4NzIzNzU1NCIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4xMykiLz48Y2lyY2xlIGN4PSIxNDIyIiBjeT0iNjg0IiByPSIxLjg2MjEwMjM2NDgxMjc1NSIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4yMykiLz48Y2lyY2xlIGN4PSIxNzQ2IiBjeT0iMTM0IiByPSIxLjkzNDA0OTMzNjA3MzM1IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjMyKSIvPjxjaXJjbGUgY3g9IjQ4OSIgY3k9Ijg1IiByPSIyLjM0NjcyOTA5NDU4NjYwMzMiIGZpbGw9InJnYmEoMCwyNTUsMTM2LDAuNDApIi8+PGNpcmNsZSBjeD0iMTY2OCIgY3k9IjY2NiIgcj0iMS4xOTY4MzU3NDIzMDM5MTc4IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjIyKSIvPjxjaXJjbGUgY3g9Ijg0MSIgY3k9IjU2OCIgcj0iMS42Nzg2MDUyMTA3ODk5MjYzIiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjM2KSIvPjxjaXJjbGUgY3g9IjE1NSIgY3k9IjQ1MiIgcj0iMS40OTczMTI2Njc4NDA1NzEzIiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjE2KSIvPjxjaXJjbGUgY3g9IjE4OTAiIGN5PSI2NjQiIHI9IjEuODk3MjI3MDk1NjY2MjYzOCIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4yMykiLz48Y2lyY2xlIGN4PSI0NTUiIGN5PSIxMDQyIiByPSIxLjU1NzA5MDI4OTMzMzg4MSIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4xNykiLz48Y2lyY2xlIGN4PSI4MzAiIGN5PSI5NTkiIHI9IjIuODQ2NTMxMTk4NTUyMDI1NiIgZmlsbD0icmdiYSgwLDI1NSwxMzYsMC4yMykiLz48Y2lyY2xlIGN4PSIzMTIiIGN5PSI1NjIiIHI9IjIuNzIyNjk4MjA5NTIzNjYxIiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjI3KSIvPjxjaXJjbGUgY3g9IjMwNSIgY3k9IjUyNSIgcj0iMS4xMDExNzY2NTkwNDk3NjI1IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjQwKSIvPjxjaXJjbGUgY3g9IjE1NDUiIGN5PSI1NTgiIHI9IjIuNjcyMDU1MTcwMTU5OTA0IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjM5KSIvPjxjaXJjbGUgY3g9IjE1NDkiIGN5PSI4OTciIHI9IjIuODUyNzMzOTY2MDE2MjU1IiBmaWxsPSJyZ2JhKDAsMjU1LDEzNiwwLjM1KSIvPgo8L3N2Zz4=") center/cover no-repeat,
+                radial-gradient(ellipse at 20% 0%, rgba(0,255,136,0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(0,255,136,0.02) 0%, transparent 50%);
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Scanline overlay for depth */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.015) 2px,
+                rgba(0,0,0,0.015) 4px
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── Layout Shell ─────────────────────────────────────────── */
+        .shell {
+            position: relative;
+            z-index: 1;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: var(--sl-space-6) var(--sl-space-8);
+        }
+
+        /* ─── Topbar ───────────────────────────────────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--sl-space-4) 0;
+            margin-bottom: var(--sl-space-8);
+            border-bottom: 1px solid var(--sl-border);
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--sl-space-4);
+        }
+
+        .topbar-logo {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+        .topbar-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar-title h1 {
+            font-size: var(--sl-space-5);
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--sl-text-primary);
+            line-height: 1.1;
+        }
+
+        .topbar-title .subtitle {
+            font-size: 0.65rem;
+            color: var(--sl-text-tertiary);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--sl-space-3);
+        }
+
+        .topbar-status {
+            display: flex;
+            align-items: center;
+            gap: var(--sl-space-2);
+            padding: var(--sl-space-1) var(--sl-space-3);
+            background: var(--sl-bg-container);
+            border: 1px solid var(--sl-border);
+            border-radius: var(--sl-radius-full);
+            font-size: 0.7rem;
+            color: var(--sl-text-secondary);
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--sl-success);
+            box-shadow: 0 0 8px var(--sl-success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .pulse-dot.offline { background: var(--sl-error); box-shadow: 0 0 8px var(--sl-error); animation: none; }
+        .pulse-dot.warning { background: var(--sl-warning); box-shadow: 0 0 8px var(--sl-warning); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ─── Grid System ──────────────────────────────────────────── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: var(--sl-space-4);
+        }
+
+        .col-12 { grid-column: span 12; }
+        .col-8 { grid-column: span 8; }
+        .col-6 { grid-column: span 6; }
+        .col-4 { grid-column: span 4; }
+        .col-3 { grid-column: span 3; }
+
+        @media (max-width: 1024px) {
+            .col-8, .col-6 { grid-column: span 12; }
+            .col-4, .col-3 { grid-column: span 6; }
+        }
+        @media (max-width: 640px) {
+            .col-4, .col-3 { grid-column: span 12; }
+        }
+
+        /* ─── Cards (M3 Surface + Glassmorphism) ───────────────────── */
+        .card {
+            background: var(--sl-glass-bg);
+            backdrop-filter: blur(var(--sl-glass-blur)) saturate(var(--sl-glass-saturate));
+            -webkit-backdrop-filter: blur(var(--sl-glass-blur)) saturate(var(--sl-glass-saturate));
+            border: 1px solid var(--sl-glass-border);
+            border-radius: var(--sl-radius-lg);
+            padding: var(--sl-space-5);
+            transition: border-color var(--sl-duration-medium) var(--sl-ease-standard),
+                        box-shadow var(--sl-duration-medium) var(--sl-ease-standard);
+        }
+
+        .card:hover {
+            border-color: var(--sl-border-variant);
+            box-shadow: var(--sl-elevation-2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--sl-space-4);
+        }
+
+        .card-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--sl-text-tertiary);
+        }
+
+        .card-action {
+            background: none;
+            border: 1px solid var(--sl-border);
+            border-radius: var(--sl-radius-sm);
+            padding: var(--sl-space-1) var(--sl-space-3);
+            color: var(--sl-text-tertiary);
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all var(--sl-duration-short) var(--sl-ease-standard);
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .card-action:hover {
+            color: var(--sl-accent);
+            border-color: var(--sl-accent-dim);
+        }
+
+        /* ─── Buttons (M3-inspired) ────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--sl-space-2);
+            padding: var(--sl-space-2) var(--sl-space-4);
+            border-radius: var(--sl-radius-sm);
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all var(--sl-duration-short) var(--sl-ease-standard);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .btn-filled {
+            background: var(--sl-accent);
+            color: var(--sl-text-on-accent);
+        }
+        .btn-filled:hover {
+            box-shadow: var(--sl-elevation-2);
+            filter: brightness(0.9);
+        }
+
+        .btn-tonal {
+            background: var(--sl-accent-container);
+            color: var(--sl-accent-on-container);
+            border: 1px solid var(--sl-accent-dim);
+        }
+        .btn-tonal:hover {
+            background: rgba(0,255,136,0.15);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--sl-border);
+            color: var(--sl-text-secondary);
+        }
+        .btn-outline:hover {
+            border-color: var(--sl-accent-dim);
+            color: var(--sl-accent);
+            background: rgba(0,255,136,0.05);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: none;
+            color: var(--sl-text-tertiary);
+        }
+        .btn-ghost:hover {
+            color: var(--sl-text-primary);
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* ─── SLATE Control Panel ──────────────────────────────────── */
+        .ctrl-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--sl-space-3);
+        }
+        @media (max-width: 900px) { .ctrl-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 540px) { .ctrl-grid { grid-template-columns: 1fr; } }
+
+        .ctrl-btn {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--sl-space-2);
+            padding: var(--sl-space-5) var(--sl-space-3);
+            border-radius: var(--sl-radius-md);
+            background: var(--sl-bg-container);
+            border: 1px solid var(--sl-border);
+            color: var(--sl-text-secondary);
+            cursor: pointer;
+            transition: all var(--sl-duration-medium) var(--sl-ease-emphasized);
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            overflow: hidden;
+        }
+
+        .ctrl-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,255,136,0.04) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity var(--sl-duration-medium);
+        }
+
+        .ctrl-btn:hover {
+            border-color: var(--sl-accent-dim);
+            background: var(--sl-bg-container-high);
+            transform: translateY(-2px);
+            box-shadow: var(--sl-elevation-3);
+        }
+        .ctrl-btn:hover::before { opacity: 1; }
+        .ctrl-btn:active { transform: translateY(0); }
+
+        .ctrl-btn.running {
+            border-color: var(--sl-accent);
+            pointer-events: none;
+        }
+        .ctrl-btn.running .ctrl-icon {
+            animation: spin 1.2s linear infinite;
+        }
+        .ctrl-btn.ok { border-color: var(--sl-success); }
+        .ctrl-btn.err { border-color: var(--sl-error); }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .ctrl-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ctrl-label { position: relative; z-index: 1; }
+
+        .ctrl-dot {
+            position: absolute;
+            top: var(--sl-space-2);
+            right: var(--sl-space-2);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--sl-text-disabled);
+        }
+        .ctrl-dot.ok { background: var(--sl-success); box-shadow: 0 0 6px var(--sl-success); }
+        .ctrl-dot.err { background: var(--sl-error); box-shadow: 0 0 6px var(--sl-error); }
+        .ctrl-dot.warn { background: var(--sl-warning); box-shadow: 0 0 6px var(--sl-warning); }
+
+        /* Control output terminal */
+        .ctrl-term {
+            display: none;
+            margin-top: var(--sl-space-4);
+            padding: var(--sl-space-4);
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--sl-border);
+            border-radius: var(--sl-radius-sm);
+            font-family: var(--sl-font-mono);
+            font-size: 0.7rem;
+            line-height: 1.7;
+            color: var(--sl-text-tertiary);
+            max-height: 280px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .ctrl-term.open { display: block; animation: fadeIn 0.2s ease; }
+        .ctrl-term .ok { color: var(--sl-success); }
+        .ctrl-term .err { color: var(--sl-error); }
+        .ctrl-term .lbl { color: var(--sl-text-secondary); font-weight: 600; }
+
+        /* CI dispatch row */
+        .ci-row {
+            display: flex;
+            gap: var(--sl-space-2);
+            flex-wrap: wrap;
+            margin-top: var(--sl-space-4);
+            padding-top: var(--sl-space-4);
+            border-top: 1px solid var(--sl-border);
+        }
+        .ci-row .btn { flex: 1; min-width: 100px; font-size: 0.65rem; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── Pipeline Visualization ───────────────────────────────── */
+        .pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            padding: var(--sl-space-4) 0;
+        }
+
+        .pipe-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--sl-space-1);
+        }
+
+        .pipe-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--sl-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 1px solid var(--sl-border);
+            background: var(--sl-bg-container);
+            color: var(--sl-text-secondary);
+            transition: all var(--sl-duration-medium) var(--sl-ease-standard);
+        }
+
+        .pipe-icon.active {
+            border-color: var(--sl-accent);
+            color: var(--sl-accent);
+            box-shadow: 0 0 16px var(--sl-accent-glow);
+        }
+
+        .pipe-label {
+            font-size: 0.6rem;
+            color: var(--sl-text-disabled);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .pipe-value {
+            font-size: 0.65rem;
+            color: var(--sl-text-tertiary);
+            font-family: var(--sl-font-mono);
+        }
+
+        .pipe-connector {
+            width: 48px;
+            height: 1px;
+            background: var(--sl-border);
+            margin: 0 var(--sl-space-1);
+            margin-bottom: 28px;
+        }
+        .pipe-connector.active {
+            background: var(--sl-accent-dim);
+            box-shadow: 0 0 4px var(--sl-accent-glow);
+        }
+
+        /* ─── Metrics & Progress Bars ──────────────────────────────── */
+        .metric {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--sl-space-2) 0;
+        }
+        .metric + .metric { border-top: 1px solid rgba(255,255,255,0.03); }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--sl-text-tertiary);
+        }
+
+        .metric-bar {
+            flex: 1;
+            margin: 0 var(--sl-space-3);
+            height: 4px;
+            background: var(--sl-bg-container-highest);
+            border-radius: var(--sl-radius-full);
+            overflow: hidden;
+        }
+
+        .metric-fill {
+            height: 100%;
+            background: var(--sl-accent);
+            border-radius: var(--sl-radius-full);
+            transition: width var(--sl-duration-long) var(--sl-ease-decelerate);
+        }
+
+        .metric-value {
+            font-size: 0.7rem;
+            font-family: var(--sl-font-mono);
+            color: var(--sl-text-secondary);
+            min-width: 36px;
+            text-align: right;
+        }
+
+        /* ─── Status Badges ────────────────────────────────────────── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: var(--sl-radius-full);
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .badge.online { background: var(--sl-success-container); color: var(--sl-success); }
+        .badge.offline { background: var(--sl-error-container); color: var(--sl-error); }
+        .badge.pending { background: rgba(255,255,255,0.05); color: var(--sl-text-disabled); }
+        .badge.warning { background: var(--sl-warning-container); color: var(--sl-warning); }
+
+        /* ─── Service List ─────────────────────────────────────────── */
+        .svc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--sl-space-2) var(--sl-space-3);
+            border-radius: var(--sl-radius-sm);
+            transition: background var(--sl-duration-short);
+        }
+        .svc-item:hover { background: rgba(255,255,255,0.02); }
+        .svc-item + .svc-item { border-top: 1px solid rgba(255,255,255,0.03); }
+
+        .svc-name {
+            display: flex;
+            align-items: center;
+            gap: var(--sl-space-2);
+            font-size: 0.75rem;
+            color: var(--sl-text-secondary);
+        }
+
+        .svc-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--sl-radius-sm);
+            background: var(--sl-bg-container-high);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--sl-text-tertiary);
+        }
+
+        /* ─── Task List ────────────────────────────────────────────── */
+        .task-form {
+            display: flex;
+            gap: var(--sl-space-2);
+            margin-bottom: var(--sl-space-3);
+        }
+
+        .task-input {
+            flex: 1;
+            padding: var(--sl-space-2) var(--sl-space-3);
+            background: var(--sl-bg-container);
+            border: 1px solid var(--sl-border);
+            border-radius: var(--sl-radius-sm);
+            color: var(--sl-text-primary);
+            font-family: inherit;
+            font-size: 0.75rem;
+            outline: none;
+            transition: border-color var(--sl-duration-short);
+        }
+        .task-input:focus { border-color: var(--sl-accent); }
+        .task-input::placeholder { color: var(--sl-text-disabled); }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--sl-space-2) var(--sl-space-3);
+            border-radius: var(--sl-radius-sm);
+            font-size: 0.75rem;
+            color: var(--sl-text-secondary);
+        }
+        .task-item + .task-item { border-top: 1px solid rgba(255,255,255,0.03); }
+
+        /* ─── Workflow List ─────────────────────────────────────────── */
+        .wf-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--sl-space-2) 0;
+            font-size: 0.7rem;
+        }
+        .wf-item + .wf-item { border-top: 1px solid rgba(255,255,255,0.03); }
+
+        .wf-name {
+            color: var(--sl-text-secondary);
+            display: flex;
+            align-items: center;
+            gap: var(--sl-space-2);
+        }
+
+        .wf-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--sl-space-3);
+            color: var(--sl-text-disabled);
+            font-family: var(--sl-font-mono);
+            font-size: 0.6rem;
+        }
+
+        /* ─── Heatmap ──────────────────────────────────────────────── */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(52, 1fr);
+            gap: 3px;
+        }
+        .heatmap-week { display: flex; flex-direction: column; gap: 3px; }
+        .heatmap-day {
+            width: 10px; height: 10px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.04);
+            transition: transform 0.15s;
+        }
+        .heatmap-day:hover { transform: scale(1.4); }
+        .heatmap-day[data-level="1"] { background: rgba(0,255,136,0.2); }
+        .heatmap-day[data-level="2"] { background: rgba(0,255,136,0.4); }
+        .heatmap-day[data-level="3"] { background: rgba(0,255,136,0.6); }
+        .heatmap-day[data-level="4"] { background: rgba(0,255,136,0.85); }
+
+        /* ─── GitHub Sections ──────────────────────────────────────── */
+        .gh-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--sl-space-4);
+        }
+        @media (max-width: 900px) { .gh-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .gh-section-title {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--sl-text-disabled);
+            margin-bottom: var(--sl-space-3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .gh-section-title .count {
+            background: var(--sl-bg-container-high);
+            padding: 1px 6px;
+            border-radius: var(--sl-radius-full);
+            font-family: var(--sl-font-mono);
+            font-size: 0.6rem;
+        }
+
+        .gh-item {
+            padding: var(--sl-space-2) 0;
+            font-size: 0.7rem;
+            color: var(--sl-text-tertiary);
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+        }
+
+        /* ─── Hardware Meters ──────────────────────────────────────── */
+        .hw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sl-space-4); }
+        @media (max-width: 640px) { .hw-grid { grid-template-columns: 1fr; } }
+
+        .hw-panel {
+            padding: var(--sl-space-4);
+            background: var(--sl-bg-container);
+            border-radius: var(--sl-radius-md);
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .hw-title {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--sl-text-disabled);
+            margin-bottom: var(--sl-space-3);
+        }
+
+        .hw-stat {
+            text-align: center;
+            padding: var(--sl-space-3);
+        }
+        .hw-stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: var(--sl-font-mono);
+            color: var(--sl-accent);
+        }
+        .hw-stat-label {
+            font-size: 0.6rem;
+            color: var(--sl-text-disabled);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 2px;
+        }
+
+        /* ─── Onboarding Overlay ───────────────────────────────────── */
+        .onboard-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .onboard-overlay.active { display: flex; }
+
+        .onboard-card {
+            max-width: 560px;
+            width: 90%;
+            background: var(--sl-bg-surface);
+            border: 1px solid var(--sl-border);
+            border-radius: var(--sl-radius-xl);
+            padding: var(--sl-space-10);
+            text-align: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .onboard-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--sl-text-primary);
+            margin-bottom: var(--sl-space-2);
+        }
+
+        .onboard-card p {
+            color: var(--sl-text-tertiary);
+            font-size: 0.85rem;
+            margin-bottom: var(--sl-space-6);
+            line-height: 1.7;
+        }
+
+        .onboard-steps {
+            display: flex;
+            flex-direction: column;
+            gap: var(--sl-space-3);
+            text-align: left;
+            margin-bottom: var(--sl-space-6);
+        }
+
+        .onboard-step {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--sl-space-3);
+            padding: var(--sl-space-3);
+            border-radius: var(--sl-radius-sm);
+            background: var(--sl-bg-container);
+        }
+
+        .onboard-step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--sl-accent-container);
+            color: var(--sl-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .onboard-step-text {
+            font-size: 0.8rem;
+            color: var(--sl-text-secondary);
+            line-height: 1.5;
+        }
+
+        .onboard-step-text strong {
+            color: var(--sl-accent);
+        }
+
+        /* ─── Empty State ──────────────────────────────────────────── */
+        .empty {
+            text-align: center;
+            padding: var(--sl-space-8) var(--sl-space-4);
+            color: var(--sl-text-disabled);
+            font-size: 0.75rem;
+        }
+
+        /* ─── Connection Status ────────────────────────────────────── */
+        #conn-status {
+            position: fixed;
+            bottom: var(--sl-space-4);
+            right: var(--sl-space-4);
+            padding: var(--sl-space-1) var(--sl-space-3);
+            background: var(--sl-bg-container);
+            border: 1px solid var(--sl-border);
+            border-radius: var(--sl-radius-full);
+            font-size: 0.6rem;
+            color: var(--sl-text-disabled);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: var(--sl-space-1);
+        }
+
+        /* ─── Activity Feed ────────────────────────────────────────── */
+        .feed-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--sl-space-3);
+            padding: var(--sl-space-2) 0;
+        }
+        .feed-item + .feed-item { border-top: 1px solid rgba(255,255,255,0.02); }
+
+        .feed-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--sl-accent-dim);
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .feed-text {
+            font-size: 0.7rem;
+            color: var(--sl-text-tertiary);
+            line-height: 1.5;
+        }
+
+        .feed-time {
+            font-size: 0.6rem;
+            color: var(--sl-text-disabled);
+            font-family: var(--sl-font-mono);
+        }
+
+        /* ─── Scrollbar ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+        /* ─── Skip Link ────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute; left: -9999px; top: -9999px;
+            padding: var(--sl-space-2) var(--sl-space-4);
+            background: var(--sl-accent); color: #000;
+            z-index: 9999; font-weight: 600;
+        }
+        .skip-link:focus { left: 0; top: 0; }
+
+        /* ─── Docker Containers ────────────────────────────────────── */
+        .docker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--sl-space-3);
+        }
+
+        /* ─── Tech Tree ────────────────────────────────────────────── */
+        .tech-tree-stats {
+            display: flex;
+            gap: var(--sl-space-4);
+            flex-wrap: wrap;
+        }
+        .tt-stat {
+            text-align: center;
+            padding: var(--sl-space-2) var(--sl-space-4);
+            background: var(--sl-bg-container);
+            border-radius: var(--sl-radius-sm);
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .tt-stat-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: var(--sl-font-mono);
+            color: var(--sl-accent);
+        }
+        .tt-stat-lbl {
+            font-size: 0.55rem;
+            color: var(--sl-text-disabled);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* ─── Select Dropdown ──────────────────────────────────────── */
+        select {
+            padding: var(--sl-space-2) var(--sl-space-3);
+            background: var(--sl-bg-container);
+            border: 1px solid var(--sl-border);
+            border-radius: var(--sl-radius-sm);
+            color: var(--sl-text-primary);
+            font-family: inherit;
+            font-size: 0.75rem;
+            outline: none;
+        }
+        select:focus { border-color: var(--sl-accent); }
+
+    </style>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <!-- Onboarding Overlay -->
+    <div class="onboard-overlay" id="onboard">
+        <div class="onboard-card">
+            <div style="margin-bottom: 20px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <radialGradient id="centerGlow"><stop offset="0%" stop-color="#00ff88" stop-opacity="0.6"/><stop offset="100%" stop-color="#00ff88" stop-opacity="0"/></radialGradient>
+    <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00ff88" stop-opacity="0.15"/><stop offset="100%" stop-color="#00cc6a" stop-opacity="0.05"/></linearGradient>
+  </defs>
+  <polygon points="37.5,16.2 37.5,31.8 24.0,39.6 10.5,31.8 10.5,16.2 24.0,8.4" fill="url(#hexGrad)" stroke="#00ff88" stroke-width="1.5" opacity="0.8"/>
+  <line x1="27.6" y1="24.0" x2="31.8" y2="25.6" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="25.8" y1="27.1" x2="29.9" y2="29.2" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="22.2" y1="27.1" x2="26.5" y2="31.5" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="20.4" y1="24.0" x2="22.4" y2="31.8" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="22.2" y1="20.9" x2="18.8" y2="29.9" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="25.8" y1="20.9" x2="16.5" y2="26.5" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="31.8" y1="25.6" x2="35.3" y2="28.8" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="29.9" y1="29.2" x2="33.0" y2="32.3" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="26.5" y1="31.5" x2="29.6" y2="34.9" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="22.4" y1="31.8" x2="25.5" y2="36.1" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="18.8" y1="29.9" x2="21.3" y2="35.9" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="16.5" y1="26.5" x2="17.3" y2="34.3" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="16.2" y1="22.4" x2="14.2" y2="31.4" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="18.1" y1="18.8" x2="12.3" y2="27.6" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="21.5" y1="16.5" x2="11.8" y2="23.4" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="25.6" y1="16.2" x2="12.7" y2="19.2" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="29.2" y1="18.1" x2="15.0" y2="15.7" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="31.5" y1="21.5" x2="18.4" y2="13.1" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/>
+  <circle cx="27.6" cy="24.0" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="25.8" cy="27.1" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="22.2" cy="27.1" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="20.4" cy="24.0" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="22.2" cy="20.9" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="25.8" cy="20.9" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="31.8" cy="25.6" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="29.9" cy="29.2" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="26.5" cy="31.5" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="22.4" cy="31.8" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="18.8" cy="29.9" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="16.5" cy="26.5" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="16.2" cy="22.4" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="18.1" cy="18.8" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="21.5" cy="16.5" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="25.6" cy="16.2" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="29.2" cy="18.1" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="31.5" cy="21.5" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="35.3" cy="28.8" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="33.0" cy="32.3" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="29.6" cy="34.9" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="25.5" cy="36.1" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="21.3" cy="35.9" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="17.3" cy="34.3" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="14.2" cy="31.4" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="12.3" cy="27.6" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="11.8" cy="23.4" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="12.7" cy="19.2" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="15.0" cy="15.7" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="18.4" cy="13.1" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="22.5" cy="11.9" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="26.7" cy="12.1" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="30.7" cy="13.7" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="33.8" cy="16.6" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="35.7" cy="20.4" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="36.2" cy="24.6" r="0.9" fill="#00ff88" opacity="0.4"/>
+  <circle cx="24.0" cy="24.0" r="2.88" fill="url(#centerGlow)"/><circle cx="24.0" cy="24.0" r="1.44" fill="#00ff88" opacity="0.9"/>
+</svg></div>
+            <h2>Welcome to S.L.A.T.E.</h2>
+            <p>Synchronized Living Architecture for Transformation and Evolution.<br>
+            Your local-first AI agent orchestration system is ready.</p>
+            <div class="onboard-steps">
+                <div class="onboard-step">
+                    <div class="onboard-step-num">1</div>
+                    <div class="onboard-step-text"><strong>Run SLATE</strong> — Execute the protocol check to verify all 7 integrations (Python, GPU, PyTorch, Transformers, Ollama, ChromaDB, venv).</div>
+                </div>
+                <div class="onboard-step">
+                    <div class="onboard-step-num">2</div>
+                    <div class="onboard-step-text"><strong>Control Panel</strong> — Use the 8 control buttons to manage tasks, debug systems, run benchmarks, and deploy services.</div>
+                </div>
+                <div class="onboard-step">
+                    <div class="onboard-step-num">3</div>
+                    <div class="onboard-step-text"><strong>@slate in Copilot</strong> — Type <strong>@slate</strong> in VS Code chat for AI-powered system management with 15 commands.</div>
+                </div>
+                <div class="onboard-step">
+                    <div class="onboard-step-num">4</div>
+                    <div class="onboard-step-text"><strong>SLATE Dark Theme</strong> — Apply the matching VS Code theme: Ctrl+K Ctrl+T &rarr; search "SLATE Dark".</div>
+                </div>
+            </div>
+            <button class="btn btn-filled" onclick="dismissOnboard()">Get Started</button>
+        </div>
+    </div>
+
+    <div class="shell">
+        <!-- Topbar -->
+        <header class="topbar" role="banner">
+            <div class="topbar-brand">
+                <div class="topbar-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <radialGradient id="centerGlow"><stop offset="0%" stop-color="#00ff88" stop-opacity="0.6"/><stop offset="100%" stop-color="#00ff88" stop-opacity="0"/></radialGradient>
+    <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00ff88" stop-opacity="0.15"/><stop offset="100%" stop-color="#00cc6a" stop-opacity="0.05"/></linearGradient>
+  </defs>
+  <polygon points="37.5,16.2 37.5,31.8 24.0,39.6 10.5,31.8 10.5,16.2 24.0,8.4" fill="url(#hexGrad)" stroke="#00ff88" stroke-width="1.5" opacity="0.8"/>
+  <line x1="27.6" y1="24.0" x2="31.8" y2="25.6" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="25.8" y1="27.1" x2="29.9" y2="29.2" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="22.2" y1="27.1" x2="26.5" y2="31.5" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="20.4" y1="24.0" x2="22.4" y2="31.8" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="22.2" y1="20.9" x2="18.8" y2="29.9" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="25.8" y1="20.9" x2="16.5" y2="26.5" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="31.8" y1="25.6" x2="35.3" y2="28.8" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="29.9" y1="29.2" x2="33.0" y2="32.3" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="26.5" y1="31.5" x2="29.6" y2="34.9" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="22.4" y1="31.8" x2="25.5" y2="36.1" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="18.8" y1="29.9" x2="21.3" y2="35.9" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="16.5" y1="26.5" x2="17.3" y2="34.3" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="16.2" y1="22.4" x2="14.2" y2="31.4" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="18.1" y1="18.8" x2="12.3" y2="27.6" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="21.5" y1="16.5" x2="11.8" y2="23.4" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="25.6" y1="16.2" x2="12.7" y2="19.2" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="29.2" y1="18.1" x2="15.0" y2="15.7" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/><line x1="31.5" y1="21.5" x2="18.4" y2="13.1" stroke="#00ff88" stroke-width="0.5" opacity="0.2"/>
+  <circle cx="27.6" cy="24.0" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="25.8" cy="27.1" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="22.2" cy="27.1" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="20.4" cy="24.0" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="22.2" cy="20.9" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="25.8" cy="20.9" r="1.5" fill="#00ff88" opacity="0.8"/><circle cx="31.8" cy="25.6" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="29.9" cy="29.2" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="26.5" cy="31.5" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="22.4" cy="31.8" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="18.8" cy="29.9" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="16.5" cy="26.5" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="16.2" cy="22.4" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="18.1" cy="18.8" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="21.5" cy="16.5" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="25.6" cy="16.2" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="29.2" cy="18.1" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="31.5" cy="21.5" r="1.2" fill="#00ff88" opacity="0.6000000000000001"/><circle cx="35.3" cy="28.8" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="33.0" cy="32.3" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="29.6" cy="34.9" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="25.5" cy="36.1" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="21.3" cy="35.9" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="17.3" cy="34.3" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="14.2" cy="31.4" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="12.3" cy="27.6" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="11.8" cy="23.4" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="12.7" cy="19.2" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="15.0" cy="15.7" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="18.4" cy="13.1" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="22.5" cy="11.9" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="26.7" cy="12.1" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="30.7" cy="13.7" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="33.8" cy="16.6" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="35.7" cy="20.4" r="0.9" fill="#00ff88" opacity="0.4"/><circle cx="36.2" cy="24.6" r="0.9" fill="#00ff88" opacity="0.4"/>
+  <circle cx="24.0" cy="24.0" r="2.88" fill="url(#centerGlow)"/><circle cx="24.0" cy="24.0" r="1.44" fill="#00ff88" opacity="0.9"/>
+</svg></div>
+                <div class="topbar-title">
+                    <h1>S.L.A.T.E.</h1>
+                    <span class="subtitle">Synchronized Living Architecture</span>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <div class="topbar-status">
+                    <span class="pulse-dot" id="runner-dot"></span>
+                    <span id="runner-status-text">Connecting...</span>
+                </div>
+                <button class="btn btn-outline" onclick="refreshAll()">Refresh</button>
+            </div>
+        </header>
+
+        <main id="main" role="main">
+        <div class="grid">
+
+            <!-- ═══ SLATE Controls ═══ -->
+            <div class="card col-12" role="region" aria-label="SLATE Controls">
+                <div class="card-header">
+                    <span class="card-title">Controls</span>
+                    <button class="card-action" onclick="toggleTerm()">Toggle Output</button>
+                </div>
+                <div class="ctrl-grid">
+                    <button class="ctrl-btn" id="ctrl-protocol" onclick="slateCtrl('run-protocol', this)">
+                        <span class="ctrl-dot" id="dot-protocol"></span>
+                        <span class="ctrl-icon">&#9881;</span>
+                        <span class="ctrl-label">Run SLATE</span>
+                    </button>
+                    <button class="ctrl-btn" id="ctrl-update" onclick="slateCtrl('update', this)">
+                        <span class="ctrl-dot" id="dot-update"></span>
+                        <span class="ctrl-icon">&#8635;</span>
+                        <span class="ctrl-label">Update</span>
+                    </button>
+                    <button class="ctrl-btn" id="ctrl-debug" onclick="slateCtrl('debug', this)">
+                        <span class="ctrl-dot" id="dot-debug"></span>
+                        <span class="ctrl-icon">&#128269;</span>
+                        <span class="ctrl-label">Debug</span>
+                    </button>
+                    <button class="ctrl-btn" id="ctrl-benchmark" onclick="slateCtrl('benchmark', this)">
+                        <span class="ctrl-dot" id="dot-benchmark"></span>
+                        <span class="ctrl-icon">&#9889;</span>
+                        <span class="ctrl-label">Benchmark</span>
+                    </button>
+                    <button class="ctrl-btn" id="ctrl-deploy" onclick="slateDeploy('start', this)">
+                        <span class="ctrl-dot" id="dot-deploy"></span>
+                        <span class="ctrl-icon">&#9654;</span>
+                        <span class="ctrl-label">Deploy</span>
+                    </button>
+                    <button class="ctrl-btn" id="ctrl-security" onclick="slateCtrl('security', this)">
+                        <span class="ctrl-dot" id="dot-security"></span>
+                        <span class="ctrl-icon">&#128274;</span>
+                        <span class="ctrl-label">Security</span>
+                    </button>
+                    <button class="ctrl-btn" id="ctrl-agents" onclick="slateCtrl('agents', this)">
+                        <span class="ctrl-dot" id="dot-agents"></span>
+                        <span class="ctrl-icon">&#129302;</span>
+                        <span class="ctrl-label">Agents</span>
+                    </button>
+                    <button class="ctrl-btn" id="ctrl-gpu" onclick="slateCtrl('gpu', this)">
+                        <span class="ctrl-dot" id="dot-gpu"></span>
+                        <span class="ctrl-icon">&#9670;</span>
+                        <span class="ctrl-label">GPU</span>
+                    </button>
+                </div>
+                <div class="ctrl-term" id="ctrl-term"></div>
+                <div class="ci-row">
+                    <button class="btn btn-filled" onclick="dispatchWorkflow('ci.yml')">CI Pipeline</button>
+                    <button class="btn btn-outline" onclick="dispatchWorkflow('slate.yml')">SLATE Checks</button>
+                    <button class="btn btn-outline" onclick="dispatchWorkflow('nightly.yml')">Nightly</button>
+                    <button class="btn btn-outline" onclick="dispatchWorkflow('agentic.yml')">Agentic AI</button>
+                </div>
+            </div>
+
+            <!-- ═══ Workflow Pipeline ═══ -->
+            <div class="card col-12" role="region" aria-label="Pipeline">
+                <div class="card-header">
+                    <span class="card-title">Workflow Pipeline</span>
+                    <button class="card-action" onclick="refreshWorkflowPipeline()">Refresh</button>
+                </div>
+                <div class="pipeline" id="flow-pipeline">
+                    <div class="pipe-node">
+                        <div class="pipe-icon" id="flow-task">T</div>
+                        <div class="pipe-label">Tasks</div>
+                        <div class="pipe-value" id="flow-task-count">0</div>
+                    </div>
+                    <div class="pipe-connector" id="flow-conn-1"></div>
+                    <div class="pipe-node">
+                        <div class="pipe-icon" id="flow-runner">R</div>
+                        <div class="pipe-label">Runner</div>
+                        <div class="pipe-value" id="flow-runner-status">Idle</div>
+                    </div>
+                    <div class="pipe-connector" id="flow-conn-2"></div>
+                    <div class="pipe-node">
+                        <div class="pipe-icon" id="flow-workflow">W</div>
+                        <div class="pipe-label">Workflows</div>
+                        <div class="pipe-value" id="flow-workflow-count">0</div>
+                    </div>
+                    <div class="pipe-connector" id="flow-conn-3"></div>
+                    <div class="pipe-node">
+                        <div class="pipe-icon" id="flow-pr">PR</div>
+                        <div class="pipe-label">Results</div>
+                        <div class="pipe-value" id="flow-pr-count">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ GitHub Integration ═══ -->
+            <div class="card col-12">
+                <div class="card-header">
+                    <span class="card-title">GitHub Integration</span>
+                    <button class="card-action" onclick="refreshGitHub()">Refresh</button>
+                </div>
+                <div class="gh-grid">
+                    <div>
+                        <div class="gh-section-title">Open PRs <span class="count" id="pr-count">0</span></div>
+                        <div id="pr-list"><div class="empty">Loading...</div></div>
+                    </div>
+                    <div>
+                        <div class="gh-section-title">Commits</div>
+                        <div id="commit-list"><div class="empty">Loading...</div></div>
+                    </div>
+                    <div>
+                        <div class="gh-section-title">Issues <span class="count" id="issue-count">0</span></div>
+                        <div id="issue-list"><div class="empty">Loading...</div></div>
+                    </div>
+                    <div>
+                        <div class="gh-section-title">Release</div>
+                        <div id="release-info"><div class="empty">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ System Health ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">System Health</span>
+                    <button class="card-action" onclick="refreshSystemHealth()">Refresh</button>
+                </div>
+                <div>
+                    <div class="hw-title">GPU Utilization</div>
+                    <div id="gpu-utilization"><div class="empty">Loading GPU...</div></div>
+                </div>
+                <div style="margin-top: var(--sl-space-4);">
+                    <div class="hw-title">Resources</div>
+                    <div class="metric">
+                        <span class="metric-label">CPU</span>
+                        <div class="metric-bar"><div class="metric-fill" id="cpu-bar" style="width:0%"></div></div>
+                        <span class="metric-value" id="cpu-value">--%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Memory</span>
+                        <div class="metric-bar"><div class="metric-fill" id="memory-bar" style="width:0%"></div></div>
+                        <span class="metric-value" id="memory-value">--%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Disk</span>
+                        <div class="metric-bar"><div class="metric-fill" id="disk-bar" style="width:0%"></div></div>
+                        <span class="metric-value" id="disk-value">--%</span>
+                    </div>
+                </div>
+                <div style="margin-top: var(--sl-space-4);">
+                    <div class="hw-title">Ollama Models</div>
+                    <div id="ollama-status"><div class="empty">Loading...</div></div>
+                </div>
+            </div>
+
+            <!-- ═══ Services ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">Services</span>
+                    <button class="card-action" onclick="refreshServices()">Refresh</button>
+                </div>
+                <div id="services-list">
+                    <div class="svc-item"><div class="svc-name"><div class="svc-icon">D</div><span>Dashboard</span></div><span class="badge online">Online</span></div>
+                    <div class="svc-item"><div class="svc-name"><div class="svc-icon">O</div><span>Orchestrator</span></div><span class="badge pending" id="orch-badge">Checking</span></div>
+                    <div class="svc-item"><div class="svc-name"><div class="svc-icon">R</div><span>Runner</span></div><span class="badge pending" id="runner-badge">Checking</span></div>
+                    <div class="svc-item"><div class="svc-name"><div class="svc-icon">A</div><span>Ollama</span></div><span class="badge pending" id="ollama-badge">Checking</span></div>
+                    <div class="svc-item"><div class="svc-name"><div class="svc-icon">F</div><span>Foundry</span></div><span class="badge pending" id="foundry-badge">Checking</span></div>
+                    <div class="svc-item"><div class="svc-name"><div class="svc-icon">&#128051;</div><span>Docker</span></div><span class="badge pending" id="docker-badge">Checking</span></div>
+                </div>
+            </div>
+
+            <!-- ═══ Hardware ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">Hardware</span>
+                    <button class="card-action" onclick="runBenchmark()">Benchmark</button>
+                </div>
+                <div class="hw-grid">
+                    <div class="hw-panel">
+                        <div class="hw-title">GPU Performance</div>
+                        <div id="hw-gpu-meters">
+                            <div class="metric"><span class="metric-label">GPU 0</span><div class="metric-bar"><div class="metric-fill" id="hw-gpu0-bar" style="width:0%"></div></div><span class="metric-value" id="hw-gpu0-val">--%</span></div>
+                            <div class="metric"><span class="metric-label">GPU 1</span><div class="metric-bar"><div class="metric-fill" id="hw-gpu1-bar" style="width:0%"></div></div><span class="metric-value" id="hw-gpu1-val">--%</span></div>
+                        </div>
+                    </div>
+                    <div class="hw-panel">
+                        <div class="hw-title">Benchmarks</div>
+                        <div style="display:flex;gap:var(--sl-space-4);">
+                            <div class="hw-stat"><div class="hw-stat-value" id="bench-speed">--</div><div class="hw-stat-label">tok/s</div></div>
+                            <div class="hw-stat"><div class="hw-stat-value" id="bench-bandwidth">--</div><div class="hw-stat-label">GB/s</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Docker ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">Docker</span>
+                    <button class="card-action" onclick="refreshDocker()">Refresh</button>
+                </div>
+                <div class="docker-grid" id="docker-containers"><div class="empty">Loading...</div></div>
+                <div style="display:flex;gap:var(--sl-space-2);margin-top:var(--sl-space-3);padding-top:var(--sl-space-3);border-top:1px solid var(--sl-border);">
+                    <button class="btn btn-outline" onclick="dockerActionAll('start')" style="flex:1;font-size:0.65rem;">Start All</button>
+                    <button class="btn btn-outline" onclick="dockerActionAll('stop')" style="flex:1;font-size:0.65rem;">Stop All</button>
+                </div>
+            </div>
+
+            <!-- ═══ Task Queue ═══ -->
+            <div class="card col-8">
+                <div class="card-header">
+                    <span class="card-title">Task Queue</span>
+                    <button class="card-action" onclick="refreshTasks()">Refresh</button>
+                </div>
+                <div class="task-form">
+                    <input type="text" class="task-input" id="new-task-title" placeholder="New task..." onkeypress="if(event.key==='Enter')createTask()">
+                    <select id="new-task-priority">
+                        <option value="3">Normal</option>
+                        <option value="1">High</option>
+                        <option value="5">Low</option>
+                    </select>
+                    <button class="btn btn-tonal" onclick="createTask()">Add</button>
+                </div>
+                <div id="task-list" style="max-height:200px;overflow-y:auto;"><div class="empty">Loading tasks...</div></div>
+            </div>
+
+            <!-- ═══ Recent Workflows ═══ -->
+            <div class="card col-4">
+                <div class="card-header">
+                    <span class="card-title">Workflows</span>
+                    <button class="card-action" onclick="refreshWorkflows()">Refresh</button>
+                </div>
+                <div id="workflow-list" style="max-height:200px;overflow-y:auto;"><div class="empty">Loading...</div></div>
+            </div>
+
+            <!-- ═══ Activity Feed ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">Activity</span>
+                    <button class="card-action" onclick="refreshActivity()">Refresh</button>
+                </div>
+                <div id="activity-feed" style="max-height:200px;overflow-y:auto;"><div class="empty">No activity</div></div>
+            </div>
+
+            <!-- ═══ Heatmap ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">Task Activity</span>
+                    <button class="card-action" onclick="refreshHeatmap()">Refresh</button>
+                </div>
+                <div id="heatmap-total" style="font-size:0.65rem;color:var(--sl-text-disabled);margin-bottom:var(--sl-space-2);">0 tasks</div>
+                <div class="heatmap-grid" id="heatmap-grid"></div>
+            </div>
+
+            <!-- ═══ Tech Tree ═══ -->
+            <div class="card col-12">
+                <div class="card-header">
+                    <span class="card-title">Tech Tree</span>
+                    <button class="card-action" onclick="refreshTechTree()">Refresh</button>
+                </div>
+                <div class="tech-tree-stats" id="tech-tree-stats"><div class="empty">Loading...</div></div>
+            </div>
+
+            <!-- ═══ Agents ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">Agent System</span>
+                    <button class="card-action" onclick="refreshAgents()">Refresh</button>
+                </div>
+                <div id="agent-list"><div class="empty">Loading agents...</div></div>
+            </div>
+
+            <!-- ═══ Forks ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">Forks</span>
+                    <button class="card-action" onclick="refreshForks()">Refresh</button>
+                </div>
+                <div id="fork-list"><div class="empty">Loading...</div></div>
+            </div>
+
+            <!-- ═══ Specs ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">Specifications</span>
+                    <button class="card-action" onclick="refreshSpecs()">Refresh</button>
+                </div>
+                <div id="spec-list"><div class="empty">Loading...</div></div>
+            </div>
+
+            <!-- ═══ Multi-Runner ═══ -->
+            <div class="card col-6">
+                <div class="card-header">
+                    <span class="card-title">Multi-Runner</span>
+                    <button class="card-action" onclick="refreshMultiRunner()">Refresh</button>
+                </div>
+                <div id="multi-runner-status"><div class="empty">Loading...</div></div>
+            </div>
+
+        </div>
+        </main>
+    </div>
+
+    <div id="conn-status"><span class="pulse-dot" id="ws-dot"></span> <span id="ws-text">Connecting...</span></div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // SLATE Dashboard v3.0 — JavaScript
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─── Onboarding ──────────────────────────────────────────────
+        (function() {
+            if (!localStorage.getItem('slate_onboarded')) {
+                document.getElementById('onboard').classList.add('active');
+            }
+        })();
+
+        function dismissOnboard() {
+            localStorage.setItem('slate_onboarded', '1');
+            document.getElementById('onboard').classList.remove('active');
+        }
+
+        // ─── WebSocket ───────────────────────────────────────────────
+        let ws = null;
+        function connectWS() {
+            const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(proto + '//' + location.host + '/ws');
+            ws.onopen = () => {
+                document.getElementById('ws-dot').className = 'pulse-dot';
+                document.getElementById('ws-text').textContent = 'Connected';
+            };
+            ws.onclose = () => {
+                document.getElementById('ws-dot').className = 'pulse-dot offline';
+                document.getElementById('ws-text').textContent = 'Reconnecting...';
+                setTimeout(connectWS, 3000);
+            };
+            ws.onmessage = (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    if (data.type === 'status') updateStatus(data);
+                    if (data.type === 'task_update') refreshTasks();
+                    if (data.type === 'workflow_update') refreshWorkflows();
+                } catch(err) {}
+            };
+        }
+        connectWS();
+
+        function updateStatus(data) {
+            const dot = document.getElementById('runner-dot');
+            const text = document.getElementById('runner-status-text');
+            if (data.runner_online) {
+                dot.className = 'pulse-dot';
+                text.textContent = 'Runner Online';
+            } else {
+                dot.className = 'pulse-dot offline';
+                text.textContent = 'Runner Offline';
+            }
+        }
+
+        // ─── SLATE Controls ──────────────────────────────────────────
+        async function slateCtrl(action, btn) {
+            if (btn.classList.contains('running')) return;
+            btn.classList.remove('ok', 'err');
+            btn.classList.add('running');
+            const term = document.getElementById('ctrl-term');
+            term.classList.add('open');
+            term.innerHTML = '<span class="lbl">Running ' + action + '...</span>\n';
+            try {
+                const res = await fetch('/api/slate/' + action, { method: 'POST' });
+                const data = await res.json();
+                btn.classList.remove('running');
+                if (data.steps) {
+                    let html = '';
+                    data.steps.forEach(s => {
+                        const icon = s.success ? '<span class="ok">&#10003;</span>' : '<span class="err">&#10007;</span>';
+                        html += icon + ' <span class="lbl">' + s.step + '</span>\n';
+                        if (s.output) html += s.output + '\n';
+                        if (s.error) html += '<span class="err">' + s.error + '</span>\n';
+                    });
+                    term.innerHTML = html;
+                    btn.classList.add(data.success ? 'ok' : 'err');
+                } else {
+                    term.innerHTML = data.success
+                        ? '<span class="ok">&#10003;</span> <span class="lbl">' + action + '</span>\n' + (data.output || 'Done')
+                        : '<span class="err">&#10007;</span> <span class="lbl">' + action + '</span>\n' + (data.error || 'Failed');
+                    btn.classList.add(data.success ? 'ok' : 'err');
+                }
+                setDot(action.replace('run-protocol','protocol'), data.success);
+            } catch (e) {
+                btn.classList.remove('running');
+                btn.classList.add('err');
+                term.innerHTML = '<span class="err">&#10007; ' + e.message + '</span>';
+            }
+        }
+
+        async function slateDeploy(deployAction, btn) {
+            if (btn.classList.contains('running')) return;
+            btn.classList.remove('ok', 'err');
+            btn.classList.add('running');
+            const term = document.getElementById('ctrl-term');
+            term.classList.add('open');
+            term.innerHTML = '<span class="lbl">Services: ' + deployAction + '...</span>\n';
+            try {
+                const res = await fetch('/api/slate/deploy/' + deployAction, { method: 'POST' });
+                const data = await res.json();
+                btn.classList.remove('running');
+                term.innerHTML = data.success
+                    ? '<span class="ok">&#10003;</span> Services ' + deployAction + '\n' + (data.output || 'Done')
+                    : '<span class="err">&#10007;</span> Services ' + deployAction + '\n' + (data.error || 'Failed');
+                btn.classList.add(data.success ? 'ok' : 'err');
+                setDot('deploy', data.success);
+            } catch (e) {
+                btn.classList.remove('running');
+                btn.classList.add('err');
+                term.innerHTML = '<span class="err">&#10007; ' + e.message + '</span>';
+            }
+        }
+
+        function setDot(name, ok) {
+            const d = document.getElementById('dot-' + name);
+            if (d) d.className = 'ctrl-dot ' + (ok ? 'ok' : 'err');
+        }
+
+        function toggleTerm() {
+            document.getElementById('ctrl-term').classList.toggle('open');
+        }
+
+        // Deploy right-click for stop/status
+        document.getElementById('ctrl-deploy')?.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            const action = prompt('Services action:', 'stop');
+            if (action && ['start','stop','status'].includes(action)) slateDeploy(action, this);
+        });
+
+        // ─── Dispatch Workflow ────────────────────────────────────────
+        async function dispatchWorkflow(name) {
+            try {
+                const res = await fetch('/api/dispatch/' + name, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Dispatched: ' + name);
+                    setTimeout(refreshWorkflows, 3000);
+                } else {
+                    showToast('Failed: ' + (data.error || 'Unknown error'), true);
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, true);
+            }
+        }
+
+        function showToast(msg, isError) {
+            const term = document.getElementById('ctrl-term');
+            term.classList.add('open');
+            const cls = isError ? 'err' : 'ok';
+            term.innerHTML += '<span class="' + cls + '">' + (isError ? '&#10007; ' : '&#10003; ') + msg + '</span>\n';
+        }
+
+        // ─── Refresh Functions ────────────────────────────────────────
+        async function refreshTasks() {
+            try {
+                const res = await fetch('/api/tasks');
+                const data = await res.json();
+                const list = document.getElementById('task-list');
+                if (!data.tasks || data.tasks.length === 0) {
+                    list.innerHTML = '<div class="empty">No tasks</div>';
+                    return;
+                }
+                list.innerHTML = data.tasks.map(t => {
+                    const statusCls = t.status === 'completed' ? 'online' : t.status === 'in_progress' ? 'warning' : 'pending';
+                    return '<div class="task-item"><span>' + (t.title || t.id) + '</span><span class="badge ' + statusCls + '">' + t.status + '</span></div>';
+                }).join('');
+            } catch (e) { console.log('Tasks refresh error:', e); }
+        }
+
+        async function refreshWorkflows() {
+            try {
+                const res = await fetch('/api/workflows');
+                const data = await res.json();
+                const list = document.getElementById('workflow-list');
+                if (!data.runs || data.runs.length === 0) {
+                    list.innerHTML = '<div class="empty">No workflows</div>';
+                    return;
+                }
+                list.innerHTML = data.runs.slice(0, 10).map(w => {
+                    const icon = w.conclusion === 'success' ? '<span class="ok">&#10003;</span>' :
+                                 w.conclusion === 'failure' ? '<span class="err">&#10007;</span>' :
+                                 w.status === 'in_progress' ? '<span style="color:var(--sl-warning)">&#9679;</span>' : '&#9679;';
+                    return '<div class="wf-item"><span class="wf-name">' + icon + ' ' + (w.name || '') + '</span><span class="wf-meta">#' + (w.run_number || '') + '</span></div>';
+                }).join('');
+            } catch (e) { console.log('Workflows refresh error:', e); }
+        }
+
+        async function refreshRunner() {
+            try {
+                const res = await fetch('/api/runner');
+                const data = await res.json();
+                updateStatus({ runner_online: data.status === 'online' || data.runner?.status === 'online' });
+            } catch (e) {}
+        }
+
+        async function refreshWorkflowPipeline() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                if (data.pipeline) {
+                    document.getElementById('flow-task-count').textContent = data.pipeline.tasks || '0';
+                    document.getElementById('flow-runner-status').textContent = data.pipeline.runner || 'Idle';
+                    document.getElementById('flow-workflow-count').textContent = data.pipeline.workflows || '0';
+                    document.getElementById('flow-pr-count').textContent = data.pipeline.prs || '0';
+                }
+                if (data.tasks) {
+                    document.getElementById('flow-task-count').textContent = data.tasks.total || '0';
+                }
+            } catch (e) {}
+        }
+
+        async function refreshGitHub() {
+            try {
+                const res = await fetch('/api/github');
+                const data = await res.json();
+                // PRs
+                const prList = document.getElementById('pr-list');
+                const prCount = document.getElementById('pr-count');
+                if (data.prs && data.prs.length > 0) {
+                    prCount.textContent = data.prs.length;
+                    prList.innerHTML = data.prs.slice(0, 5).map(pr => '<div class="gh-item">#' + pr.number + ' ' + pr.title + '</div>').join('');
+                } else { prList.innerHTML = '<div class="empty">No open PRs</div>'; prCount.textContent = '0'; }
+                // Commits
+                const commitList = document.getElementById('commit-list');
+                if (data.commits && data.commits.length > 0) {
+                    commitList.innerHTML = data.commits.slice(0, 5).map(c => '<div class="gh-item" style="font-family:var(--sl-font-mono);font-size:0.6rem;">' + (c.sha || '').substring(0,7) + ' ' + (c.message || '').substring(0,50) + '</div>').join('');
+                } else { commitList.innerHTML = '<div class="empty">No commits</div>'; }
+                // Issues
+                const issueList = document.getElementById('issue-list');
+                const issueCount = document.getElementById('issue-count');
+                if (data.issues && data.issues.length > 0) {
+                    issueCount.textContent = data.issues.length;
+                    issueList.innerHTML = data.issues.slice(0, 5).map(i => '<div class="gh-item">#' + i.number + ' ' + i.title + '</div>').join('');
+                } else { issueList.innerHTML = '<div class="empty">No issues</div>'; issueCount.textContent = '0'; }
+                // Release
+                if (data.release) {
+                    document.getElementById('release-info').innerHTML = '<div class="gh-item"><strong>' + (data.release.tag || '') + '</strong> ' + (data.release.name || '') + '</div>';
+                }
+            } catch (e) { console.log('GitHub refresh error:', e); }
+        }
+
+        async function refreshSystemHealth() {
+            try {
+                const res = await fetch('/api/system/gpu');
+                const data = await res.json();
+                // GPU utilization
+                const gpuDiv = document.getElementById('gpu-utilization');
+                if (data.gpus && data.gpus.length > 0) {
+                    gpuDiv.innerHTML = data.gpus.map((g, i) => {
+                        return '<div class="metric"><span class="metric-label">' + (g.name || 'GPU ' + i) + '</span><div class="metric-bar"><div class="metric-fill" style="width:' + (g.utilization || 0) + '%"></div></div><span class="metric-value">' + (g.utilization || 0) + '%</span></div>' +
+                               '<div style="font-size:0.6rem;color:var(--sl-text-disabled);padding:0 0 4px var(--sl-space-3);">' + (g.memory_used || 0) + ' / ' + (g.memory_total || 0) + ' MiB</div>';
+                    }).join('');
+                    // Update hardware panel too
+                    data.gpus.forEach((g, i) => {
+                        const bar = document.getElementById('hw-gpu' + i + '-bar');
+                        const val = document.getElementById('hw-gpu' + i + '-val');
+                        if (bar) bar.style.width = (g.utilization || 0) + '%';
+                        if (val) val.textContent = (g.utilization || 0) + '%';
+                    });
+                }
+                // System resources
+                if (data.system) {
+                    const cpu = data.system.cpu_percent || 0;
+                    const mem = data.system.memory_percent || 0;
+                    const disk = data.system.disk_percent || 0;
+                    document.getElementById('cpu-bar').style.width = cpu + '%';
+                    document.getElementById('cpu-value').textContent = cpu + '%';
+                    document.getElementById('memory-bar').style.width = mem + '%';
+                    document.getElementById('memory-value').textContent = mem + '%';
+                    document.getElementById('disk-bar').style.width = disk + '%';
+                    document.getElementById('disk-value').textContent = disk + '%';
+                }
+                // Ollama
+                if (data.ollama) {
+                    const ollamaDiv = document.getElementById('ollama-status');
+                    if (data.ollama.models && data.ollama.models.length > 0) {
+                        ollamaDiv.innerHTML = data.ollama.models.map(m => '<div style="font-size:0.7rem;color:var(--sl-text-tertiary);padding:2px 0;">' + m.name + ' <span style="color:var(--sl-text-disabled)">' + (m.size || '') + '</span></div>').join('');
+                    } else {
+                        ollamaDiv.innerHTML = '<div class="empty">No models loaded</div>';
+                    }
+                }
+            } catch (e) { console.log('System health error:', e); }
+        }
+
+        async function refreshServices() {
+            try {
+                const res = await fetch('/api/services');
+                const data = await res.json();
+                if (data.services) {
+                    const mapping = {
+                        'orchestrator': 'orch-badge',
+                        'runner': 'runner-badge',
+                        'ollama': 'ollama-badge',
+                        'foundry': 'foundry-badge',
+                        'docker': 'docker-badge'
+                    };
+                    for (const [key, elemId] of Object.entries(mapping)) {
+                        const badge = document.getElementById(elemId);
+                        if (badge && data.services[key] !== undefined) {
+                            const online = data.services[key];
+                            badge.className = 'badge ' + (online ? 'online' : 'offline');
+                            badge.textContent = online ? 'Online' : 'Offline';
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        async function refreshActivity() {
+            try {
+                const res = await fetch('/api/activity');
+                const data = await res.json();
+                const feed = document.getElementById('activity-feed');
+                if (data.events && data.events.length > 0) {
+                    feed.innerHTML = data.events.slice(0, 8).map(e => '<div class="feed-item"><div class="feed-dot"></div><div><div class="feed-text">' + e.message + '</div><div class="feed-time">' + (e.time || '') + '</div></div></div>').join('');
+                } else {
+                    feed.innerHTML = '<div class="empty">No activity</div>';
+                }
+            } catch (e) {}
+        }
+
+        async function refreshHeatmap() {
+            try {
+                const res = await fetch('/api/heatmap');
+                const data = await res.json();
+                if (data.total !== undefined) {
+                    document.getElementById('heatmap-total').textContent = data.total + ' tasks';
+                }
+                const grid = document.getElementById('heatmap-grid');
+                if (data.weeks) {
+                    grid.innerHTML = data.weeks.map(week => {
+                        return '<div class="heatmap-week">' + week.map(day => '<div class="heatmap-day" data-level="' + (day.level || 0) + '" title="' + (day.date || '') + ': ' + (day.count || 0) + '"></div>').join('') + '</div>';
+                    }).join('');
+                }
+            } catch (e) {}
+        }
+
+        async function refreshTechTree() {
+            try {
+                const res = await fetch('/api/tech-tree');
+                const data = await res.json();
+                const stats = document.getElementById('tech-tree-stats');
+                if (data.by_status) {
+                    stats.innerHTML = Object.entries(data.by_status).map(([k,v]) => '<div class="tt-stat"><div class="tt-stat-val">' + v + '</div><div class="tt-stat-lbl">' + k + '</div></div>').join('');
+                } else {
+                    stats.innerHTML = '<div class="empty">No tech tree data</div>';
+                }
+            } catch (e) {}
+        }
+
+        async function refreshAgents() {
+            try {
+                const res = await fetch('/api/agents');
+                const data = await res.json();
+                const list = document.getElementById('agent-list');
+                if (data.agents && data.agents.length > 0) {
+                    list.innerHTML = data.agents.map(a => {
+                        const cls = a.status === 'active' ? 'online' : 'pending';
+                        return '<div class="svc-item"><div class="svc-name"><div class="svc-icon">' + (a.name || '?')[0] + '</div><span>' + (a.name || 'Unknown') + '</span></div><span class="badge ' + cls + '">' + (a.role || a.status || '') + '</span></div>';
+                    }).join('');
+                } else {
+                    list.innerHTML = '<div class="empty">No agents registered</div>';
+                }
+            } catch (e) {}
+        }
+
+        async function refreshForks() {
+            try {
+                const res = await fetch('/api/forks');
+                const data = await res.json();
+                const list = document.getElementById('fork-list');
+                if (data.forks && data.forks.length > 0) {
+                    list.innerHTML = data.forks.slice(0, 5).map(f => '<div class="gh-item">' + f.full_name + '</div>').join('');
+                } else {
+                    list.innerHTML = '<div class="empty">No forks</div>';
+                }
+            } catch (e) {}
+        }
+
+        async function refreshSpecs() {
+            try {
+                const res = await fetch('/api/specs');
+                const data = await res.json();
+                const list = document.getElementById('spec-list');
+                if (data.specs && data.specs.length > 0) {
+                    list.innerHTML = data.specs.slice(0, 5).map(s => {
+                        const cls = s.status === 'approved' ? 'online' : s.status === 'implementing' ? 'warning' : 'pending';
+                        return '<div class="svc-item"><span style="font-size:0.7rem;color:var(--sl-text-tertiary);">' + s.title + '</span><span class="badge ' + cls + '">' + s.status + '</span></div>';
+                    }).join('');
+                } else {
+                    list.innerHTML = '<div class="empty">No specs</div>';
+                }
+            } catch (e) {}
+        }
+
+        async function refreshMultiRunner() {
+            try {
+                const res = await fetch('/api/multirunner');
+                const data = await res.json();
+                const el = document.getElementById('multi-runner-status');
+                if (data.runners) {
+                    el.innerHTML = '<div style="font-size:0.7rem;color:var(--sl-text-tertiary);">Active: ' + (data.active || 0) + ' / ' + (data.total || 0) + '</div>';
+                } else {
+                    el.innerHTML = '<div class="empty">Not configured</div>';
+                }
+            } catch (e) {
+                document.getElementById('multi-runner-status').innerHTML = '<div class="empty">Not available</div>';
+            }
+        }
+
+        async function refreshWorkflowStats() {
+            // Placeholder for workflow analytics
+        }
+
+        async function refreshDocker() {
+            try {
+                const res = await fetch('/api/docker');
+                const data = await res.json();
+                const el = document.getElementById('docker-containers');
+                if (data.containers && data.containers.length > 0) {
+                    el.innerHTML = data.containers.map(c => {
+                        const cls = c.state === 'running' ? 'online' : 'offline';
+                        return '<div class="svc-item"><div class="svc-name"><div class="svc-icon">&#128051;</div><span style="font-size:0.7rem;">' + (c.name || '') + '</span></div><span class="badge ' + cls + '">' + (c.state || '') + '</span></div>';
+                    }).join('');
+                } else {
+                    el.innerHTML = '<div class="empty">No containers</div>';
+                }
+            } catch (e) {}
+        }
+
+        async function dockerActionAll(action) {
+            try {
+                await fetch('/api/docker/' + action, { method: 'POST' });
+                showToast('Docker ' + action + ' initiated');
+                setTimeout(refreshDocker, 2000);
+            } catch (e) {}
+        }
+
+        async function createTask() {
+            const title = document.getElementById('new-task-title').value.trim();
+            if (!title) return;
+            const priority = document.getElementById('new-task-priority').value;
+            try {
+                await fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, priority: parseInt(priority) })
+                });
+                document.getElementById('new-task-title').value = '';
+                refreshTasks();
+            } catch (e) {}
+        }
+
+        async function runBenchmark() {
+            const term = document.getElementById('ctrl-term');
+            term.classList.add('open');
+            term.innerHTML = '<span class="lbl">Running benchmarks...</span>\n';
+            try {
+                const res = await fetch('/api/slate/benchmark', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    term.innerHTML += '<span class="ok">&#10003;</span> ' + (data.output || 'Done') + '\n';
+                } else {
+                    term.innerHTML += '<span class="err">&#10007;</span> ' + (data.error || 'Failed') + '\n';
+                }
+            } catch (e) {
+                term.innerHTML += '<span class="err">&#10007; ' + e.message + '</span>\n';
+            }
+        }
+
+        // ─── Refresh All ──────────────────────────────────────────────
+        function refreshAll() {
+            refreshTasks();
+            refreshWorkflows();
+            refreshRunner();
+            refreshWorkflowPipeline();
+            refreshGitHub();
+            refreshSystemHealth();
+            refreshServices();
+            refreshActivity();
+            refreshHeatmap();
+            refreshTechTree();
+            refreshAgents();
+            refreshMultiRunner();
+            refreshSpecs();
+            refreshForks();
+            refreshDocker();
+        }
+
+        // ─── Initial Load ─────────────────────────────────────────────
+        async function fetchInitialStatus() {
+            try {
+                const res = await fetch('/api/orchestrator');
+                const data = await res.json();
+                updateStatus(data);
+            } catch (e) {}
+        }
+
+        fetchInitialStatus();
+        refreshAll();
+        setInterval(refreshAll, 15000);
+    </script>
+</body>
+</html>

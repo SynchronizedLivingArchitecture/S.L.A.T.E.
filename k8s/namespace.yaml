@@ -1,0 +1,13 @@
+# Modified: 2026-02-07T09:00:00Z | Author: COPILOT | Change: Create SLATE K8s namespace with security labels
+# SLATE Kubernetes Namespace
+# Isolated namespace for all SLATE workloads with security enforcement
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: slate
+  labels:
+    app.kubernetes.io/name: slate
+    app.kubernetes.io/part-of: slate-system
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

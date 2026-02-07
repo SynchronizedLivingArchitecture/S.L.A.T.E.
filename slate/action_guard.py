@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T03:00:00Z | Author: COPILOT | Change: Create ActionGuard security module
+# Modified: 2026-02-07T09:00:00Z | Author: COPILOT | Change: Add Kubernetes security patterns and container validation
 """
 ActionGuard - Security enforcement for SLATE agent actions.
 
@@ -10,6 +10,8 @@ Security rules:
 - Blocked patterns: eval(, exec(os, rm -rf /, base64.b64decode
 - Blocked external API domains (local-first enforcement)
 - Rate limiting on API calls
+- Kubernetes: privileged pods, hostNetwork, hostPID blocked
+- Container images: only trusted registries allowed
 """
 
 import logging
@@ -31,6 +33,31 @@ BLOCKED_PATTERNS = [
     r"subprocess\.call.*shell\s*=\s*True",
     r"__import__\(",
     r"os\.system\(",
+]
+
+# Kubernetes-specific blocked patterns (YAML manifest scanning)
+K8S_BLOCKED_PATTERNS = [
+    r"privileged:\s*true",
+    r"hostNetwork:\s*true",
+    r"hostPID:\s*true",
+    r"hostIPC:\s*true",
+    r"allowPrivilegeEscalation:\s*true",
+    r"runAsUser:\s*0\b",  # Running as root
+    r"hostPort:",  # Exposing host ports
+    r"type:\s*NodePort",  # Exposing services externally (use ClusterIP + port-forward)
+    r"type:\s*LoadBalancer",  # External exposure
+    r"automountServiceAccountToken:\s*true",
+]
+
+# Trusted container registries
+TRUSTED_REGISTRIES = [
+    "ghcr.io/synchronizedlivingarchitecture/",
+    "ollama/ollama",
+    "chromadb/chroma",
+    "nvidia/cuda",
+    "python:",
+    "ubuntu:",
+    "docker.io/library/",
 ]
 
 BLOCKED_DOMAINS = [
@@ -203,6 +230,59 @@ class ActionGuard:
                 )
         return ActionResult(allowed=True, action="file_access", reason="Path OK")
 
+    def validate_k8s_manifest(self, manifest_content: str) -> ActionResult:
+        """Validate a Kubernetes manifest for security violations.
+
+        Checks for:
+        - Privileged containers
+        - hostNetwork/hostPID/hostIPC usage
+        - Running as root (UID 0)
+        - Host port exposure
+        - NodePort/LoadBalancer services (should use ClusterIP)
+        - Auto-mounted service account tokens
+        """
+        compiled_k8s = [re.compile(p, re.IGNORECASE | re.MULTILINE) for p in K8S_BLOCKED_PATTERNS]
+        violations = []
+        for pattern in compiled_k8s:
+            matches = pattern.findall(manifest_content)
+            if matches:
+                violations.append(pattern.pattern)
+
+        if violations:
+            result = ActionResult(
+                allowed=False,
+                action="k8s_manifest",
+                reason=f"K8s security violations: {', '.join(violations)}",
+            )
+            self._audit(result)
+            return result
+
+        result = ActionResult(
+            allowed=True,
+            action="k8s_manifest",
+            reason="K8s manifest passed all security checks",
+        )
+        self._audit(result)
+        return result
+
+    def validate_container_image(self, image: str) -> ActionResult:
+        """Validate a container image is from a trusted registry."""
+        for registry in TRUSTED_REGISTRIES:
+            if image.startswith(registry):
+                return ActionResult(
+                    allowed=True,
+                    action="container_image",
+                    reason=f"Trusted registry: {registry}",
+                )
+
+        result = ActionResult(
+            allowed=False,
+            action="container_image",
+            reason=f"Untrusted container image: {image}. Only trusted registries allowed.",
+        )
+        self._audit(result)
+        return result
+
     def get_audit_log(self) -> list[ActionResult]:
         """Return the audit log of all validated actions."""
         return self._audit_log.copy()
@@ -268,6 +348,26 @@ if __name__ == "__main__":
         ("command_exec", "base64.b64decode(payload)", False),
     ]
 
+    # K8s manifest tests
+    k8s_tests = [
+        ("privileged: true", False),
+        ("hostNetwork: true", False),
+        ("allowPrivilegeEscalation: false\nrunAsNonRoot: true", True),
+        ("type: NodePort", False),
+        ("type: ClusterIP", True),
+        ("runAsUser: 0", False),
+        ("runAsUser: 1000\nrunAsNonRoot: true", True),
+    ]
+
+    # Container image tests
+    image_tests = [
+        ("ghcr.io/synchronizedlivingarchitecture/slate:latest-gpu", True),
+        ("ollama/ollama:latest", True),
+        ("nvidia/cuda:12.4.1-runtime-ubuntu22.04", True),
+        ("evil-registry.io/malware:latest", False),
+        ("chromadb/chroma:latest", True),
+    ]
+
     print("=" * 50)
     print("  ActionGuard Self-Test")
     print("=" * 50)
@@ -286,6 +386,32 @@ if __name__ == "__main__":
 
     print(f"\n  Results: {passed} passed, {failed} failed")
     print(f"  Blocked: {guard.get_blocked_count()} actions")
+
+    # K8s manifest tests
+    print("\n  K8s Manifest Tests:")
+    for manifest, expected in k8s_tests:
+        result = guard.validate_k8s_manifest(manifest)
+        ok = result.allowed == expected
+        status = "PASS" if ok else "FAIL"
+        if ok:
+            passed += 1
+        else:
+            failed += 1
+        print(f"  {status}: k8s_manifest | {manifest[:50]} | expected={expected} got={result.allowed}")
+
+    # Container image tests
+    print("\n  Container Image Tests:")
+    for image, expected in image_tests:
+        result = guard.validate_container_image(image)
+        ok = result.allowed == expected
+        status = "PASS" if ok else "FAIL"
+        if ok:
+            passed += 1
+        else:
+            failed += 1
+        print(f"  {status}: container_image | {image} | expected={expected} got={result.allowed}")
+
+    print(f"\n  Total Results: {passed} passed, {failed} failed")
     print("=" * 50)
 
     if failed > 0:

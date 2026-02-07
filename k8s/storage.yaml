@@ -1,0 +1,62 @@
+# Modified: 2026-02-07T09:00:00Z | Author: COPILOT | Change: Create PVC definitions for SLATE K8s local storage
+# SLATE Persistent Volume Claims
+# For local Kubernetes (Minikube/kind), uses default StorageClass
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: slate-workspace-pvc
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: slate
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: slate-data-pvc
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: slate
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-data-pvc
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: ollama
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chroma-data-pvc
+  namespace: slate
+  labels:
+    app.kubernetes.io/name: chromadb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

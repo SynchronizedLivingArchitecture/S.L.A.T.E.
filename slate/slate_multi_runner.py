@@ -5,7 +5,7 @@ SLATE Multi-Runner Coordinator - Manage multiple parallel runners.
 Coordinates multiple GitHub Actions runners working as a team,
 distributing tasks based on resource requirements and availability.
 
-Modified: 2026-02-06T23:15:00Z | Author: COPILOT | Change: Initial implementation
+Modified: 2026-02-08T06:00:00Z | Author: COPILOT | Change: Scale to 50-runner capacity
 """
 
 import json
@@ -40,7 +40,7 @@ class RunnerInstance:
 class MultiRunnerConfig:
     """Configuration for multi-runner setup."""
     runners: list[RunnerInstance] = field(default_factory=list)
-    max_parallel_workflows: int = 4
+    max_parallel_workflows: int = 8
     task_timeout_minutes: int = 30
     gpu_reservation: dict[int, list[str]] = field(default_factory=dict)
 
@@ -289,11 +289,30 @@ def main():
     parser.add_argument("--assign", type=str, help="Assign task to runner")
     parser.add_argument("--complete", type=str, help="Mark runner task complete")
     parser.add_argument("--minimal", action="store_true", help="Use minimal 2-runner config")
+    parser.add_argument("--scale", type=int, help="Scale to target runner count (max 50)")
     args = parser.parse_args()
 
     coordinator = MultiRunnerCoordinator()
 
-    if args.init:
+    if args.scale:
+        target = min(args.scale, 50)  # Cap at 50 per capacity spec
+        config = coordinator.initialize(use_optimal=True)
+        # Adjust runner count to target
+        if len(config.runners) < target:
+            print(f"Scaling from {len(config.runners)} to {target} runners...")
+            # Add light runners to fill gap
+            for i in range(len(config.runners), target):
+                config.runners.append(RunnerInstance(
+                    id=f"runner-{i+1}",
+                    name=f"slate-runner-{i+1}",
+                    labels=["self-hosted", "slate", "light"],
+                    profile="light",
+                    gpu=None,
+                ))
+            coordinator._save_config(config)
+        print(f"Scaled to {len(config.runners)} runners")
+        coordinator.print_status()
+    elif args.init:
         config = coordinator.initialize(use_optimal=not args.minimal)
         print(f"Initialized {len(config.runners)} runners")
         coordinator.print_status()

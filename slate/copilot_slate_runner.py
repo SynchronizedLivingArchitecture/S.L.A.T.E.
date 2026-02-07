@@ -2,26 +2,31 @@
 """
 SLATE Copilot Runner
 =====================
-# Modified: 2026-02-07T04:30:00Z | Author: COPILOT | Change: Initial implementation
+# Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Integrate copilot agent bridge for bidirectional @slate participant routing
 
 Bridges VS Code Copilot Chat participant to the SLATE autonomous system.
 Processes tasks dispatched from the @slate chat participant and feeds
 results back. Acts as the Copilot-driven orchestration layer.
 
+Now includes bidirectional bridge support:
+    - Outbound: @slate participant hands off tasks -> autonomous loop
+    - Inbound: autonomous loop routes tasks -> @slate participant via bridge queue
+
 Architecture:
-    @slate Chat Participant --> Copilot Runner --> Unified Autonomous
-         |                         |                     |
-         v                         v                     v
-    User Intent              Task Queue            ML Inference
-         |                         |                     |
-         v                         v                     v
-    Response <---------- Completion Tracking <---- GPU Workers
+    @slate Chat Participant <-> Copilot Agent Bridge <-> Unified Autonomous
+         |                         |                        |
+         v                         v                        v
+    User Intent / Bridge      Task Queue              ML Inference
+         |                         |                        |
+         v                         v                        v
+    Response <------------- Completion Tracking <----- GPU Workers
 
 Usage:
     python slate/copilot_slate_runner.py --start --max-tasks 50
     python slate/copilot_slate_runner.py --status
     python slate/copilot_slate_runner.py --stop
     python slate/copilot_slate_runner.py --queue "fix the dashboard"
+    python slate/copilot_slate_runner.py --bridge-status
 """
 
 import argparse
@@ -52,13 +57,21 @@ PID_FILE = WORKSPACE_ROOT / ".slate_copilot_runner.pid"
 class CopilotSlateRunner:
     """Copilot-driven task runner for SLATE."""
 
-    # Modified: 2026-02-07T04:30:00Z | Author: COPILOT | Change: runner core
+    # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: add bridge integration
     def __init__(self):
         self.workspace = WORKSPACE_ROOT
         self.state = self._load_state()
         self.autonomous = None  # Lazy-loaded
+        self.bridge = None      # Lazy-loaded bridge
         self._running = True
         LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+    def _get_bridge(self):
+        """Lazy-load the copilot agent bridge."""
+        if self.bridge is None:
+            from slate.copilot_agent_bridge import CopilotAgentBridge
+            self.bridge = CopilotAgentBridge()
+        return self.bridge
 
     def _get_autonomous(self):
         """Lazy-load the unified autonomous loop."""
@@ -196,9 +209,10 @@ class CopilotSlateRunner:
 
         tasks_run = 0
         auto = self._get_autonomous()
+        bridge = self._get_bridge()
 
         while self._running and tasks_run < max_tasks:
-            # Check for Copilot-queued tasks first
+            # Priority 1: Check for Copilot-queued tasks (from @slate participant)
             queue = self._load_queue()
             pending_queue = [q for q in queue if q.get("status") == "pending"]
 
@@ -224,7 +238,42 @@ class CopilotSlateRunner:
                 self._save_queue(queue)
                 continue
 
-            # Fall back to autonomous discovery
+            # Priority 2: Check bridge queue (tasks routed TO @slate participant)
+            # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: bridge queue polling
+            try:
+                bridge_pending = bridge.get_pending_tasks()
+                if bridge_pending:
+                    bridge_task = bridge_pending[0]
+                    task_id = bridge_task.get("id", "")
+                    self._log(f"Bridge task for @slate participant: {bridge_task.get('title', '')[:50]}")
+                    bridge.mark_task_processing(task_id)
+
+                    # Execute via autonomous loop
+                    result = auto.execute_task(bridge_task)
+                    tasks_run += 1
+
+                    # Write result back to bridge
+                    bridge.complete_task(
+                        task_id=task_id,
+                        success=result.get("success", False),
+                        result=result.get("response", result.get("result", ""))[:5000] if isinstance(result.get("response", result.get("result", "")), str) else str(result.get("response", ""))[:5000],
+                        tool_calls=result.get("tool_calls", 0),
+                        model=result.get("model", "autonomous"),
+                    )
+                    self.state["tasks_processed"] += 1
+                    self.state["last_task"] = {
+                        "id": task_id,
+                        "title": bridge_task.get("title", ""),
+                        "result": "success" if result.get("success") else "failed",
+                        "source": "bridge",
+                        "time": datetime.now(timezone.utc).isoformat(),
+                    }
+                    self._save_state()
+                    continue
+            except Exception as e:
+                self._log(f"Bridge check error: {e}", "WARN")
+
+            # Priority 3: Fall back to autonomous discovery
             tasks = auto.discover_tasks()
             pending = [t for t in tasks if t.get("status") == "pending"]
 
@@ -289,6 +338,7 @@ class CopilotSlateRunner:
 
     def get_status(self) -> dict:
         """Get runner status."""
+        # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: include bridge status
         is_alive = False
         if PID_FILE.exists():
             try:
@@ -306,6 +356,14 @@ class CopilotSlateRunner:
         queue = self._load_queue()
         pending = [q for q in queue if q.get("status") == "pending"]
 
+        # Bridge status
+        bridge_status = {}
+        try:
+            bridge = self._get_bridge()
+            bridge_status = bridge.get_status()
+        except Exception:
+            bridge_status = {"error": "bridge unavailable"}
+
         return {
             "status": "running" if is_alive else self.state.get("status", "stopped"),
             "pid": self.state.get("pid"),
@@ -315,10 +373,12 @@ class CopilotSlateRunner:
             "tasks_queued": len(pending),
             "last_task": self.state.get("last_task"),
             "copilot_requests_total": len(self.state.get("copilot_requests", [])),
+            "bridge": bridge_status,
         }
 
     def print_status(self):
         """Print human-readable status."""
+        # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: show bridge status
         s = self.get_status()
         running = s["status"] == "running" and s.get("process_alive", False)
         print("=" * 60)
@@ -335,6 +395,16 @@ class CopilotSlateRunner:
         if last:
             print(f"\n  Last Task: [{last.get('result', '?')}] {last.get('title', '?')[:50]}")
             print(f"             {last.get('time', '?')}")
+            if last.get("source") == "bridge":
+                print(f"             (via COPILOT_CHAT bridge)")
+
+        # Bridge status
+        bridge = s.get("bridge", {})
+        if bridge and not bridge.get("error"):
+            print(f"\n  Bridge:")
+            print(f"    Pending:    {bridge.get('pending_tasks', 0)}")
+            print(f"    Processing: {bridge.get('processing_tasks', 0)}")
+            print(f"    Results:    {bridge.get('completed_results', 0)}")
 
         print("\n" + "=" * 60)
 
@@ -345,6 +415,7 @@ def main():
     parser.add_argument("--start", action="store_true", help="Start runner")
     parser.add_argument("--stop", action="store_true", help="Stop runner")
     parser.add_argument("--status", action="store_true", help="Show status")
+    parser.add_argument("--bridge-status", action="store_true", help="Show bridge status")
     parser.add_argument("--queue", type=str, help="Queue a task from CLI")
     parser.add_argument("--max-tasks", type=int, default=50, help="Max tasks")
     parser.add_argument("--stop-on-empty", action="store_true", help="Stop when empty")
@@ -357,6 +428,24 @@ def main():
         runner.start(max_tasks=args.max_tasks, stop_on_empty=args.stop_on_empty)
     elif args.stop:
         runner.stop()
+    elif args.bridge_status:
+        # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: bridge status CLI
+        try:
+            bridge = runner._get_bridge()
+            status = bridge.get_status()
+            if args.json:
+                print(json.dumps(status, indent=2, default=str))
+            else:
+                print("=" * 60)
+                print("  SLATE Copilot Agent Bridge")
+                print("=" * 60)
+                print(f"  Pending:    {status.get('pending_tasks', 0)}")
+                print(f"  Processing: {status.get('processing_tasks', 0)}")
+                print(f"  Results:    {status.get('completed_results', 0)}")
+                print(f"  Queue file: {status.get('queue_file_exists', False)}")
+                print("=" * 60)
+        except Exception as e:
+            print(f"Bridge error: {e}")
     elif args.queue:
         task = runner.queue_task(args.queue)
         print(f"Queued: {task['id']}")

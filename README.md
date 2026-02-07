@@ -1,9 +1,16 @@
+<!-- SEO: Local AI Development Environment | GitHub Actions AI Integration | Self-Hosted AI Runner | Free Local LLM | VS Code AI Automation -->
+<!-- Keywords: local ai, github actions, self-hosted runner, ollama, ai automation, devops ai, free ai development, local llm, ai workflow -->
+
+# Turn Your Local Hardware Into an AI Operations Center for GitHub
+
+**Stop paying for cloud AI. Stop sending your code to external servers. Run AI operations locally and integrate seamlessly with GitHub.**
+
 <p align="center">
-  <img src="docs/assets/slate-logo-v2.svg" alt="SLATE Logo" width="200" height="200">
+  <img src="docs/assets/slate-logo-v2.svg" alt="SLATE Logo - Local AI Operations for GitHub" width="200" height="200">
 </p>
 
 <h1 align="center">S.L.A.T.E.</h1>
-<!-- Modified: 2026-02-07T04:57:00Z | Author: COPILOT | Change: Document AAA standards and developer-grade practices -->
+<!-- Modified: 2026-02-07T06:30:00Z | Author: CLAUDE | Change: Add SEO headers and marketing content for search visibility -->
 
 <p align="center">
   <strong>Synchronized Living Architecture for Transformation and Evolution</strong>
@@ -13,33 +20,65 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Experimental-orange.svg" alt="License: Experimental"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.11+-blue.svg" alt="Python 3.11+"></a>
   <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-2.7+-ee4c2c.svg" alt="PyTorch 2.7+"></a>
-  <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build Status"></a>
+  <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/actions"><img src="https://img.shields.io/badge/build-passing-B87333.svg" alt="Build Status"></a>
   <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki"><img src="https://img.shields.io/badge/docs-wiki-blue.svg" alt="Documentation"></a>
 </p>
 
 <p align="center">
-  A <strong>local-first</strong> AI agent orchestration framework that coordinates multiple AI models<br>
-  while keeping your code and data on your machine.
+  <strong>Local AI compute + Cloud collaboration = Full control</strong>
 </p>
 
 <p align="center">
-  <strong>Works with GitHub Copilot, VS Code, AI Toolkit, and PyTorch</strong>
+  Works with GitHub Copilot, VS Code, Claude Code, AI Toolkit, and PyTorch
 </p>
 
 ---
 
-> **Status**: v2.4 - Production-ready local AI orchestration with GitHub Actions integration
+> **Status**: v2.5 - Production-ready local AI orchestration with Claude Code integration and guided experience
 >
-> **Quick Install**: Copy this into Copilot Chat:
+> **Quick Install**:
+> ```bash
+> git clone https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git && cd S.L.A.T.E && python install_slate.py
 > ```
-> Clone and set up S.L.A.T.E. from https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E
-> ```
+
+---
+
+## Why SLATE?
+
+GitHub Actions is powerful. But every workflow runs on GitHub's infrastructure or requires you to manage runners manually. If you want AI in your pipeline, you're paying per-token to cloud providers. Your code gets sent to external servers. You're rate-limited. And when something breaks at 2am, you're debugging someone else's infrastructure.
+
+**What if your local machine could be the brain behind your GitHub operations?**
+
+SLATE creates an AI operations layer on your local hardware that connects directly to your GitHub ecosystem. It doesn't replace GitHub - it **extends it** with local AI compute.
+
+### What You Get
+
+- **Local AI Engine** - Ollama + Foundry running on your GPU. Handles automation, code analysis, and task routing locally. No API bills. Ever.
+- **Persistent Memory** - ChromaDB stores context about your codebase. Your AI ops get smarter over time.
+- **Live Dashboard** - Monitor your local AI services, task queues, and GPU utilization in real-time.
+- **GitHub Bridge** - Self-hosted runner connects your local AI ops directly to GitHub Actions, Issues, and PRs.
+
+### How It Works
+
+Your local hardware runs the AI. Your cloud stays in sync. SLATE monitors GitHub, processes tasks locally, and pushes results back. Automated code review, task execution, workflow management - all orchestrated from your machine.
+
+**The Philosophy:** Cloud services are great for collaboration. GitHub is where your code lives, where your team works, where your community engages. That shouldn't change. But compute? AI inference? Automation logic? That can run on the hardware sitting under your desk. Your electricity. Your GPU cycles. Your control.
+
+---
 
 ## Table of Contents
 
 - [Overview](#overview)
   - [The Fork Feedback Loop](#the-fork-feedback-loop)
   - [The /slate Agent](#the-slate-agent)
+- [GitHub Integration Deep Dive](#github-integration-deep-dive)
+  - [Self-Hosted Runner with AI Capabilities](#self-hosted-runner-with-ai-capabilities)
+  - [Bidirectional Task Sync](#bidirectional-task-sync)
+  - [Project Board Automation](#project-board-automation)
+  - [Discussion Integration](#discussion-integration)
+  - [Workflow Architecture](#workflow-architecture)
+  - [The AI Orchestrator](#the-ai-orchestrator)
+  - [What This Means Practically](#what-this-means-practically)
 - [System Architecture](#system-architecture)
 - [Key Features](#key-features)
 - [Quick Start](#quick-start)
@@ -50,7 +89,7 @@
 - [Local AI Providers](#local-ai-providers)
 - [CLI Reference](#cli-reference)
 - [Security](#security)
-- [AAA Standards](#aaa-standards)
+- [Built-In Safeguards](#built-in-safeguards)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -90,9 +129,123 @@ SLATE comes with a custom `/slate` agent for VS Code and Claude Code:
 | `/slate status` | Check system and GPU status |
 | `/slate-workflow` | Manage task queue |
 | `/slate-runner` | Control GitHub Actions runner |
+| `/slate-multirunner` | Manage multi-runner system |
+| `/slate-gpu` | Manage dual-GPU load balancing |
+| `/slate-discussions` | Manage GitHub Discussions |
+| `/slate-claude` | Validate Claude Code integration |
+| `/slate-spec-kit` | Process specs, run AI analysis, generate wiki |
 | `/slate-help` | Show all available commands |
 
 These commands orchestrate your local AI infrastructure directly from your editor.
+
+### Claude Code Integration
+
+SLATE provides full integration with Claude Code via MCP server and slash commands:
+
+```json
+{
+  "mcpServers": {
+    "slate": {
+      "command": "<workspace>\\.venv\\Scripts\\python.exe",
+      "args": ["<workspace>\\slate\\mcp_server.py"]
+    }
+  }
+}
+```
+
+**MCP Tools Available:**
+- `slate_status` - Check all services and GPU status
+- `slate_workflow` - Manage task queue
+- `slate_orchestrator` - Start/stop services
+- `slate_runner` - Manage GitHub runner
+- `slate_ai` - Execute AI tasks via local LLMs
+- `slate_gpu` - Manage dual-GPU load balancing
+- `slate_claude_code` - Validate Claude Code configuration
+- `slate_spec_kit` - Process specs, run AI analysis, generate wiki
+
+## GitHub Integration Deep Dive
+
+This is where SLATE gets interesting. It's not just running models locally - it's creating a bridge between your hardware and GitHub's cloud infrastructure.
+
+### Self-Hosted Runner with AI Capabilities
+
+SLATE auto-configures a GitHub Actions runner on your machine. But unlike a basic runner, this one has access to local LLMs. Your workflows can call AI without hitting external APIs.
+
+The runner auto-detects your GPU configuration and creates appropriate labels. If you have CUDA, it knows. If you have multiple GPUs, it knows. Workflows can target your specific hardware capabilities.
+
+When a workflow triggers, it runs on YOUR machine with YOUR local AI. Code analysis, test generation, documentation updates - all processed locally and pushed back to GitHub.
+
+### Bidirectional Task Sync
+
+SLATE maintains a local task queue that syncs with GitHub Projects. Here's how it flows:
+
+```
+GitHub Issues created → SLATE pulls to local queue → Local AI processes → Results pushed as commits/PR comments
+```
+
+You can also go the other direction. Create a task locally, and SLATE can create the corresponding GitHub Issue automatically. The KANBAN board in GitHub Projects becomes your source of truth, but execution happens locally.
+
+### Project Board Automation
+
+SLATE maps to GitHub Projects V2:
+
+| Board | Purpose | Auto-Route Keywords |
+|-------|---------|---------------------|
+| **KANBAN** | Active work queue | Default for pending tasks |
+| **BUG TRACKING** | Bug fixes | bug, fix, crash, error |
+| **ITERATIVE DEV** | Pull requests | PRs auto-added |
+| **ROADMAP** | Completed features | feat, add, implement |
+| **PLANNING** | Design work | plan, design, architect |
+
+Tasks automatically route to the right board based on keywords. Bug reports go to bug tracking. Feature requests go to roadmap. Active work goes to KANBAN. No manual sorting required.
+
+### Discussion Integration
+
+GitHub Discussions feed into the system too. Ideas from the community get tracked. Q&A response times get monitored. Actionable discussions become tasks automatically. Your community engagement becomes part of your development pipeline.
+
+### Workflow Architecture
+
+SLATE includes several pre-built workflows:
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **CI Pipeline** | Push/PR | Linting, tests, security checks. Uses local AI for code review suggestions. |
+| **Nightly Jobs** | Daily 4am | Full test suite, dependency audits, codebase analysis on your hardware. |
+| **AI Maintenance** | Every 4h | Analyzes changed files. Daily full codebase analysis. Auto-updates docs. |
+| **Fork Validation** | Fork PRs | Security gates, SDK verification, malicious code scanning. |
+| **Project Automation** | Every 30min | Syncs Issues/PRs to boards. Keeps everything organized. |
+
+The workflow manager enforces rules automatically:
+- Tasks in-progress > 4 hours → flagged as stale
+- Pending tasks > 24 hours → reviewed
+- Duplicates → archived
+- Max concurrent tasks → enforced
+
+### The AI Orchestrator
+
+This is the autonomous piece. SLATE includes an AI orchestrator that runs maintenance tasks on schedule:
+
+| Task | Schedule | Description |
+|------|----------|-------------|
+| Quick analysis | Every 4 hours | Analyze recently changed files |
+| Full analysis | Daily 2am | Complete codebase analysis |
+| Documentation | Daily | Auto-generate/update docs |
+| GitHub monitor | Daily | Workflow and integration analysis |
+| Model training | Weekly Sunday | Train custom model on your codebase |
+
+The orchestrator uses local Ollama models. It learns your codebase over time. It can even train a custom model tuned specifically to your project's patterns and architecture.
+
+### What This Means Practically
+
+**You push code.** SLATE's local AI analyzes it. Suggestions appear as PR comments. Tests get generated. Documentation updates. All without a single API call to OpenAI or Anthropic.
+
+**Someone opens an issue.** It syncs to your local queue. AI triages it, adds labels, routes it to the right project board. You see it on your dashboard.
+
+**A community member posts an idea in Discussions.** SLATE creates a tracking issue. Routes it to your roadmap board. You never miss actionable feedback.
+
+**Your nightly workflow runs at 4am.** Full test suite on your hardware. Dependency audit. Security scan. Results waiting in your inbox when you wake up.
+
+---
 
 ## System Architecture
 
@@ -575,32 +728,54 @@ Only packages from verified sources are allowed:
 - Google (tensorflow, jax)
 - Hugging Face (transformers, datasets)
 
-## AAA Standards
+## Built-In Safeguards
 
-SLATE is built to developer-grade AAA standards across testing, accessibility,
-security/compliance, and performance/reliability.
+SLATE includes multiple layers of protection so you can run AI automation without worrying about security or runaway processes.
 
-### Testing (Arrange-Act-Assert)
-- Use explicit Arrange, Act, Assert sections in tests
-- Prefer deterministic tests with clear fixtures
-- Use `pytest` and `pytest-asyncio` for async coverage
+### ActionGuard
 
-### Accessibility (WCAG AAA)
-- Keyboard navigation for all UI and webviews
-- Visible focus states for interactive elements
-- High contrast and readable text size
-- Avoid motion that cannot be disabled
+Every action SLATE takes goes through ActionGuard validation:
 
-### Security/Compliance
-- Local-only network bindings (`127.0.0.1`)
-- ActionGuard enforced for all tool execution
-- No secrets or tokens in code or logs
-- Avoid dynamic execution (`eval`, `exec`)
+```python
+# Blocks dangerous patterns automatically
+- rm -rf, format, del /s  # Destructive commands
+- 0.0.0.0 bindings        # Network exposure
+- eval(), exec()          # Dynamic code execution
+- External API calls      # Paid cloud services
+```
 
-### Performance/Reliability
-- Validate performance with `slate/slate_benchmark.py`
-- Use timeouts and retries for IO
-- Monitor GPU/CPU utilization via SLATE status tools
+If something tries to bypass these rules, ActionGuard blocks it and logs the attempt.
+
+### SDK Source Guard
+
+Only packages from verified publishers get installed:
+
+| Trusted | Examples |
+|---------|----------|
+| Microsoft | azure-*, onnxruntime |
+| NVIDIA | cuda-*, triton |
+| Meta | torch, torchvision |
+| Google | tensorflow, jax |
+| Hugging Face | transformers, datasets |
+
+Random PyPI packages from unknown publishers? Blocked.
+
+### PII Scanner
+
+Before anything touches a public GitHub board or gets committed:
+
+- Scans for API keys, tokens, credentials
+- Detects email addresses and personal info
+- Blocks sensitive data from leaving your machine
+
+### Resource Limits
+
+SLATE won't run your GPU into the ground:
+
+- Maximum concurrent tasks enforced
+- Stale task detection (>4 hours in-progress)
+- Automatic cleanup of abandoned work
+- GPU memory monitoring per-runner
 
 ## Contributing
 
@@ -628,13 +803,21 @@ python slate/slate_fork_manager.py --validate
 - Python: Type hints required, Google-style docstrings
 - Modification timestamp format: `# Modified: YYYY-MM-DDTHH:MM:SSZ | Author: NAME | Change: description`
 
+## Author
+
+**Daniel Perry** - Canadian Forces Veteran | Afghanistan Veteran | PPCLI Battlegroup | Task Force 3-09
+
+S.L.A.T.E. is the sole intellectual property of Daniel Perry. See [AUTHOR.md](AUTHOR.md) for more information.
+
 ## License
 
-S.L.A.T.E. is open source, experimental, and built with AI assistance. Use at your own risk.
-See the [LICENSE](LICENSE) file for details.
+S.L.A.T.E. is experimental software. Use at your own risk. The author is not liable for any damages arising from use of this software.
+
+See the [LICENSE](LICENSE) file for complete terms and conditions.
 
 ## Links
 
+- [Website](https://synchronizedlivingarchitecture.github.io/S.L.A.T.E/)
 - [GitHub Repository](https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E)
 - [Wiki Documentation](https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki)
 - [Issue Tracker](https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/issues)
@@ -647,5 +830,9 @@ See the [LICENSE](LICENSE) file for details.
 </p>
 
 <p align="center">
-  Made with AI assistance | Local-first by design
+  Created by Daniel Perry | Canadian Forces Veteran | Afghanistan Veteran
+</p>
+
+<p align="center">
+  Copyright (c) 2024-2026 Daniel Perry. All Rights Reserved.
 </p>

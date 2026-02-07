@@ -12,6 +12,11 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Scheduled workflows should not cancel in-progress runs
+concurrency:
+  group: stale-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   issues: write
   pull-requests: write

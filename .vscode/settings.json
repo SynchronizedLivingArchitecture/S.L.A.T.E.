@@ -1,5 +1,10 @@
 {
-	// Modified: 2026-02-06T23:30:00Z | Author: COPILOT | Change: Add multi-runner support and plugin SDK paths
+	// Modified: 2026-02-07T14:00:00Z | Author: COPILOT | Change: Activate SLATE Dark theme
+
+	// ========================================
+	// SLATE THEME
+	// ========================================
+	"workbench.colorTheme": "SLATE Dark",
 
 	// ========================================
 	// PYTHON ENVIRONMENT
@@ -9,7 +14,8 @@
 	"python.analysis.extraPaths": [
 		"${workspaceFolder}",
 		"${workspaceFolder}/plugins/slate-sdk",
-		"${workspaceFolder}/plugins/slate-copilot"
+		"${workspaceFolder}/plugins/slate-copilot",
+		"${workspaceFolder}/slate_core"
 	],
 	"python.analysis.autoSearchPaths": true,
 
@@ -34,7 +40,7 @@
 			"text": "Use isBackground=true for long-running terminal commands. Never use curl.exe. Never bind to 0.0.0.0."
 		},
 		{
-			"text": "This is the S.L.A.T.E. (Synchronized Living Architecture for Transformation and Evolution) project. Key modules: slate/ (core SDK), agents/ (API servers), plugins/ (VSCode extensions). Multi-runner system supports 19 parallel runners across 2 GPUs."
+			"text": "This is the S.L.A.T.E. (Synchronized Living Architecture for Transformation and Evolution) project. Key modules: slate/ (core SDK), agents/ (API servers), plugins/ (VSCode extensions), slate_core/plugins/ (agent registry). 7 agents (ALPHA/BETA/GAMMA/DELTA/EPSILON/ZETA/COPILOT). Multi-runner system supports 50 parallel runners across 2 GPUs."
 		}
 	],
 	"github.copilot.chat.testGeneration.instructions": [
@@ -47,7 +53,10 @@
 	// SLATE PLUGINS (LOCAL SDK)
 	// ========================================
 	"slate.plugins.path": "${workspaceFolder}/plugins",
+	"slate.agentRegistry.path": "${workspaceFolder}/slate_core/plugins/agents",
+	"slate.agentRegistry.autoLoad": true,
 	"slate.multiRunner.enabled": true,
+	"slate.multiRunner.maxRunners": 50,
 	"slate.multiRunner.configPath": "${workspaceFolder}/.slate_runners.json",
 
 	// ========================================

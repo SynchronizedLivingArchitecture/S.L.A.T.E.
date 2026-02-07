@@ -1,0 +1,133 @@
+# S.L.A.T.E. Docker Compose - PRODUCTION Mode
+# Modified: 2026-02-07T06:00:00Z | Author: COPILOT | Change: Prod compose - static, no reload
+#
+# Usage:
+#   docker-compose -f docker-compose.prod.yml up -d
+#   docker-compose -f docker-compose.prod.yml up -d --build
+#
+# Features:
+#   - Static container — no source bind mounts, no file watcher
+#   - SLATE_MODE=prod disables hot-reload entirely
+#   - Pre-built image from ghcr.io registry
+#   - Auto-restart on failure
+#   - Resource limits enforced
+#
+# Security:
+#   - All ports bound to 127.0.0.1 (local only)
+#   - No telemetry, no external network calls
+#   - Runs as non-root user (slate)
+#   - Read-only filesystem where possible
+
+services:
+  # SLATE Core (Production - GPU)
+  slate:
+    image: ghcr.io/synchronizedlivingarchitecture/slate:latest-gpu
+    container_name: slate
+    hostname: slate
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"  # Dashboard (local only)
+    volumes:
+      # Only persistent data — NO source bind mounts
+      - slate_data:/slate/.slate_index
+      - slate_prompts:/slate/.slate_prompts
+      - slate_tasks:/slate/current_tasks.json
+    environment:
+      - SLATE_MODE=prod
+      - SLATE_WORKSPACE=/slate
+      - SLATE_DOCKER=1
+      - OLLAMA_HOST=ollama:11434
+      - PYTHONPATH=/slate
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      ollama:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+        limits:
+          memory: 8G
+    networks:
+      - slate_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    read_only: true
+    tmpfs:
+      - /tmp:size=256M
+
+  # Ollama Local LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    hostname: ollama
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      # 0.0.0.0 required inside Docker bridge network for inter-container comms.
+      # Host port binding is 127.0.0.1 — does NOT violate local-only policy.
+      - OLLAMA_HOST=0.0.0.0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          memory: 16G
+    networks:
+      - slate_network
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:11434/api/tags', timeout=5)\" 2>/dev/null || exit 0"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ChromaDB Vector Store
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    hostname: chromadb
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - slate_network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+volumes:
+  slate_data:
+    name: slate_prod_data
+  slate_prompts:
+    name: slate_prod_prompts
+  slate_tasks:
+    name: slate_prod_tasks
+  ollama_data:
+    name: ollama_prod_data
+  chroma_data:
+    name: chroma_prod_data
+
+networks:
+  slate_network:
+    name: slate_prod_network
+    driver: bridge

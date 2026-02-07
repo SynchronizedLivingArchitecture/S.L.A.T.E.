@@ -9,8 +9,9 @@ on:
     branches: [main, develop]
   workflow_dispatch:
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Fix concurrency group for PR-triggered workflows
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:

@@ -9,24 +9,32 @@
 		"url": "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git"
 	},
 	"slateMetadata": {
-		"modified": "2026-02-07T04:57:00Z",
+		"modified": "2026-02-07T12:00:00Z",
 		"author": "COPILOT",
-		"change": "Add icon and bump version for new packaging"
+		"change": "Fix freezing — streaming progress, error recovery, concurrent tools, proper arg parsing, adaptive follow-ups"
 	},
-	"version": "2.6.1",
+	"version": "3.1.0",
 	"icon": "media/icon.png",
 	"engines": {
 		"vscode": "^1.100.0"
 	},
 	"categories": [
 		"AI",
-		"Chat"
+		"Chat",
+		"Themes"
 	],
 	"activationEvents": [
 		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"themes": [
+			{
+				"label": "SLATE Dark",
+				"uiTheme": "vs-dark",
+				"path": "./themes/slate-dark-color-theme.json"
+			}
+		],
 		"viewsContainers": {
 			"activitybar": [
 				{
@@ -40,8 +48,16 @@
 			"slate-explorer": [
 				{
 					"type": "webview",
+					"id": "slate.controlBoardView",
+					"name": "Control Board",
+					"icon": "media/slate-activity-icon.svg",
+					"visibility": "visible"
+				},
+				{
+					"type": "webview",
 					"id": "slate.dashboardView",
 					"name": "Dashboard",
+					"icon": "media/slate-activity-icon.svg",
 					"visibility": "visible"
 				}
 			]
@@ -55,8 +71,36 @@
 				"isSticky": true,
 				"commands": [
 					{
+						"name": "run",
+						"description": "Guided SLATE protocol — health, runtime, workflow, enforce"
+					},
+					{
 						"name": "status",
 						"description": "Full system health check — GPU, Python, runner, services"
+					},
+					{
+						"name": "update",
+						"description": "Update from git and check all contributor forks"
+					},
+					{
+						"name": "debug",
+						"description": "Run diagnostics — errors, services, GPU, stale tasks"
+					},
+					{
+						"name": "deploy",
+						"description": "Manage services, runner, and CI/CD dispatch"
+					},
+					{
+						"name": "security",
+						"description": "Security audit — ActionGuard, PII, SDK source scan"
+					},
+					{
+						"name": "agents",
+						"description": "Agent registry, autonomous loops, task discovery"
+					},
+					{
+						"name": "forks",
+						"description": "Check contributor forks for updates and pending integrations"
 					},
 					{
 						"name": "runner",
@@ -79,8 +123,36 @@
 						"description": "Service lifecycle — start, stop, status of all services"
 					},
 					{
+						"name": "install",
+						"description": "Full SLATE ecosystem setup"
+					},
+					{
 						"name": "help",
 						"description": "List available SLATE commands and tools"
+					},
+					{
+						"name": "roadmap",
+						"description": "Roadmap alignment — dev cycle, specs, tasks, and plan status"
+					},
+					{
+						"name": "stage",
+						"description": "View or change the current development stage (plan/code/test/deploy/feedback)"
+					},
+					{
+						"name": "guidance",
+						"description": "Get roadmap-aligned code guidance for the current stage"
+					},
+					{
+						"name": "learn",
+						"description": "Interactive learning — track progress, achievements, and XP"
+					},
+					{
+						"name": "specs",
+						"description": "Specification management — process, analyze, and generate docs"
+					},
+					{
+						"name": "context",
+						"description": "Get compressed SLATE state context (token-optimized)"
 					}
 				],
 				"disambiguation": [
@@ -282,6 +354,331 @@
 						}
 					},
 					"required": ["command"]
+				}
+			},
+			{
+				"name": "slate_forkCheck",
+				"tags": ["slate", "forks", "git", "contributions"],
+				"toolReferenceName": "slateForkCheck",
+				"displayName": "SLATE Fork Check",
+				"modelDescription": "Check contributor forks for updates, pending integrations, and sync status. Actions: status, sync, check, list.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action: 'status' (default), 'sync' (sync all), 'check' (check for updates), 'list' (list forks)",
+							"enum": ["status", "sync", "check", "list"],
+							"default": "status"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_securityAudit",
+				"tags": ["slate", "security", "audit", "scan"],
+				"toolReferenceName": "slateSecurityAudit",
+				"displayName": "SLATE Security Audit",
+				"modelDescription": "Run security scans: ActionGuard (dangerous patterns), PII Scanner (credential leaks), SDK Source Guard (trusted publishers). Scan: full, actionguard, pii, sdk.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"scan": {
+							"type": "string",
+							"description": "Scan type: 'full' (all), 'actionguard', 'pii', 'sdk'",
+							"enum": ["full", "actionguard", "pii", "sdk"],
+							"default": "full"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_agentStatus",
+				"tags": ["slate", "agents", "autonomous", "registry"],
+				"toolReferenceName": "slateAgentStatus",
+				"displayName": "SLATE Agent Status",
+				"modelDescription": "Check agent registry, autonomous loop status, copilot runner bridge, and integrated loop. Actions: status, discover, integrated.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action: 'status' (default), 'discover' (find tasks), 'integrated' (integrated loop status)",
+							"enum": ["status", "discover", "integrated"],
+							"default": "status"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_gpuManager",
+				"tags": ["slate", "gpu", "cuda", "dual-gpu"],
+				"toolReferenceName": "slateGpuManager",
+				"displayName": "SLATE GPU Manager",
+				"modelDescription": "Manage dual-GPU configuration: load balancing, model preloading, VRAM status. Actions: status, configure, preload.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action: 'status' (default), 'configure', 'preload'",
+							"enum": ["status", "configure", "preload"],
+							"default": "status"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_autonomous",
+				"tags": ["slate", "autonomous", "loop", "tasks"],
+				"toolReferenceName": "slateAutonomous",
+				"displayName": "SLATE Autonomous Loop",
+				"modelDescription": "Control the autonomous task loop: check status, discover tasks, execute a single task, or run multiple tasks. Actions: status, discover, single, run (with max parameter).",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action: 'status' (default), 'discover', 'single' (execute one task), 'run' (execute multiple tasks)",
+							"enum": ["status", "discover", "single", "run"],
+							"default": "status"
+						},
+						"max": {
+							"type": "number",
+							"description": "Maximum tasks to execute (only with action='run', default 5)",
+							"default": 5
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_runProtocol",
+				"tags": ["slate", "protocol", "run", "lockin"],
+				"toolReferenceName": "slateRunProtocol",
+				"displayName": "SLATE Run Protocol",
+				"modelDescription": "Run the full guided SLATE protocol sequence: (1) system health, (2) runtime integrations, (3) workflow status, (4) enforce completion. Ensures all systems are 'locked in' for development.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {}
+				}
+			},
+			{
+				"name": "slate_handoff",
+				"tags": ["slate", "handoff", "task", "autonomous"],
+				"toolReferenceName": "slateHandoff",
+				"displayName": "SLATE Task Handoff",
+				"modelDescription": "Hand off a task to the SLATE autonomous agent for background execution. The chat participant identifies the work, then queues it for the autonomous loop to complete.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"task": {
+							"type": "string",
+							"description": "Description of the task to hand off to the autonomous agent"
+						},
+						"priority": {
+							"type": "string",
+							"description": "Task priority: 'high', 'medium', or 'low'",
+							"enum": ["high", "medium", "low"],
+							"default": "medium"
+						}
+					},
+					"required": ["task"]
+				}
+			},
+			{
+				"name": "slate_startServices",
+				"tags": ["slate", "services", "start", "deploy"],
+				"toolReferenceName": "slateStartServices",
+				"displayName": "SLATE Start Services",
+				"modelDescription": "Start all SLATE services in one action: orchestrator (dashboard, runner, monitor) and copilot runner bridge for autonomous task processing.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"services": {
+							"type": "string",
+							"description": "Which services to start: 'all' (default), 'orchestrator', 'copilot-runner'",
+							"enum": ["all", "orchestrator", "copilot-runner"],
+							"default": "all"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_executeWork",
+				"tags": ["slate", "execute", "work", "autonomous", "pipeline"],
+				"toolReferenceName": "slateExecuteWork",
+				"displayName": "SLATE Execute Work Pipeline",
+				"modelDescription": "Aggressive work execution pipeline: (1) cleanup stale tasks, (2) discover available work, (3) execute up to N tasks via autonomous agent, (4) verify final state. Use this to DO work, not just report on it.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"scope": {
+							"type": "string",
+							"description": "Pipeline scope: 'full' (all phases), 'cleanup', 'discover', 'execute', 'verify'",
+							"enum": ["full", "cleanup", "discover", "execute", "verify"],
+							"default": "full"
+						},
+						"max": {
+							"type": "number",
+							"description": "Maximum number of tasks to execute (default 3)",
+							"default": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_agentBridge",
+				"tags": ["slate", "agent", "bridge", "copilot_chat", "subagent", "autonomous"],
+				"toolReferenceName": "slateAgentBridge",
+				"displayName": "SLATE Agent Bridge",
+				"modelDescription": "Bidirectional bridge between the @slate chat participant and the SLATE autonomous loop. Poll for tasks dispatched by the autonomous system (COPILOT_CHAT agent), complete them, check bridge status, or cleanup stale entries. This makes @slate a first-class subagent in the SLATE agent registry.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"required": ["action"],
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Bridge action: 'poll' (get pending tasks), 'status' (bridge health), 'complete' (mark task done), 'cleanup' (remove stale)",
+							"enum": ["poll", "status", "complete", "cleanup"]
+						},
+						"taskId": {
+							"type": "string",
+							"description": "Task ID to complete (required for 'complete' action)"
+						},
+						"result": {
+							"type": "string",
+							"description": "Result text for completed task"
+						},
+						"success": {
+							"type": "boolean",
+							"description": "Whether the task succeeded (default true)",
+							"default": true
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_devCycle",
+				"tags": ["slate", "devcycle", "roadmap", "stage"],
+				"toolReferenceName": "slateDevCycle",
+				"displayName": "SLATE Dev Cycle",
+				"modelDescription": "View or manage the SLATE development cycle: current stage (plan/code/test/deploy/feedback), recent activities, and stage transitions. Actions: status, transition, activities, guidance.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action: 'status' (current stage), 'transition' (change stage), 'activities' (recent work), 'guidance' (stage-specific advice)",
+							"enum": ["status", "transition", "activities", "guidance"],
+							"default": "status"
+						},
+						"stage": {
+							"type": "string",
+							"description": "Target stage for transition (only with action='transition')",
+							"enum": ["plan", "code", "test", "deploy", "feedback"]
+						},
+						"reason": {
+							"type": "string",
+							"description": "Reason for stage transition"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_specKit",
+				"tags": ["slate", "specs", "specifications", "wiki"],
+				"toolReferenceName": "slateSpecKit",
+				"displayName": "SLATE Spec Kit",
+				"modelDescription": "Manage SLATE specifications: list, process, AI-analyze, generate wiki docs, and extract development roadmap. Actions: status, list, process, analyze, wiki, roadmap.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action: 'status', 'list', 'process', 'analyze', 'wiki', 'roadmap'",
+							"enum": ["status", "list", "process", "analyze", "wiki", "roadmap"],
+							"default": "status"
+						},
+						"specId": {
+							"type": "string",
+							"description": "Specific spec ID to process or analyze (optional)"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_learningProgress",
+				"tags": ["slate", "learning", "progress", "achievements"],
+				"toolReferenceName": "slateLearningProgress",
+				"displayName": "SLATE Learning Progress",
+				"modelDescription": "Track learning progress, XP, achievements, and guided learning paths. Actions: status, paths, achievements, next, complete.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action: 'status', 'paths', 'achievements', 'next', 'complete'",
+							"enum": ["status", "paths", "achievements", "next", "complete"],
+							"default": "status"
+						},
+						"stepId": {
+							"type": "string",
+							"description": "Step ID to mark complete (required for 'complete' action)"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_planContext",
+				"tags": ["slate", "plan", "context", "summary"],
+				"toolReferenceName": "slatePlanContext",
+				"displayName": "SLATE Plan Context",
+				"modelDescription": "Get compressed SLATE plan context for efficient LLM usage: current dev stage, task counts, spec summaries, and code directives. Token-optimized. Scopes: full, cycle, tasks, specs, guidance.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"scope": {
+							"type": "string",
+							"description": "Context scope: 'full' (all), 'cycle' (dev stage only), 'tasks' (task counts), 'specs' (spec list), 'guidance' (code directives)",
+							"enum": ["full", "cycle", "tasks", "specs", "guidance"],
+							"default": "full"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_codeGuidance",
+				"tags": ["slate", "code", "guidance", "patterns"],
+				"toolReferenceName": "slateCodeGuidance",
+				"displayName": "SLATE Code Guidance",
+				"modelDescription": "Get stage-aware code guidance for a specific file or context. Returns file-type-specific best practices aligned with the current development stage.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"file": {
+							"type": "string",
+							"description": "File path to get guidance for (uses extension to determine language)"
+						},
+						"context": {
+							"type": "string",
+							"description": "Additional context about what you're working on"
+						}
+					}
 				}
 			}
 		],

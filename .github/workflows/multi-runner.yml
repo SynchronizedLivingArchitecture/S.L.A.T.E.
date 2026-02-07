@@ -17,6 +17,10 @@ on:
           - parallel-proof
           - full-suite
 
+concurrency:
+  group: multi-runner-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

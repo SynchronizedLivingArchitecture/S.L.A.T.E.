@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
+# Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add Docker daemon validation step and compose test job
 # S.L.A.T.E. Docker Build & Publish Workflow
 # Author: SLATE | Created: 2026-02-06
 #
@@ -35,8 +35,9 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+# Modified: 2026-02-07T08:30:00Z | Author: COPILOT | Change: Fix concurrency group for PR-triggered workflows
 concurrency:
-  group: docker-${{ github.ref }}
+  group: docker-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -44,10 +45,36 @@ permissions:
   packages: write
 
 jobs:
+  # Validate Docker environment before building
+  validate:
+    name: Validate Docker Environment
+    runs-on: [self-hosted, slate]
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        shell: powershell
+
+      - name: Docker Daemon Status
+        run: |
+          python slate/slate_docker_daemon.py --status --json
+        shell: powershell
+
+      - name: GPU Passthrough Check
+        run: |
+          python slate/slate_docker_daemon.py --gpu-check
+        shell: powershell
+        continue-on-error: true
+
   # Build GPU variant on self-hosted runner (has NVIDIA GPU)
   build-gpu:
     name: Build GPU Image
     runs-on: [self-hosted, slate]
+    needs: [validate]
     timeout-minutes: 30
     outputs:
       digest: ${{ steps.build.outputs.digest }}
@@ -99,11 +126,12 @@ jobs:
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu python -c "import slate; print(f'SLATE v{slate.__version__}')"
         shell: powershell
 
-  # Modified: 2026-02-07T01:00:00Z | Author: COPILOT | Change: Moved all jobs to self-hosted runners
-  # Build CPU variant on self-hosted runner
+  # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add validate dependency and compose test
+  # Build CPU variant on self-hosted runner (no GPU needed for CPU image)
   build-cpu:
     name: Build CPU Image
-    runs-on: [self-hosted, slate, cpu-only]
+    runs-on: [self-hosted, slate]
+    needs: [validate]
     timeout-minutes: 20
     outputs:
       digest: ${{ steps.build.outputs.digest }}
@@ -170,11 +198,41 @@ jobs:
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu
 
+  # Validate compose files after build
+  compose-validate:
+    name: Validate Compose Files
+    runs-on: [self-hosted, slate]
+    needs: [build-gpu, build-cpu]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        shell: powershell
+
+      - name: Validate compose configs
+        run: |
+          docker compose -f docker-compose.yml config --quiet
+          docker compose -f docker-compose.dev.yml config --quiet
+          docker compose -f docker-compose.prod.yml config --quiet
+          Write-Output "All compose files valid"
+        shell: powershell
+
+      - name: Docker health report
+        run: |
+          python slate/slate_docker_daemon.py --images
+          python slate/slate_docker_daemon.py --volumes
+        shell: powershell
+
   # Summary
   summary:
     name: Build Summary
     runs-on: [self-hosted, slate]
-    needs: [build-gpu, build-cpu, tag-latest]
+    needs: [build-gpu, build-cpu, tag-latest, compose-validate]
     if: always()
     steps:
       - name: Generate summary
