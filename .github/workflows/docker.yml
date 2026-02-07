@@ -1,0 +1,195 @@
+# S.L.A.T.E. Docker Build & Publish Workflow
+# Author: SLATE | Created: 2026-02-06
+#
+# Builds and pushes Docker images to GitHub Container Registry (ghcr.io)
+# GPU variant: nvidia/cuda base, built on self-hosted runner
+# CPU variant: python:slim base, built on GitHub-hosted runner
+
+name: Docker Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Dockerfile*'
+      - 'requirements.txt'
+      - 'slate/**'
+      - 'agents/**'
+      - 'slate_core/**'
+      - 'docker-compose.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Dockerfile*'
+      - 'requirements.txt'
+  workflow_dispatch:
+    inputs:
+      push_images:
+        description: 'Push images to registry'
+        required: false
+        default: 'true'
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # Build GPU variant on self-hosted runner (has NVIDIA GPU)
+  build-gpu:
+    name: Build GPU Image
+    runs-on: [self-hosted, slate]
+    timeout-minutes: 30
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest-gpu
+            type=raw,value=gpu
+            type=sha,prefix=gpu-
+            type=ref,event=branch,suffix=-gpu
+
+      - name: Build and push GPU image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' && (github.event.inputs.push_images != 'false') }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+            VCS_REF=${{ github.sha }}
+
+      - name: Test GPU image
+        if: github.event_name != 'pull_request'
+        run: |
+          docker run --rm --gpus all ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu nvidia-smi
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu python -c "import slate; print(f'SLATE v{slate.__version__}')"
+        shell: powershell
+
+  # Build CPU variant on GitHub-hosted runner
+  build-cpu:
+    name: Build CPU Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest-cpu
+            type=raw,value=cpu
+            type=sha,prefix=cpu-
+            type=ref,event=branch,suffix=-cpu
+
+      - name: Build and push CPU image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.cpu
+          push: ${{ github.event_name != 'pull_request' && (github.event.inputs.push_images != 'false') }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Test CPU image
+        run: |
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-cpu python -c "import slate; print(f'SLATE v{slate.__version__}')"
+
+  # Tag latest after both builds succeed
+  tag-latest:
+    name: Tag Latest
+    runs-on: ubuntu-latest
+    needs: [build-gpu, build-cpu]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag GPU as latest
+        run: |
+          docker buildx imagetools create \
+            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu
+
+  # Summary
+  summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [build-gpu, build-cpu, tag-latest]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | Status | Digest |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| GPU | ${{ needs.build-gpu.result }} | \`${GITHUB_SHA::8}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| CPU | ${{ needs.build-cpu.result }} | \`${GITHUB_SHA::8}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Images" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-cpu" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        env:
+          REGISTRY: ghcr.io
+          IMAGE_NAME: ${{ github.repository }}

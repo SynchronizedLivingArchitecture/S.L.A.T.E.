@@ -1,0 +1,133 @@
+# S.L.A.T.E. Docker Compose Configuration
+# Author: SLATE | Created: 2026-02-06
+#
+# Usage:
+#   GPU mode:  docker-compose up -d
+#   CPU mode:  docker-compose --profile cpu up -d
+#
+# Prerequisites:
+#   - Docker Desktop with WSL2 backend
+#   - NVIDIA Container Toolkit (for GPU mode)
+
+services:
+  # SLATE Core Service (GPU)
+  slate:
+    image: ghcr.io/synchronizedlivingarchitecture/slate:latest-gpu
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: slate
+    hostname: slate
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # Dashboard
+    volumes:
+      - .:/workspace:rw
+      - slate_data:/slate/.slate_index
+      - slate_prompts:/slate/.slate_prompts
+    environment:
+      - SLATE_WORKSPACE=/workspace
+      - OLLAMA_HOST=ollama:11434
+      - PYTHONPATH=/slate:/workspace
+    depends_on:
+      ollama:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - slate_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # SLATE Core Service (CPU - alternative profile)
+  slate-cpu:
+    image: ghcr.io/synchronizedlivingarchitecture/slate:latest-cpu
+    build:
+      context: .
+      dockerfile: Dockerfile.cpu
+    container_name: slate-cpu
+    hostname: slate
+    restart: unless-stopped
+    profiles:
+      - cpu
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/workspace:rw
+      - slate_data:/slate/.slate_index
+    environment:
+      - SLATE_WORKSPACE=/workspace
+      - OLLAMA_HOST=host.docker.internal:11434
+      - PYTHONPATH=/slate:/workspace
+    networks:
+      - slate_network
+
+  # Ollama Local LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    hostname: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - slate_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ChromaDB Vector Store (optional)
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    hostname: chromadb
+    restart: unless-stopped
+    profiles:
+      - full
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - slate_network
+
+volumes:
+  slate_data:
+    name: slate_data
+  slate_prompts:
+    name: slate_prompts
+  ollama_data:
+    name: ollama_data
+  chroma_data:
+    name: chroma_data
+
+networks:
+  slate_network:
+    name: slate_network
+    driver: bridge

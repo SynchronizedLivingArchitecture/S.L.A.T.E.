@@ -1,0 +1,64 @@
+# S.L.A.T.E. Docker Image (CPU Variant)
+# Base: Python 3.11 Slim
+# Author: SLATE | Created: 2026-02-06
+
+FROM python:3.11-slim
+
+LABEL org.opencontainers.image.source="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E"
+LABEL org.opencontainers.image.description="SLATE - Synchronized Living Architecture for Transformation and Evolution (CPU)"
+LABEL org.opencontainers.image.licenses="MIT"
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Install minimal system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /slate
+
+# Copy requirements first for layer caching
+COPY requirements.txt .
+
+# Install Python dependencies (skip GPU-only packages)
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir \
+        python-dotenv>=1.0.0 \
+        psutil>=5.9.0 \
+        rich>=13.0.0 \
+        typing-extensions>=4.0.0 \
+        aiohttp>=3.9.0 \
+        hypercorn>=0.16.0 \
+        quart>=0.19.0 \
+        pytest>=8.0.0 \
+        pytest-asyncio>=0.23.0
+
+# Copy SLATE codebase
+COPY slate/ ./slate/
+COPY agents/ ./agents/
+COPY slate_core/ ./slate_core/
+COPY pyproject.toml .
+COPY current_tasks.json .
+COPY .slate_tech_tree/ ./.slate_tech_tree/
+
+# Set Python path
+ENV PYTHONPATH="/slate:${PYTHONPATH}"
+
+# Create non-root user for security
+RUN useradd -m -s /bin/bash slate \
+    && chown -R slate:slate /slate
+USER slate
+
+# Expose dashboard port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/api/health || exit 1
+
+# Default entrypoint: start SLATE orchestrator
+ENTRYPOINT ["python", "slate/slate_orchestrator.py"]
+CMD ["start"]

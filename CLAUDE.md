@@ -232,6 +232,53 @@ Use `assigned_to: "workflow"` for workflow-based execution.
 - Tech tree: `.slate_tech_tree/tech_tree.json` directs development focus
 - Spec lifecycle: `draft → specified → planned → tasked → implementing → complete`
 
+## GitHub Project Boards
+
+SLATE uses GitHub Projects V2 for task tracking and workflow management. The KANBAN board is the primary source for workflow execution.
+
+### Project Board Mapping
+
+| # | Board | Purpose |
+|---|-------|---------|
+| 5 | **KANBAN** | Primary workflow source - active tasks |
+| 7 | **BUG TRACKING** | Bug-related issues and fixes |
+| 8 | **ITERATIVE DEV** | Pull requests and iterations |
+| 10 | **ROADMAP** | Completed features and enhancements |
+| 4 | **PLANNING** | Planning and design tasks |
+| 6 | **FUTURE RELEASE** | Future version items |
+
+### Project Board Commands
+
+```powershell
+# Check all project boards status
+.\.venv\Scripts\python.exe slate/slate_project_board.py --status
+
+# Update all boards from current_tasks.json
+.\.venv\Scripts\python.exe slate/slate_project_board.py --update-all
+
+# Sync KANBAN to local tasks
+.\.venv\Scripts\python.exe slate/slate_project_board.py --sync
+
+# Push pending tasks to KANBAN
+.\.venv\Scripts\python.exe slate/slate_project_board.py --push
+```
+
+### Auto-Categorization
+
+Tasks are automatically routed to boards by keywords:
+- **BUG TRACKING**: bug, fix, crash, error, broken
+- **ROADMAP**: feat, add, new, implement, create
+- **PLANNING**: plan, design, architect, research
+- **KANBAN**: default for active work
+
+### Workflow Automation
+
+The `project-automation.yml` workflow:
+- Runs every 30 minutes (scheduled)
+- Auto-adds issues/PRs to boards based on labels
+- PII scanning before public board exposure
+- Bidirectional sync with `current_tasks.json`
+
 ## Test-Driven Development (Constitution Mandate)
 
 All code changes must be accompanied by tests. Target 50%+ coverage for `slate/` and `slate_core/`.

@@ -1,52 +1,148 @@
 {
-  "version": "1.0.0",
-  "last_updated": "2026-02-06T00:00:00Z",
+  "version": "2.0.0",
+  "last_updated": "2026-02-06T22:45:00Z",
   "metadata": {
     "project": "S.L.A.T.E.",
-    "description": "Synchronized Living Architecture for Transformation and Evolution"
+    "description": "Synchronized Living Architecture for Transformation and Evolution",
+    "phase": 2
   },
   "nodes": [
     {
       "id": "core-sdk",
       "name": "Core SDK",
       "status": "complete",
+      "phase": 1,
       "description": "SLATE core SDK and infrastructure"
     },
     {
       "id": "workflow-system",
       "name": "Workflow System",
       "status": "complete",
+      "phase": 1,
       "description": "GitHub Actions workflow-based task execution"
     },
     {
       "id": "mcp-server",
       "name": "MCP Server",
       "status": "complete",
+      "phase": 1,
       "description": "Model Context Protocol integration"
     },
     {
       "id": "github-runner",
       "name": "Self-Hosted Runner",
       "status": "complete",
+      "phase": 1,
       "description": "GPU-accelerated GitHub Actions runner"
     },
     {
       "id": "dashboard",
       "name": "Dashboard",
       "status": "in_progress",
+      "phase": 1,
       "description": "Web-based status dashboard with monochrome theme"
     },
     {
       "id": "workflow-pipeline",
       "name": "Workflow Pipeline",
       "status": "complete",
-      "description": "Tasks → Runner → Workflows → Results pipeline"
+      "phase": 1,
+      "description": "Tasks -> Runner -> Workflows -> Results pipeline"
     },
     {
       "id": "tech-tree-viz",
       "name": "Tech Tree Visualization",
       "status": "in_progress",
+      "phase": 1,
       "description": "D3.js force-directed tech tree"
+    },
+    {
+      "id": "docker-infra",
+      "name": "Docker Infrastructure",
+      "status": "complete",
+      "phase": 2,
+      "description": "GPU/CPU container images, compose, ghcr.io registry",
+      "workflow": "docker.yml",
+      "paths": ["Dockerfile", "Dockerfile.cpu", "docker-compose.yml"]
+    },
+    {
+      "id": "copilot-dev",
+      "name": "Copilot Development",
+      "status": "available",
+      "phase": 2,
+      "description": "GitHub Copilot instructions, prompts, and skills",
+      "workflow": "ci.yml",
+      "paths": [".github/copilot-instructions.md", ".github/prompts/", "skills/"]
+    },
+    {
+      "id": "claude-dev",
+      "name": "Claude Integration",
+      "status": "available",
+      "phase": 2,
+      "description": "Claude Code commands, MCP server, CLAUDE.md",
+      "workflow": "ci.yml",
+      "paths": [".claude/commands/", "slate/mcp_server.py", "CLAUDE.md"]
+    },
+    {
+      "id": "ui-dev",
+      "name": "UI Development",
+      "status": "available",
+      "phase": 2,
+      "description": "Dashboard frontend, tech tree viz, glassmorphism theme",
+      "workflow": "slate.yml",
+      "paths": ["agents/slate_dashboard_server.py", "src/frontend/"]
+    },
+    {
+      "id": "meta-workflow",
+      "name": "Meta-Workflow System",
+      "status": "complete",
+      "phase": 2,
+      "description": "Self-managing workflow analyzer and deprecation detection",
+      "workflow": "slate.yml",
+      "paths": ["slate/slate_workflow_analyzer.py"]
+    },
+    {
+      "id": "agent-system",
+      "name": "Agent System",
+      "status": "available",
+      "phase": 2,
+      "description": "GitHub Copilot agents (.github/agents/)",
+      "workflow": "ci.yml",
+      "paths": [".github/agents/slate.agent.md"]
+    },
+    {
+      "id": "uv-migration",
+      "name": "UV Package Manager",
+      "status": "available",
+      "phase": 2,
+      "description": "Migrate from pip to UV for faster dependency management",
+      "paths": ["pyproject.toml", "uv.lock"]
+    },
+    {
+      "id": "discord-bot",
+      "name": "Discord Bot",
+      "status": "available",
+      "phase": 2,
+      "description": "SLATE Discord integration for notifications and commands",
+      "paths": ["slate/discord_bot.py"]
+    },
+    {
+      "id": "multi-runner",
+      "name": "Multi-Runner System",
+      "status": "complete",
+      "phase": 2,
+      "description": "19 parallel runners across 2 GPUs with resource-aware task distribution",
+      "workflow": "multi-runner.yml",
+      "paths": ["slate/slate_multi_runner.py", "slate/slate_runner_benchmark.py", ".slate_runners.json"]
+    },
+    {
+      "id": "vscode-sdk",
+      "name": "VSCode SDK Integration",
+      "status": "complete",
+      "phase": 2,
+      "description": "Local VSCode plugins synced to GitHub as complete SDK",
+      "workflow": "ci.yml",
+      "paths": ["plugins/slate-copilot/", "plugins/slate-sdk/", ".vscode/"]
     }
   ],
   "edges": [
@@ -56,6 +152,17 @@
     {"from": "workflow-system", "to": "workflow-pipeline"},
     {"from": "mcp-server", "to": "dashboard"},
     {"from": "dashboard", "to": "tech-tree-viz"},
-    {"from": "github-runner", "to": "workflow-pipeline"}
+    {"from": "github-runner", "to": "workflow-pipeline"},
+    {"from": "workflow-pipeline", "to": "docker-infra"},
+    {"from": "workflow-pipeline", "to": "meta-workflow"},
+    {"from": "mcp-server", "to": "claude-dev"},
+    {"from": "core-sdk", "to": "copilot-dev"},
+    {"from": "core-sdk", "to": "agent-system"},
+    {"from": "dashboard", "to": "ui-dev"},
+    {"from": "core-sdk", "to": "uv-migration"},
+    {"from": "workflow-pipeline", "to": "discord-bot"},
+    {"from": "github-runner", "to": "multi-runner"},
+    {"from": "core-sdk", "to": "vscode-sdk"},
+    {"from": "multi-runner", "to": "docker-infra"}
   ]
 }

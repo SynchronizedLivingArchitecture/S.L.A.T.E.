@@ -1,0 +1,87 @@
+# S.L.A.T.E. Docker Build Exclusions
+# Author: SLATE | Created: 2026-02-06
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python virtual environments
+.venv
+venv
+env
+.env
+*.env
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+*.egg
+.eggs
+dist
+build
+
+# GitHub Actions Runner (large, not needed in container)
+actions-runner/
+
+# IDE and editor files
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# SLATE runtime data (should be mounted, not copied)
+.slate_index/
+.slate_prompts/
+.slate_errors/
+.slate_nemo/
+.slate_changes/
+
+# Temporary files
+_temp/
+*.tmp
+*.temp
+*.log
+
+# Test artifacts
+.pytest_cache
+.coverage
+htmlcov/
+.tox
+.nox
+
+# Documentation (not needed in runtime)
+docs/
+*.md
+!README.md
+
+# Specs (development only)
+specs/
+
+# Local config
+.claude/
+.specify/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Large binary files
+*.exe
+*.dll
+*.pdb
+*.zip
+*.tar.gz
+
+# Node modules (if any frontend)
+node_modules/
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/

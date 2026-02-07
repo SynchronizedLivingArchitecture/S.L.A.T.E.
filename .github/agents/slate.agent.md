@@ -70,6 +70,21 @@ Execute these via terminal using the Python executable above. Always run from th
 & "E:\11132025\.venv\Scripts\python.exe" slate/slate_workflow_manager.py --enforce   # Enforce completion
 ```
 
+### Project Boards (GitHub Projects V2)
+```powershell
+& "E:\11132025\.venv\Scripts\python.exe" slate/slate_project_board.py --status       # All boards status
+& "E:\11132025\.venv\Scripts\python.exe" slate/slate_project_board.py --update-all   # Sync all boards
+& "E:\11132025\.venv\Scripts\python.exe" slate/slate_project_board.py --sync         # KANBAN → tasks
+& "E:\11132025\.venv\Scripts\python.exe" slate/slate_project_board.py --push         # Tasks → KANBAN
+& "E:\11132025\.venv\Scripts\python.exe" slate/slate_project_board.py --process      # Process KANBAN
+```
+
+Project board mapping:
+- **5 KANBAN**: Primary workflow source (pending tasks)
+- **7 BUG TRACKING**: Bug fixes (auto-routed by keywords)
+- **8 ITERATIVE DEV**: Pull requests
+- **10 ROADMAP**: Completed features
+
 ### Benchmarks
 ```powershell
 & "E:\11132025\.venv\Scripts\python.exe" slate/slate_benchmark.py   # Run benchmarks

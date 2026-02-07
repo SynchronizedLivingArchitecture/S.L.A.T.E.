@@ -1,0 +1,190 @@
+{
+  "runners": [
+    {
+      "id": "runner-001",
+      "name": "slate-gpu-heavy-01",
+      "profile": "gpu_heavy",
+      "gpu_id": 0,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 1
+    },
+    {
+      "id": "runner-002",
+      "name": "slate-gpu-light-02",
+      "profile": "gpu_light",
+      "gpu_id": 1,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 1
+    },
+    {
+      "id": "runner-003",
+      "name": "slate-gpu-light-03",
+      "profile": "gpu_light",
+      "gpu_id": 1,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-004",
+      "name": "slate-gpu-light-04",
+      "profile": "gpu_light",
+      "gpu_id": 1,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-005",
+      "name": "slate-gpu-light-05",
+      "profile": "gpu_light",
+      "gpu_id": 1,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-006",
+      "name": "slate-gpu-light-06",
+      "profile": "gpu_light",
+      "gpu_id": 1,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-007",
+      "name": "slate-gpu-light-07",
+      "profile": "gpu_light",
+      "gpu_id": 1,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-008",
+      "name": "slate-standard-08",
+      "profile": "standard",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 1
+    },
+    {
+      "id": "runner-009",
+      "name": "slate-standard-09",
+      "profile": "standard",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-010",
+      "name": "slate-standard-10",
+      "profile": "standard",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-011",
+      "name": "slate-standard-11",
+      "profile": "standard",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-012",
+      "name": "slate-light-12",
+      "profile": "light",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 1
+    },
+    {
+      "id": "runner-013",
+      "name": "slate-light-13",
+      "profile": "light",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-014",
+      "name": "slate-light-14",
+      "profile": "light",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-015",
+      "name": "slate-light-15",
+      "profile": "light",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-016",
+      "name": "slate-light-16",
+      "profile": "light",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-017",
+      "name": "slate-light-17",
+      "profile": "light",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-018",
+      "name": "slate-light-18",
+      "profile": "light",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    },
+    {
+      "id": "runner-019",
+      "name": "slate-light-19",
+      "profile": "light",
+      "gpu_id": null,
+      "status": "idle",
+      "current_task": null,
+      "tasks_completed": 0
+    }
+  ],
+  "max_parallel_workflows": 4,
+  "gpu_reservation": {
+    "0": [
+      "runner-001"
+    ],
+    "1": [
+      "runner-002",
+      "runner-003",
+      "runner-004",
+      "runner-005",
+      "runner-006",
+      "runner-007"
+    ]
+  },
+  "updated_at": "2026-02-06T20:08:56.487176"
+}
