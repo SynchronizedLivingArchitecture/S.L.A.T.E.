@@ -777,6 +777,37 @@ SLATE won't run your GPU into the ground:
 - Automatic cleanup of abandoned work
 - GPU memory monitoring per-runner
 
+## Specifications
+
+SLATE development follows a specification-driven approach. Each major feature starts as a spec before implementation.
+
+### Active Specs
+
+| # | Specification | Status | Description |
+|---|---------------|--------|-------------|
+| 005 | Dashboard Monochrome Theme | Completed | Black/white base theme with minimal status colors |
+| 006 | Natural Theme System | Completed | Procedural dark/light slider with natural color palette |
+| 007 | Unified Design System | Implementing | M3 Material Design + Anthropic Geometric Art |
+| 008 | Guided Experience | Implementing | AI-driven onboarding wizard |
+| 009 | Copilot Roadmap Awareness | Completed | @slate participant with dev cycle integration |
+
+### Spec Lifecycle
+
+```
+DRAFT → SPECIFIED → PLANNED → IMPLEMENTING → COMPLETED
+```
+
+### Design Philosophy
+
+The visual identity combines three inspirations:
+- **M3 Material Design**: Design tokens, elevation, state layers
+- **Anthropic Geometric Art**: Starburst patterns, warm palette
+- **Awwwards Patterns**: Card architecture, modern interactions
+
+Primary color: `#B85A3C` (Anthropic-inspired warm rust)
+
+See the [Specifications Wiki](https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki/Specifications) for detailed documentation.
+
 ## Contributing
 
 ### Fork Validation

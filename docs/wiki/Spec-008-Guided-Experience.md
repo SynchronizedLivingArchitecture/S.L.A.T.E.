@@ -97,27 +97,131 @@ class AIGuidanceNarrator:
 4. **Graceful Degradation**: Missing services don't block progress
 5. **Exit Accessibility**: Advanced users can exit at any point
 
-## Implementation Priority
+## Brochure UI Sections
 
-### Phase 1: Lock Theme Spec
-- Define immutable color system
-- Define typography scale
-- Define spacing scale
+### Hero Section
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│     ████  S.L.A.T.E.  ████                                     │
+│     Synchronized Living Architecture                            │
+│     for Transformation and Evolution                            │
+│                                                                 │
+│     [  Start Guided Setup  ]    [  Advanced Mode  ]            │
+│                                                                 │
+│     ▼ Scroll to Explore                                        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Feature Showcase Cards
+
+```
+┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+│   🧠 AI     │  │   ⚡ GPU    │  │   🤖 Agent  │  │   📦 Git   │
+│   Local     │  │   Dual      │  │   Agentic   │  │   Actions  │
+│   Inference │  │   Compute   │  │   Workflows │  │   Runner   │
+│             │  │             │  │             │  │             │
+│  Ollama +   │  │  RTX 5070   │  │  Claude +   │  │  Self-     │
+│  Foundry    │  │  Ti x2      │  │  Copilot    │  │  Hosted    │
+└─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘
+```
+
+## Guided Mode Overlay
+
+```html
+<div class="guided-overlay active">
+    <div class="guided-header">
+        <div class="guided-progress">Step 3 of 7</div>
+        <button class="guided-exit">Exit Guided Mode</button>
+    </div>
+
+    <div class="guided-content">
+        <div class="guided-narrator">
+            <div class="narrator-avatar">🤖</div>
+            <div class="narrator-text">
+                "I'm now configuring your GPU scheduler..."
+            </div>
+        </div>
+
+        <div class="guided-action">
+            <div class="action-status">
+                <span class="status-dot active"></span>
+                Configuring GPU Scheduler...
+            </div>
+        </div>
+    </div>
+
+    <div class="guided-footer">
+        <div class="step-indicators">
+            <span class="step complete">1</span>
+            <span class="step complete">2</span>
+            <span class="step active">3</span>
+            <span class="step pending">4</span>
+            <span class="step pending">5</span>
+            <span class="step pending">6</span>
+            <span class="step pending">7</span>
+        </div>
+    </div>
+</div>
+```
+
+## Implementation Progress
+
+### Phase 1: Theme Spec
+- [x] Define immutable color system
+- [x] Define typography scale
+- [x] Define spacing scale
+- [x] Create design-tokens.py
 
 ### Phase 2: Brochure Elements
-- Hero section with animated background
-- Feature showcase cards
-- Stats/metrics display
+- [~] Hero section with animated background
+- [~] Feature showcase cards
+- [ ] Stats/metrics display
+- [ ] CTA buttons
 
 ### Phase 3: Guided Mode Core
-- GuidedModeState management
-- Step execution engine
-- AI narrator integration
+- [~] GuidedModeState management
+- [~] Step execution engine
+- [ ] AI narrator integration
+- [ ] Auto-advance logic
 
-### Phase 4-5: UI and AI Integration
-- Full-screen overlay
-- Ollama narration prompts
-- Error diagnosis and recovery
+### Phase 4: Guided Mode UI
+- [ ] Full-screen overlay
+- [ ] Step progress indicators
+- [ ] Narrator bubble
+- [ ] Action visualizations
+
+### Phase 5: AI Integration
+- [ ] Ollama narration prompts
+- [ ] Error diagnosis
+- [ ] Recovery suggestions
+- [ ] Contextual help
+
+## Implementation Files
+
+| File | Description |
+|------|-------------|
+| `slate/guided_mode.py` | Guided mode state machine |
+| `slate/guided_workflow.py` | Step execution engine |
+| `slate_web/guided_workflow_ui.py` | UI components |
+| `plugins/slate-copilot/src/slateGuidedInstallView.ts` | VSCode webview |
+
+## CLI Commands
+
+```bash
+# Start guided mode
+python slate/guided_mode.py --start
+
+# Check current step
+python slate/guided_mode.py --status
+
+# Skip to step
+python slate/guided_mode.py --skip-to 4
+
+# Exit guided mode
+python slate/guided_mode.py --exit
+```
 
 ## Related Specs
 

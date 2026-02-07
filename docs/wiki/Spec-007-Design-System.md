@@ -112,6 +112,81 @@ Central "S" represents SLATE core
 - `.slate_identity/theme.css` - Updated with M3 tokens
 - `slate/slate_installer.py` - Integrated logo generation
 
+## Dashboard Layout
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ HEADER (Sticky)                                                      │
+│ ┌──────┬────────────────────────────┬────────────────────────────┐  │
+│ │ LOGO │ S.L.A.T.E.                 │ [Theme] [Status] [Actions] │  │
+│ └──────┴────────────────────────────┴────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────────┤
+│ ┌────┐ ┌─────────────────────────────────────────────────────────┐  │
+│ │    │ │ MAIN CONTENT (Radiating Grid)                           │  │
+│ │ N  │ │                                                          │  │
+│ │ A  │ │   ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐      │  │
+│ │ V  │ │   │ CENTRAL │ │  WIDGET │ │  WIDGET │ │  WIDGET │      │  │
+│ │    │ │   │  FOCUS  │ │         │ │         │ │         │      │  │
+│ │ R  │ │   └─────────┘ └─────────┘ └─────────┘ └─────────┘      │  │
+│ │ A  │ │                                                          │  │
+│ │ I  │ │   ┌─────────┐ ┌─────────────────────┐ ┌─────────┐      │  │
+│ │ L  │ │   │  WIDGET │ │     WIDE WIDGET     │ │  WIDGET │      │  │
+│ │    │ │   │         │ │                     │ │         │      │  │
+│ └────┘ │   └─────────┘ └─────────────────────┘ └─────────┘      │  │
+│        └─────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+## Component Architecture
+
+### Card Component
+
+```css
+.slate-card {
+    background: var(--slate-surface-variant);
+    border: 1px solid var(--slate-outline-variant);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--slate-elevation-1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slate-card:hover {
+    box-shadow: var(--slate-elevation-2);
+    transform: translateY(-2px);
+}
+```
+
+### Button Variants
+
+| Variant | Style | Usage |
+|---------|-------|-------|
+| Filled | Solid primary background | Primary actions |
+| Outlined | Border only | Secondary actions |
+| Text | No background | Tertiary actions |
+
+### Elevation System
+
+| Level | Shadow | Usage |
+|-------|--------|-------|
+| 0 | none | Background surfaces |
+| 1 | subtle | Cards, list items |
+| 2 | medium | Buttons, dropdowns |
+| 3 | strong | Navigation, FABs |
+| 4 | heavy | Dialogs, modals |
+| 5 | maximum | Popovers, tooltips |
+
+## Implementation Progress
+
+- [x] Design token definitions
+- [x] Starburst logo generator
+- [x] Logo variants (dark, warm, animated)
+- [x] CSS framework with M3 tokens
+- [~] Dashboard UI rebuild
+- [ ] Navigation rail
+- [ ] Widget component library
+- [ ] Animation system
+
 ## API Endpoints
 
 | Endpoint | Method | Description |
@@ -120,6 +195,19 @@ Central "S" represents SLATE core
 | `/api/design/theme` | GET/POST | Theme configuration |
 | `/api/logo/generate` | POST | Generate logo variant |
 | `/api/logo/preset` | GET | Get logo presets |
+
+## CLI Commands
+
+```bash
+# Generate logo variants
+python slate/logo_generator/starburst.py --output .slate_identity/logos/
+
+# Export design tokens
+python slate/design_tokens.py --export json > tokens.json
+
+# Preview dashboard
+python agents/slate_dashboard_server.py
+```
 
 ## Related Specs
 
