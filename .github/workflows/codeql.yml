@@ -1,4 +1,4 @@
-﻿# Modified: 2026-02-06T00:00:00Z | Author: COPILOT | Change: Switch to self-hosted runner
+# Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
 # CodeQL Security Analysis
 
 name: CodeQL Analysis

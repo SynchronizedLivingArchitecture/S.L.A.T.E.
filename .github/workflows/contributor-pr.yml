@@ -1,4 +1,4 @@
-# Modified: 2026-02-06T00:00:00Z | Author: COPILOT | Change: Switch to self-hosted runner with pwsh
+# Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
 # Contributor PR Workflow
 # Handles PRs from external SLATE users (forks of the public repo).
 
@@ -88,7 +88,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Install dependencies
         run: pip install -r requirements.txt 2>$null
         continue-on-error: true
@@ -176,7 +176,7 @@ jobs:
         with:
           script: |
             const passed = '${{ needs.validate-contribution.result }}' === 'success';
-            const icon = passed ? '✅' : '❌';
+            const icon = passed ? '--' : '--';
             const body = `## ${icon} Contributor Validation Results\n\n| Check | Status |\n|-------|--------|\n| Contributor Type | ${{ needs.detect-contributor.outputs.is_fork == 'true' && 'External Fork' || 'Internal' }} |\n| Trusted Status | ${{ needs.detect-contributor.outputs.is_trusted == 'true' && 'Trusted' || 'Standard Review Required' }} |\n| Validation | ${passed ? 'Passed' : 'Failed'} |\n\n${passed ? '### Ready for Review\nThis contribution has passed automated validation.' : '### Action Required\nPlease address the validation failures.'}\n\n---\n*SLATE Contributor Validation*`;
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,

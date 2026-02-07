@@ -1,4 +1,4 @@
-# Modified: 2026-02-06T00:00:00Z | Author: COPILOT | Change: Switch to self-hosted runner with pwsh
+# Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
 # Fork Validation Workflow
 # Validates PRs from forks meet all SLATE security and system requirements
 
@@ -98,7 +98,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Install dependencies
         run: pip install -r requirements.txt 2>$null
         continue-on-error: true
@@ -275,7 +275,7 @@ jobs:
             let body = '## Fork Validation Results\n\n| Check | Status |\n|-------|--------|\n';
             let allPassed = true;
             for (const [check, result] of Object.entries(results)) {
-              const icon = result === 'success' ? '✅' : '❌';
+              const icon = result === 'success' ? '[OK]' : '[FAIL]';
               body += `| ${check} | ${icon} ${result} |\n`;
               if (result !== 'success') allPassed = false;
             }

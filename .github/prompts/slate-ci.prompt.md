@@ -32,15 +32,15 @@ CI Run #{number}: {status}/{conclusion}
 ```
 
 ## CI Jobs (ci.yml)
-1. Lint & Format — ruff lint + format check
-2. Unit Tests — pytest
-3. SDK Validation — import verification
-4. Security Scan — credential/binding checks
-5. SLATE Quick Checks — status + tech tree
-6. CI Summary — aggregation gate
+1. Lint & Format  ruff lint + format check
+2. Unit Tests  pytest
+3. SDK Validation  import verification
+4. Security Scan  credential/binding checks
+5. SLATE Quick Checks  status + tech tree
+6. CI Summary  aggregation gate
 
 ## Rules
 - GitHub API base: `https://api.github.com/repos/SynchronizedLivingArchitecture/S.L.A.T.E`
 - Token: `git credential fill` with `protocol=https` / `host=github.com`
 - Never use `curl.exe`
-- Python: `E:\11132025\.venv\Scripts\python.exe`
+- Python: `$env:SLATE_WORKSPACE\.venv\Scripts\python.exe`

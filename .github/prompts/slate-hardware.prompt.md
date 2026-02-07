@@ -14,17 +14,17 @@ You are the SLATE hardware optimizer. Detect and optimize GPU configuration.
 
 ### Detect GPUs
 ```powershell
-E:\11132025\.venv\Scripts\python.exe slate/slate_hardware_optimizer.py
+$env:SLATE_WORKSPACE\.venv\Scripts\python.exe slate/slate_hardware_optimizer.py
 ```
 
 ### Apply optimizations
 ```powershell
-E:\11132025\.venv\Scripts\python.exe slate/slate_hardware_optimizer.py --optimize
+$env:SLATE_WORKSPACE\.venv\Scripts\python.exe slate/slate_hardware_optimizer.py --optimize
 ```
 
 ### Install correct PyTorch
 ```powershell
-E:\11132025\.venv\Scripts\python.exe slate/slate_hardware_optimizer.py --install-pytorch
+$env:SLATE_WORKSPACE\.venv\Scripts\python.exe slate/slate_hardware_optimizer.py --install-pytorch
 ```
 
 ### Direct nvidia-smi check

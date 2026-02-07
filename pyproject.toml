@@ -1,3 +1,4 @@
+# Modified: 2026-02-07T04:57:00Z | Author: COPILOT | Change: Update license metadata
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -7,7 +8,7 @@ name = "slate"
 version = "2.4.0"
 description = "System Learning Agent for Task Execution"
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "EOSL-1.0"}
 requires-python = ">=3.11"
 authors = [
     {name = "SynchronizedLivingArchitecture"}
@@ -16,7 +17,7 @@ keywords = ["ai", "agent", "orchestration", "pytorch", "gpu"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",

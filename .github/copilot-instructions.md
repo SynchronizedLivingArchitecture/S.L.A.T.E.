@@ -1,7 +1,7 @@
 # S.L.A.T.E. Copilot Instructions
-# Modified: 2026-02-06T22:30:00Z | Author: COPILOT | Change: Enforce SLATE protocol execution in all operations
+# Modified: 2026-02-07T05:04:40Z | Author: COPILOT | Change: Add AAA standards guidance
 
-## MANDATORY PROTOCOL — Read Before Any Operation
+## MANDATORY PROTOCOL  Read Before Any Operation
 
 **Every Copilot session MUST begin by running SLATE protocols before performing work.**
 This is NOT optional. These protocols exist to ensure system consistency, prevent
@@ -10,9 +10,9 @@ regressions, and maintain the integrity of the agentic AI pipeline.
 ### Session Start Protocol (REQUIRED)
 Before ANY code changes, file creation, or task work, execute these in order:
 ```bash
-python slate/slate_status.py --quick          # 1. System health — confirm GPUs, Python, Ollama
+python slate/slate_status.py --quick          # 1. System health  confirm GPUs, Python, Ollama
 python slate/slate_runtime.py --check-all     # 2. Verify all 7 integrations are active
-python slate/slate_workflow_manager.py --status # 3. Check task queue — respect completion rules
+python slate/slate_workflow_manager.py --status # 3. Check task queue  respect completion rules
 ```
 
 ### Pre-Commit Protocol (REQUIRED)
@@ -28,15 +28,22 @@ Every code edit MUST include a timestamp + author comment:
 # Modified: YYYY-MM-DDTHH:MM:SSZ | Author: COPILOT | Change: description
 ```
 
+### AAA Standards (REQUIRED)
+Apply all of the following for developer-grade changes:
+- Tests: use Arrange-Act-Assert structure, cover new logic, and add regression tests for bugs.
+- Accessibility: UI/webview changes follow WCAG AAA where feasible (labels, contrast, keyboard flow).
+- Security: avoid secrets in repo, keep localhost-only bindings, and follow ActionGuard rules.
+- Performance/Reliability: add benchmarks or checks for hot paths and document SLO-impacting changes.
+
 ## System Overview
 SLATE (Synchronized Living Architecture for Transformation and Evolution) is a local-first
 AI agent orchestration framework. All operations are LOCAL ONLY (127.0.0.1). Version 2.4.0.
 
 Repository: `SynchronizedLivingArchitecture/S.L.A.T.E`
-Python: 3.11+ via `.venv` at `E:\11132025\.venv\Scripts\python.exe`
-Runner: Self-hosted GitHub Actions runner `slate-runner` at `E:\11132025\actions-runner`
+Python: 3.11+ via `.venv` at `<workspace>\.venv\Scripts\python.exe`
+Runner: Self-hosted GitHub Actions runner `slate-runner` at `<workspace>\actions-runner`
 
-## SLATE Protocol Commands — Use These, Not Ad-Hoc Commands
+## SLATE Protocol Commands  Use These, Not Ad-Hoc Commands
 
 ### System Health (run FIRST in every session)
 ```bash
@@ -125,7 +132,7 @@ slate/              # Core SDK modules (30 Python files)
   slate_model_trainer.py    # Custom SLATE model builder
   slate_unified_autonomous.py   # Unified autonomous task loop
   integrated_autonomous_loop.py # Self-healing autonomous brain
-  copilot_slate_runner.py   # Copilot ↔ autonomous bridge
+  copilot_slate_runner.py   # Copilot  autonomous bridge
   slate_project_board.py    # GitHub Projects V2 integration
   mcp_server.py             # MCP server for Claude Code
   action_guard.py           # Security enforcement (ActionGuard)
@@ -191,7 +198,7 @@ skills/             # Copilot Chat skill definitions
 ## Workflow Conventions
 - All jobs use `runs-on: [self-hosted, slate]`
 - Default shell: `powershell`
-- Python path step: `'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH`
+- Python path step: `"$env:GITHUB_WORKSPACE\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH`
 - YAML paths use single quotes to avoid backslash escape issues
 
 ## Agent Routing (from slate.config.yaml)
@@ -204,16 +211,16 @@ skills/             # Copilot Chat skill definitions
 | complex, multi-step | COPILOT | Full orchestration | Yes |
 
 ## Security Rules (ENFORCED by ActionGuard)
-- ALL network bindings: `127.0.0.1` ONLY — never `0.0.0.0`
+- ALL network bindings: `127.0.0.1` ONLY  never `0.0.0.0`
 - No external telemetry (ChromaDB telemetry disabled)
-- No `curl.exe` (freezes on this system — use `urllib.request`)
+- No `curl.exe` (freezes on this system  use `urllib.request`)
 - Protected files in forks: `.github/workflows/*`, `CODEOWNERS`, action guards
 - Blocked patterns: `eval(`, `exec(os`, `rm -rf /`, `base64.b64decode`
 
 ## Terminal Rules
 - Use `isBackground=true` for long-running commands (servers, watchers, runner)
-- Never use `curl.exe` — use Python `urllib.request` or PowerShell `Invoke-RestMethod`
-- Python executable: `E:\11132025\.venv\Scripts\python.exe`
+- Never use `curl.exe`  use Python `urllib.request` or PowerShell `Invoke-RestMethod`
+- Python executable: `./.venv/Scripts/python.exe` (Windows) or `./.venv/bin/python` (Linux/macOS)
 - Always use `encoding='utf-8'` when opening files in Python on Windows
 - Git credential: `git credential fill` with `protocol=https` / `host=github.com`
 
@@ -231,10 +238,10 @@ Repository API base: `https://api.github.com/repos/SynchronizedLivingArchitectur
 
 ## When Copilot Does NOT Run Protocols
 If you skip the mandatory protocols above, you risk:
-1. **Stale task overload** — creating new tasks when existing ones need completion first
-2. **Integration drift** — editing code that depends on an offline service (Ollama, ChromaDB)
-3. **Security violations** — introducing `0.0.0.0` bindings or blocked patterns unchecked
-4. **Version mismatch** — SDK version diverging from pyproject.toml
-5. **GPU misconfiguration** — wrong model placement on dual-GPU system
+1. **Stale task overload**  creating new tasks when existing ones need completion first
+2. **Integration drift**  editing code that depends on an offline service (Ollama, ChromaDB)
+3. **Security violations**  introducing `0.0.0.0` bindings or blocked patterns unchecked
+4. **Version mismatch**  SDK version diverging from pyproject.toml
+5. **GPU misconfiguration**  wrong model placement on dual-GPU system
 
 **Always run the protocols. They take <5 seconds and prevent hours of debugging.**

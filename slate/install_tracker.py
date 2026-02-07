@@ -31,6 +31,26 @@ from typing import Callable, Optional
 WORKSPACE_ROOT = Path(__file__).parent.parent
 
 
+def _scrub_path(value: str) -> str:
+    # Modified: 2026-02-06T00:00:00Z | Author: COPILOT | Change: Scrub local paths for install metadata
+    try:
+        text = str(value)
+    except Exception:
+        return value
+
+    workspace = str(WORKSPACE_ROOT)
+    home = str(Path.home())
+    text_lower = text.lower()
+    workspace_lower = workspace.lower()
+    home_lower = home.lower()
+
+    if text_lower.startswith(workspace_lower):
+        return "<workspace>" + text[len(workspace):]
+    if text_lower.startswith(home_lower):
+        return "<home>" + text[len(home):]
+    return text
+
+
 class StepStatus(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
@@ -163,9 +183,9 @@ class InstallTracker:
         self.state.system_info = {
             "platform": sys.platform,
             "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
-            "python_executable": sys.executable,
-            "cwd": str(Path.cwd()),
-            "workspace_root": str(WORKSPACE_ROOT),
+            "python_executable": _scrub_path(sys.executable),
+            "cwd": _scrub_path(Path.cwd()),
+            "workspace_root": _scrub_path(WORKSPACE_ROOT),
         }
         try:
             import psutil

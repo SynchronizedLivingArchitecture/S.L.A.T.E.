@@ -1,25 +1,40 @@
 {
   "name": "slate-sdk",
   "description": "S.L.A.T.E. - AI-powered development orchestration, workflow management, and agentic task execution",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "SynchronizedLivingArchitecture",
     "email": "slate@github.com",
     "url": "https://github.com/SynchronizedLivingArchitecture"
   },
   "repository": "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E",
-  "license": "MIT",
-  "keywords": ["slate", "ai", "orchestration", "agents", "workflow", "automation"],
+  "license": "EOSL-1.0",
+  "keywords": ["slate", "ai", "orchestration", "agents", "workflow", "automation", "gpu", "local-llm"],
   "skills": "./skills/",
-  "commands": ["./commands/slate-help.md"],
+  "commands": [
+    "./commands/slate-help.md",
+    "./commands/slate.md",
+    "./commands/slate-status.md",
+    "./commands/slate-workflow.md",
+    "./commands/slate-runner.md",
+    "./commands/slate-multirunner.md",
+    "./commands/slate-discussions.md",
+    "./commands/slate-gpu.md"
+  ],
   "mcpServers": {
     "slate": {
       "command": "${CLAUDE_PLUGIN_ROOT}/.venv/Scripts/python.exe",
       "args": ["${CLAUDE_PLUGIN_ROOT}/slate/mcp_server.py"],
       "env": {
         "SLATE_WORKSPACE": "${CLAUDE_PLUGIN_ROOT}",
-        "PYTHONPATH": "${CLAUDE_PLUGIN_ROOT}"
+        "PYTHONPATH": "${CLAUDE_PLUGIN_ROOT}",
+        "PYTHONIOENCODING": "utf-8",
+        "CUDA_VISIBLE_DEVICES": "0,1"
       }
     }
+  },
+  "activation": {
+    "onStartup": true,
+    "events": ["folderOpen"]
   }
 }

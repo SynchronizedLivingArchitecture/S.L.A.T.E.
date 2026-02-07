@@ -24,7 +24,6 @@ import sys
 import threading
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 WORKSPACE_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(WORKSPACE_ROOT))
@@ -130,7 +129,7 @@ def add_install_endpoints(app):
                         yield f"event: update\ndata: {msg}\n\n"
                     except queue.Empty:
                         # Send keepalive every 2s
-                        yield f"event: ping\ndata: {{}}\n\n"
+                        yield "event: ping\ndata: {}\n\n"
                         await asyncio.sleep(2)
             finally:
                 with _queue_lock:
@@ -169,8 +168,8 @@ def create_standalone_app():
     which are installed as the very first step.
     """
     try:
-        from fastapi import FastAPI, Request
-        from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+        from fastapi import FastAPI, Request  # noqa: F401
+        from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse  # noqa: F401
     except ImportError:
         return None
 

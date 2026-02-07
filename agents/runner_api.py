@@ -9,7 +9,6 @@ for the SLATE dashboard and agent integration.
 """
 
 import json
-import os
 import subprocess
 import sys
 import urllib.request
@@ -204,7 +203,7 @@ class RunnerAPI:
                     "name": runner["name"],
                     "status": runner["status"],
                     "busy": runner.get("busy", False),
-                    "labels": [l["name"] for l in runner.get("labels", [])],
+                    "labels": [label["name"] for label in runner.get("labels", [])],
                     "os": runner.get("os", "unknown"),
                 }
         return None

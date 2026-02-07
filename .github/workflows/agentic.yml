@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T08:00:00Z | Author: COPILOT | Change: Added warmup step for GPU persistence
+# Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
 name: SLATE Agentic AI
 
 on:
@@ -42,7 +42,7 @@ defaults:
     shell: powershell
 
 jobs:
-  # ─── GPU Inference Health ───
+  # ------------ GPU Inference Health ------------
   inference-health:
     name: Inference Health
     runs-on: [self-hosted, slate, gpu]
@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Check Ollama
         run: |
           python -c @"
@@ -87,7 +87,7 @@ jobs:
       - name: ML Orchestrator Status
         run: python slate/ml_orchestrator.py --status
 
-  # ─── Autonomous Agent Loop (GPU 0) ───
+  # ------------ Autonomous Agent Loop (GPU 0) ------------
   autonomous-agent:
     name: Autonomous Agent
     needs: inference-health
@@ -102,10 +102,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Build SLATE models (if needed)
         run: python slate/ml_orchestrator.py --train-now
-      - name: Warmup — preload models to GPUs
+      - name: Warmup - preload models to GPUs
         run: python slate/slate_warmup.py --preload-only
       - name: GPU status before run
         run: nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu --format=csv,noheader
@@ -126,7 +126,7 @@ jobs:
         if: always()
         run: python slate/slate_unified_autonomous.py --status
 
-  # ─── Single Task Execution (GPU 0) ───
+  # ------------ Single Task Execution (GPU 0) ------------
   single-task:
     name: Single Task
     needs: inference-health
@@ -140,7 +140,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Queue task from dispatch
         if: github.event.inputs.task_description != ''
         run: |
@@ -151,7 +151,7 @@ jobs:
         if: always()
         run: python slate/slate_unified_autonomous.py --json
 
-  # ─── GPU Inference Benchmarks (Dual GPU) ───
+  # ------------ GPU Inference Benchmarks (Dual GPU) ------------
   inference-benchmarks:
     name: Inference Benchmarks
     needs: inference-health
@@ -164,7 +164,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Run ML benchmarks
         run: python slate/ml_orchestrator.py --benchmarks
       - name: Run SLATE benchmarks
@@ -204,7 +204,7 @@ jobs:
           print(json.dumps(results, indent=2))
           "@
 
-  # ─── Task Discovery Report ───
+  # ------------ Task Discovery Report ------------
   discover-tasks:
     name: Task Discovery
     needs: inference-health
@@ -215,7 +215,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Sync from KANBAN
         run: python slate/slate_project_board.py --sync
         continue-on-error: true
@@ -226,7 +226,7 @@ jobs:
       - name: Integrated status
         run: python slate/integrated_autonomous_loop.py --json
 
-  # ─── Full Health Check ───
+  # ------------ Full Health Check ------------
   full-health:
     name: Full Health Check
     needs: inference-health
@@ -237,7 +237,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: SLATE system status
         run: python slate/slate_status.py --quick
       - name: Runtime integrations
@@ -257,7 +257,7 @@ jobs:
       - name: Orchestrator status
         run: python slate/slate_orchestrator.py status
 
-  # ─── Build/Rebuild SLATE Models ───
+  # ------------ Build/Rebuild SLATE Models ------------
   build-models:
     name: Build SLATE Models
     needs: inference-health
@@ -270,7 +270,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: GPU status
         run: nvidia-smi --query-gpu=index,name,memory.used,memory.total --format=csv,noheader
       - name: Build all SLATE models

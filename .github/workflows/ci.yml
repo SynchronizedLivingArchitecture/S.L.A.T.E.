@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T01:00:00Z | Author: COPILOT | Change: Added GPU validation job for local compute proof
+# Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
 name: SLATE CI
 
 on:
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Ruff lint
         run: |
           pip install ruff --quiet 2>$null
@@ -47,7 +47,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Install test deps
         run: pip install pytest pytest-cov pytest-asyncio --quiet 2>$null
         continue-on-error: true
@@ -63,7 +63,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Verify SDK imports
         run: |
           python -c "import slate; print(f'SDK v{slate.__version__}')"
@@ -90,7 +90,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Bandit scan
         run: |
           pip install bandit --quiet 2>$null
@@ -105,7 +105,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Validate Tech Tree
         run: |
           python -c @"
@@ -150,7 +150,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: CUDA Environment Check
         run: |
           nvidia-smi --query-gpu=index,name,driver_version,memory.total --format=csv

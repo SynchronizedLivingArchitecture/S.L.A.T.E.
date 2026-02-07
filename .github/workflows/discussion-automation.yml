@@ -1,3 +1,4 @@
+# Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
 # GitHub Discussions automation
 # Manages community discussions via self-hosted runner
 # Security: PII scanning prevents personal data exposure
@@ -57,7 +58,7 @@ jobs:
 
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
 
       - name: Scan for PII
         id: scan
@@ -110,7 +111,7 @@ jobs:
 
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
 
       - name: Process Discussion Event
         env:
@@ -206,7 +207,7 @@ jobs:
 
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
 
       - name: Discussion Status
         if: inputs.action == 'status'
@@ -332,7 +333,7 @@ jobs:
 
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
 
       - name: Process Discussions
         env:

@@ -27,6 +27,8 @@ Commands are defined in `.claude/commands/` and available when working in this p
 | `/slate-status` | Check system and service status |
 | `/slate-workflow` | Manage task workflow queue |
 | `/slate-runner` | Manage GitHub Actions runner |
+| `/slate-discussions` | Manage GitHub Discussions |
+| `/slate-multirunner` | Manage multi-runner system |
 | `/slate-help` | Show all available commands |
 
 ### MCP Server Setup
@@ -37,11 +39,11 @@ The SLATE MCP server provides AI tools. Add to `~/.claude/config.json`:
 {
   "mcpServers": {
     "slate": {
-      "command": "E:\\11132025\\.venv\\Scripts\\python.exe",
-      "args": ["E:\\11132025\\slate\\mcp_server.py"],
+      "command": "<workspace>\\.venv\\Scripts\\python.exe",
+      "args": ["<workspace>\\slate\\mcp_server.py"],
       "env": {
-        "SLATE_WORKSPACE": "E:\\11132025",
-        "PYTHONPATH": "E:\\11132025"
+      "SLATE_WORKSPACE": "<workspace>",
+      "PYTHONPATH": "<workspace>"
       }
     }
   }
@@ -66,6 +68,8 @@ The SLATE MCP server provides AI tools. Add to `~/.claude/config.json`:
   slate-status.md     # /slate-status command
   slate-workflow.md   # /slate-workflow command
   slate-runner.md     # /slate-runner command
+  slate-discussions.md  # /slate-discussions command
+  slate-multirunner.md  # /slate-multirunner command
   slate-help.md       # /slate-help command
 slate/mcp_server.py   # MCP server implementation
 ```
@@ -278,6 +282,45 @@ The `project-automation.yml` workflow:
 - Auto-adds issues/PRs to boards based on labels
 - PII scanning before public board exposure
 - Bidirectional sync with `current_tasks.json`
+
+## GitHub Discussions
+
+SLATE integrates GitHub Discussions for community engagement and feature ideation.
+
+### Discussion Categories
+
+| Category | Routing | Action |
+|----------|---------|--------|
+| Announcements | None | Informational only |
+| Ideas | ROADMAP board | Creates tracking issue |
+| Q&A | Metrics tracking | Monitors response time |
+| Show and Tell | Engagement log | Community showcase |
+| General | Engagement log | Community discussion |
+
+### Discussion Commands
+
+```powershell
+# Check discussion system status
+.\.venv\Scripts\python.exe slate/slate_discussion_manager.py --status
+
+# List unanswered Q&A discussions
+.\.venv\Scripts\python.exe slate/slate_discussion_manager.py --unanswered
+
+# Sync actionable discussions to task queue
+.\.venv\Scripts\python.exe slate/slate_discussion_manager.py --sync-tasks
+
+# Generate engagement metrics
+.\.venv\Scripts\python.exe slate/slate_discussion_manager.py --metrics
+```
+
+### Discussion Automation
+
+The `discussion-automation.yml` workflow:
+- Triggers on discussion events (create, edit, label, answer)
+- Hourly scheduled processing for metrics
+- PII scanning before processing
+- Routes Ideas/Bugs to issue tracker
+- Tracks Q&A response times
 
 ## Test-Driven Development (Constitution Mandate)
 

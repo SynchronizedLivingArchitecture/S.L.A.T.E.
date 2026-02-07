@@ -44,14 +44,12 @@ Usage:
 
 import asyncio
 import json
-import os
 import subprocess
 import sys
 import threading
-import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 import uuid
 
 WORKSPACE_ROOT = Path(__file__).parent.parent
@@ -63,6 +61,8 @@ try:
     from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
     from fastapi.responses import HTMLResponse, JSONResponse
     from fastapi.middleware.cors import CORSMiddleware
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from starlette.responses import Response
     import uvicorn
 except ImportError:
     print("[!] Missing dependencies. Run: pip install fastapi uvicorn websockets")
@@ -87,9 +87,6 @@ app.add_middleware(
 )
 
 # Custom headers middleware for VSCode webview compatibility
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
-
 class VSCodeCompatMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response: Response = await call_next(request)

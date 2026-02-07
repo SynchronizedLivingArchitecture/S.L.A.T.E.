@@ -91,6 +91,7 @@ actions-runner-*/
 .slate_copilot_queue.json
 vscode_errors.json
 vscode_code_actions.json
+vscode_debug_state.json
 nul
 
 # Runtime logs
@@ -99,14 +100,8 @@ slate_logs/
 # Discussion state (runtime)
 .slate_discussions/
 
-# Claude — track commands/settings (agent definitions), exclude user-local config
-.claude/settings.local.json
-
-# Ruff lint cache
-.ruff_cache/
-
-# Build artifacts
-dist/
+# Claude
+.claude/
 
 # Secrets (NEVER commit)
 .env
@@ -132,6 +127,10 @@ install_state.json
 
 # Extension build artifacts (root level)
 *.vsix
+
+# Extension build artifacts (plugins)
+plugins/**/out/
+plugins/**/dist/
 
 # Temp developer scripts (contains tokens + scratch files)
 _temp/

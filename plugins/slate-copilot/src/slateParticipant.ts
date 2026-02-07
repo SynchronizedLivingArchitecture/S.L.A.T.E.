@@ -1,4 +1,4 @@
-// Modified: 2026-02-07T02:00:00Z | Author: COPILOT | Change: @slate chat participant with command routing and tool integration
+// Modified: 2026-02-07T04:57:00Z | Author: COPILOT | Change: Remove hardcoded local paths from system prompt
 import * as vscode from 'vscode';
 
 const SLATE_PARTICIPANT_ID = 'slate-copilot.slate';
@@ -7,10 +7,10 @@ const SYSTEM_PROMPT = `You are SLATE (Synchronized Living Architecture for Trans
 You manage a self-hosted GitHub Actions runner (slate-runner) with 2x NVIDIA RTX 5070 Ti GPUs (Blackwell, compute 12.0).
 
 Key facts:
-- Python: 3.11.9 at E:\\11132025\\.venv\\Scripts\\python.exe
+- Python: 3.11.9 at <workspace>/.venv/Scripts/python.exe
 - Runner: slate-runner, labels [self-hosted, Windows, X64, slate, gpu, cuda, gpu-2, blackwell]
 - GPUs: 2x NVIDIA GeForce RTX 5070 Ti, CUDA_VISIBLE_DEVICES=0,1
-- Workspace: E:\\11132025
+- Workspace: <workspace>
 - ALL operations LOCAL ONLY (127.0.0.1)
 - Version: 2.4.0
 

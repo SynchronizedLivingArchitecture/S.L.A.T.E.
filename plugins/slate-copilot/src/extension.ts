@@ -1,4 +1,4 @@
-// Modified: 2026-02-07T02:00:00Z | Author: COPILOT | Change: @slate chat participant extension entry point
+// Modified: 2026-02-07T04:57:00Z | Author: COPILOT | Change: Remove hardcoded workspace fallback path
 import * as vscode from 'vscode';
 import { registerSlateParticipant } from './slateParticipant';
 import { registerSlateTools } from './tools';
@@ -28,7 +28,7 @@ export interface SlateConfig {
 /** Get SLATE configuration from workspace */
 export function getSlateConfig(): SlateConfig {
 	const workspaceFolders = vscode.workspace.workspaceFolders;
-	const workspacePath = workspaceFolders?.[0]?.uri.fsPath ?? 'E:\\11132025';
+	const workspacePath = workspaceFolders?.[0]?.uri.fsPath ?? process.cwd();
 
 	return {
 		pythonPath: `${workspacePath}\\.venv\\Scripts\\python.exe`,

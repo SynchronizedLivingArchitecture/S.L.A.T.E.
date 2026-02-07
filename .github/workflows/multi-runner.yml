@@ -1,3 +1,4 @@
+# Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
 # S.L.A.T.E. Multi-Runner Parallel Proof Workflow
 # Proves REAL parallel execution across 4 registered runner instances with GPU compute
 # Modified: 2026-02-07T02:00:00Z | Author: COPILOT | Change: Added real GPU compute to GPU jobs
@@ -21,7 +22,7 @@ permissions:
 
 # All 4 jobs launch simultaneously - each targets a DIFFERENT runner via labels
 jobs:
-  # ─── JOB 1: slate-runner (primary, has cuda label) ───
+  # ------------ JOB 1: slate-runner (primary, has cuda label) ------------
   job-runner-1:
     name: 'Runner 1: SDK Validation'
     runs-on: [self-hosted, slate, cuda]
@@ -32,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Record start
         run: |
           Write-Host "JOB START: $(Get-Date -Format 'HH:mm:ss.fff')"
@@ -54,7 +55,7 @@ jobs:
           Write-Host "JOB END: $(Get-Date -Format 'HH:mm:ss.fff')"
           Write-Host "RUNNER: $env:RUNNER_NAME"
 
-  # ─── JOB 2: slate-runner-2 (GPU 0 label) ───
+  # ------------ JOB 2: slate-runner-2 (GPU 0 label) ------------
   job-runner-2:
     name: 'Runner 2: Tests GPU 0'
     runs-on: [self-hosted, slate, gpu-0]
@@ -65,7 +66,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Record start
         run: |
           Write-Host "JOB START: $(Get-Date -Format 'HH:mm:ss.fff')"
@@ -86,7 +87,7 @@ jobs:
           Write-Host "JOB END: $(Get-Date -Format 'HH:mm:ss.fff')"
           Write-Host "RUNNER: $env:RUNNER_NAME"
 
-  # ─── JOB 3: slate-runner-3 (GPU 1 label) ───
+  # ------------ JOB 3: slate-runner-3 (GPU 1 label) ------------
   job-runner-3:
     name: 'Runner 3: Tests GPU 1'
     runs-on: [self-hosted, slate, gpu-1]
@@ -97,7 +98,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Record start
         run: |
           Write-Host "JOB START: $(Get-Date -Format 'HH:mm:ss.fff')"
@@ -121,7 +122,7 @@ jobs:
           Write-Host "JOB END: $(Get-Date -Format 'HH:mm:ss.fff')"
           Write-Host "RUNNER: $env:RUNNER_NAME"
 
-  # ─── JOB 4: slate-runner-4 (CPU only label) ───
+  # ------------ JOB 4: slate-runner-4 (CPU only label) ------------
   job-runner-4:
     name: 'Runner 4: Lint & Security'
     runs-on: [self-hosted, slate, cpu-only]
@@ -132,7 +133,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Record start
         run: |
           Write-Host "JOB START: $(Get-Date -Format 'HH:mm:ss.fff')"
@@ -151,7 +152,7 @@ jobs:
           Write-Host "JOB END: $(Get-Date -Format 'HH:mm:ss.fff')"
           Write-Host "RUNNER: $env:RUNNER_NAME"
 
-  # ─── SUMMARY: Proves all 4 ran on different runners ───
+  # ------------ SUMMARY: Proves all 4 ran on different runners ------------
   summary:
     name: 'Parallel Proof Summary'
     runs-on: [self-hosted, slate]
@@ -164,7 +165,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
-          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
       - name: Multi-Runner Status
         run: |
           python slate/slate_real_multi_runner.py --status
