@@ -268,6 +268,126 @@ def build_template() -> str:
             border-color: var(--sl-accent-dim);
         }}
 
+        /* ─── Schematic Hero Widget (Spec 012) ─────────────────────── */
+        .schematic-hero {{
+            width: 100%;
+            height: clamp(280px, 45vh, 450px);
+            background: linear-gradient(135deg, rgba(13,27,42,0.95) 0%, rgba(13,27,42,0.8) 100%);
+            border: 1px solid var(--sl-border);
+            border-radius: var(--sl-radius-lg);
+            overflow: hidden;
+            position: relative;
+            margin-bottom: var(--sl-space-5);
+        }}
+
+        .schematic-hero::before {{
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(184,115,51,0.03) 1px, transparent 1px) 0 0 / 40px 40px,
+                linear-gradient(rgba(184,115,51,0.03) 1px, transparent 1px) 0 0 / 40px 40px;
+            pointer-events: none;
+        }}
+
+        .schematic-overlay {{
+            position: absolute;
+            top: var(--sl-space-4);
+            left: var(--sl-space-4);
+            right: var(--sl-space-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            z-index: 2;
+        }}
+
+        .schematic-title {{
+            font-family: var(--sl-font-sans);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--sl-text-primary);
+        }}
+
+        .schematic-live-badge {{
+            display: flex;
+            align-items: center;
+            gap: var(--sl-space-2);
+            padding: var(--sl-space-1) var(--sl-space-3);
+            background: rgba(34, 197, 94, 0.15);
+            border-radius: 9999px;
+            font-family: var(--sl-font-mono);
+            font-size: 0.6rem;
+            color: #22C55E;
+            pointer-events: auto;
+        }}
+
+        .schematic-live-dot {{
+            width: 6px;
+            height: 6px;
+            background: #22C55E;
+            border-radius: 50%;
+            animation: schematic-pulse 2s infinite;
+        }}
+
+        @keyframes schematic-pulse {{
+            0%, 100% {{ opacity: 1; transform: scale(1); }}
+            50% {{ opacity: 0.5; transform: scale(0.85); }}
+        }}
+
+        .schematic-content {{
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--sl-space-6);
+            padding-top: calc(var(--sl-space-6) + 32px);
+        }}
+
+        .schematic-content svg {{
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+        }}
+
+        .schematic-loading {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--sl-space-3);
+            color: var(--sl-text-disabled);
+            font-size: 0.7rem;
+        }}
+
+        .schematic-loading-spinner {{
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--sl-border);
+            border-top-color: var(--sl-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }}
+
+        @keyframes spin {{
+            to {{ transform: rotate(360deg); }}
+        }}
+
+        /* Responsive schematic adjustments */
+        @media (max-width: 1199px) {{
+            .schematic-hero {{ height: clamp(220px, 35vh, 350px); }}
+        }}
+
+        @media (max-width: 767px) {{
+            .schematic-hero {{
+                height: 180px;
+                border-radius: var(--sl-radius-md);
+            }}
+            .schematic-title {{ font-size: 0.65rem; }}
+        }}
+
         /* ─── Buttons (M3-inspired) ────────────────────────────────── */
         .btn {{
             display: inline-flex;
@@ -1208,6 +1328,24 @@ def build_template() -> str:
 
                 <!-- ═══ SECTION: Overview ═══ -->
                 <div class="dash-section active" id="sec-overview">
+
+                <!-- Schematic Hero - Live System Architecture -->
+                <div class="schematic-hero" id="system-schematic" data-live="true" role="img" aria-label="SLATE system architecture diagram showing connected services">
+                    <div class="schematic-overlay">
+                        <span class="schematic-title">System Architecture</span>
+                        <span class="schematic-live-badge">
+                            <span class="schematic-live-dot"></span>
+                            Live
+                        </span>
+                    </div>
+                    <div class="schematic-content" id="schematic-svg-container">
+                        <div class="schematic-loading">
+                            <div class="schematic-loading-spinner"></div>
+                            <span>Loading schematic...</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid">
                     <!-- Quick Actions -->
                     <div class="card col-12" role="region" aria-label="Quick Actions">
@@ -2176,6 +2314,71 @@ def build_template_js() -> str:
             refreshDocker();
         }
 
+        // ─── Schematic Hero Widget ──────────────────────────────────────
+        let schematicWs = null;
+        let schematicReconnectAttempts = 0;
+        const maxSchematicReconnects = 5;
+
+        async function loadSchematic() {
+            const container = document.getElementById('schematic-svg-container');
+            if (!container) return;
+
+            try {
+                const res = await fetch('/api/schematic/system-state?format=svg');
+                if (res.ok) {
+                    const data = await res.json();
+                    container.innerHTML = data.svg || '';
+                } else {
+                    container.innerHTML = '<div class="schematic-loading"><span>Schematic unavailable</span></div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="schematic-loading"><span>Schematic API offline</span></div>';
+            }
+        }
+
+        function connectSchematicWebSocket() {
+            if (schematicWs && schematicWs.readyState === WebSocket.OPEN) return;
+
+            try {
+                schematicWs = new WebSocket(`ws://${window.location.host}/api/schematic/ws/live`);
+
+                schematicWs.onopen = () => {
+                    schematicReconnectAttempts = 0;
+                    console.log('[Schematic] WebSocket connected');
+                };
+
+                schematicWs.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'schematic_update') {
+                            const container = document.getElementById('schematic-svg-container');
+                            if (container && data.svg) {
+                                container.innerHTML = data.svg;
+                            }
+                        }
+                    } catch (e) {}
+                };
+
+                schematicWs.onclose = () => {
+                    schematicWs = null;
+                    if (schematicReconnectAttempts < maxSchematicReconnects) {
+                        schematicReconnectAttempts++;
+                        setTimeout(connectSchematicWebSocket, 5000);
+                    }
+                };
+
+                schematicWs.onerror = () => {
+                    schematicWs?.close();
+                };
+            } catch (e) {}
+        }
+
+        function requestSchematicUpdate() {
+            if (schematicWs && schematicWs.readyState === WebSocket.OPEN) {
+                schematicWs.send(JSON.stringify({ type: 'request_update', timestamp: Date.now() }));
+            }
+        }
+
         // ─── Initial Load ─────────────────────────────────────────────
         async function fetchInitialStatus() {
             try {
@@ -2187,7 +2390,10 @@ def build_template_js() -> str:
 
         fetchInitialStatus();
         refreshAll();
+        loadSchematic();
+        connectSchematicWebSocket();
         setInterval(refreshAll, 15000);
+        setInterval(requestSchematicUpdate, 30000);
     </script>
 </body>
 </html>'''

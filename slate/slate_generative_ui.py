@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Modified: 2026-02-07T15:00:00Z | Author: CLAUDE | Change: Generative UI backend for AI-powered onboarding
+# Modified: 2026-02-08T03:30:00Z | Author: Claude Opus 4.5 | Change: Add schematic protocol integration
 """
 SLATE Generative UI Engine
 ============================
@@ -11,12 +11,14 @@ Features:
 - Adaptive UI recommendations
 - Real-time system analysis
 - Personalized onboarding paths
+- Schematic diagram generation (Spec 012)
 
 Usage:
     python slate/slate_generative_ui.py --status
     python slate/slate_generative_ui.py --narrate "System Scan"
     python slate/slate_generative_ui.py --generate-step "ai-backends"
     python slate/slate_generative_ui.py --analyze-system
+    python slate/slate_generative_ui.py --schematic "system"
 """
 
 import argparse
@@ -39,6 +41,30 @@ if sys.platform == "win32":
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 logger = logging.getLogger("slate.generative_ui")
+
+# ── Schematic SDK Import ─────────────────────────────────────────────────────
+
+try:
+    from slate.schematic_sdk import (
+        SchematicEngine,
+        SchematicConfig,
+        ComponentStatus,
+        generate_from_system_state,
+        generate_from_tech_tree,
+    )
+    from slate.schematic_sdk.library import (
+        TEMPLATES,
+        build_from_template,
+        slate_dashboard,
+        slate_ollama,
+        slate_chromadb,
+        slate_dual_gpu,
+        slate_runner,
+    )
+    SCHEMATIC_SDK_AVAILABLE = True
+except ImportError:
+    SCHEMATIC_SDK_AVAILABLE = False
+    logger.info("Schematic SDK not available - schematic features disabled")
 
 # ── Design Tokens (from spec 007) ────────────────────────────────────────────
 
@@ -166,12 +192,140 @@ class GeneratedContent:
     recommendations: List[str] = field(default_factory=list)
     css_overrides: Dict[str, str] = field(default_factory=dict)
     animation_hints: List[str] = field(default_factory=list)
+    schematic_svg: str = ""  # Optional schematic for the step
     generated_at: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+
+# ── Schematic Protocol (Spec 012) ─────────────────────────────────────────────
+
+@dataclass
+class SchematicProtocol:
+    """
+    Schematic generation protocol for Generative UI.
+
+    Provides step-specific schematic diagrams that visually represent
+    system state during onboarding and dashboard visualization.
+    """
+    template: str = "system"
+    title: str = "SLATE Architecture"
+    width: int = 900
+    height: int = 500
+    highlight_components: List[str] = field(default_factory=list)
+    status_overrides: Dict[str, str] = field(default_factory=dict)
+
+    def generate_svg(self) -> str:
+        """Generate SVG for this schematic configuration."""
+        if not SCHEMATIC_SDK_AVAILABLE:
+            return self._fallback_svg()
+
+        try:
+            if self.template in TEMPLATES:
+                return build_from_template(self.template)
+            elif self.template == "system-state":
+                return generate_from_system_state()
+            elif self.template == "tech-tree":
+                return generate_from_tech_tree()
+            else:
+                return self._generate_custom()
+        except Exception as e:
+            logger.warning(f"Schematic generation failed: {e}")
+            return self._fallback_svg()
+
+    def _generate_custom(self) -> str:
+        """Generate a custom schematic with status overrides."""
+        if not SCHEMATIC_SDK_AVAILABLE:
+            return self._fallback_svg()
+
+        config = SchematicConfig(
+            title=self.title,
+            width=self.width,
+            height=self.height,
+            theme="blueprint",
+            layout="hierarchical",
+        )
+        engine = SchematicEngine(config)
+
+        # Map status strings to ComponentStatus
+        status_map = {
+            "active": ComponentStatus.ACTIVE,
+            "pending": ComponentStatus.PENDING,
+            "error": ComponentStatus.ERROR,
+            "inactive": ComponentStatus.INACTIVE,
+        }
+
+        # Add SLATE components with status overrides
+        overrides = self.status_overrides
+        engine.add_node(slate_dashboard(status_map.get(overrides.get("dashboard", "active"), ComponentStatus.ACTIVE)))
+        engine.add_node(slate_ollama(status_map.get(overrides.get("ollama", "active"), ComponentStatus.ACTIVE)))
+        engine.add_node(slate_chromadb(status_map.get(overrides.get("chromadb", "inactive"), ComponentStatus.INACTIVE)))
+        engine.add_node(slate_dual_gpu(status_map.get(overrides.get("gpu", "active"), ComponentStatus.ACTIVE)))
+        engine.add_node(slate_runner(status_map.get(overrides.get("runner", "active"), ComponentStatus.ACTIVE)))
+
+        return engine.render_svg()
+
+    def _fallback_svg(self) -> str:
+        """Return a simple placeholder SVG when SDK is unavailable."""
+        return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.height}">
+            <rect width="100%" height="100%" fill="#0D1B2A"/>
+            <text x="50%" y="50%" text-anchor="middle" fill="#E8E2DE" font-family="Segoe UI" font-size="16">
+                {self.title}
+            </text>
+            <text x="50%" y="60%" text-anchor="middle" fill="#6B7280" font-family="Consolas" font-size="12">
+                Schematic SDK Loading...
+            </text>
+        </svg>'''
+
+
+# Step-specific schematic configurations
+STEP_SCHEMATICS: Dict[OnboardingStep, SchematicProtocol] = {
+    OnboardingStep.WELCOME: SchematicProtocol(
+        template="system",
+        title="SLATE Overview",
+        highlight_components=["dashboard"],
+    ),
+    OnboardingStep.SYSTEM_SCAN: SchematicProtocol(
+        template="system-state",
+        title="System Scan",
+        status_overrides={"dashboard": "active", "ollama": "pending", "gpu": "pending"},
+    ),
+    OnboardingStep.CORE_SERVICES: SchematicProtocol(
+        template="system",
+        title="Core Services",
+        highlight_components=["dashboard", "runner", "task-router"],
+    ),
+    OnboardingStep.AI_BACKENDS: SchematicProtocol(
+        template="inference",
+        title="AI Backends",
+        highlight_components=["ollama", "gpu-cluster"],
+    ),
+    OnboardingStep.INTEGRATIONS: SchematicProtocol(
+        template="cicd",
+        title="Integrations",
+        highlight_components=["github", "runner"],
+    ),
+    OnboardingStep.VALIDATION: SchematicProtocol(
+        template="system-state",
+        title="Validation Complete",
+        status_overrides={"dashboard": "active", "ollama": "active", "gpu": "active", "runner": "active"},
+    ),
+    OnboardingStep.COMPLETE: SchematicProtocol(
+        template="system",
+        title="SLATE Ready",
+    ),
+}
+
+
+def get_step_schematic(step: OnboardingStep) -> str:
+    """Get the schematic SVG for a specific onboarding step."""
+    protocol = STEP_SCHEMATICS.get(step)
+    if protocol:
+        return protocol.generate_svg()
+    return SchematicProtocol().generate_svg()
 
 
 # ── Generative UI Engine ─────────────────────────────────────────────────────
@@ -280,8 +434,16 @@ class GenerativeUIEngine:
 
     # ── Step Generation ──────────────────────────────────────────────────
 
-    async def generate_step_content(self, step: OnboardingStep) -> GeneratedContent:
-        """Generate dynamic content for a step."""
+    async def generate_step_content(self, step: OnboardingStep, include_schematic: bool = True) -> GeneratedContent:
+        """Generate dynamic content for a step.
+
+        Args:
+            step: The onboarding step to generate content for
+            include_schematic: Whether to include schematic SVG (default True)
+
+        Returns:
+            GeneratedContent with narration, description, recommendations, and schematic
+        """
         meta = STEP_METADATA.get(step, {})
 
         # Generate narration
@@ -296,11 +458,17 @@ class GenerativeUIEngine:
         # Generate animation hints
         animations = self._get_animation_hints(step)
 
+        # Generate schematic for step (Spec 012)
+        schematic_svg = ""
+        if include_schematic:
+            schematic_svg = get_step_schematic(step)
+
         return GeneratedContent(
             narration=narration,
             step_description=description,
             recommendations=recommendations,
             animation_hints=animations,
+            schematic_svg=schematic_svg,
         )
 
     async def _generate_description(self, step: OnboardingStep) -> str:
@@ -495,12 +663,15 @@ class GenerativeUIEngine:
         """Get generative UI engine status."""
         return {
             "engine": "GenerativeUIEngine",
-            "version": "1.0.0",
+            "version": "2.0.0",  # Updated for schematic protocol support
             "ollama_url": self.ollama_url,
             "model": self.model,
             "design_tokens": DESIGN_TOKENS,
             "steps": [s.value for s in OnboardingStep],
             "system_analyzed": self._system_analysis is not None,
+            "schematic_sdk_available": SCHEMATIC_SDK_AVAILABLE,
+            "schematic_templates": list(TEMPLATES.keys()) if SCHEMATIC_SDK_AVAILABLE else [],
+            "step_schematics": list(STEP_SCHEMATICS.keys()) if SCHEMATIC_SDK_AVAILABLE else [],
         }
 
 
@@ -533,6 +704,8 @@ async def main():
     parser.add_argument("--narrate", metavar="STEP", help="Generate narration for step")
     parser.add_argument("--generate-step", metavar="STEP", help="Generate full step content")
     parser.add_argument("--tokens", action="store_true", help="Show design tokens")
+    parser.add_argument("--schematic", metavar="TEMPLATE", help="Generate schematic (system, inference, cicd, or step name)")
+    parser.add_argument("--output", metavar="FILE", help="Output file for schematic SVG")
     parser.add_argument("--json", action="store_true", help="Output as JSON")
     args = parser.parse_args()
 
@@ -592,6 +765,33 @@ async def main():
                     print(f"  - {rec}")
             if content.animation_hints:
                 print(f"Animations: {', '.join(content.animation_hints)}")
+
+    elif args.schematic:
+        template = args.schematic.lower()
+
+        # Check if it's a step name
+        try:
+            step = OnboardingStep(template)
+            svg = get_step_schematic(step)
+            title = f"Schematic for {step.value}"
+        except ValueError:
+            # It's a template name
+            protocol = SchematicProtocol(template=template, title=f"SLATE {template.title()}")
+            svg = protocol.generate_svg()
+            title = protocol.title
+
+        if args.output:
+            output_path = Path(args.output)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(svg, encoding="utf-8")
+            print(f"[+] Schematic saved to {output_path}")
+        elif args.json:
+            print(json.dumps({"template": template, "title": title, "svg": svg}))
+        else:
+            print(f"Generated: {title}")
+            print(f"SVG length: {len(svg)} bytes")
+            if not args.output:
+                print("\nTip: Use --output FILE to save the SVG")
 
     elif args.tokens:
         if args.json:

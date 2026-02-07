@@ -13,13 +13,25 @@
     <title>S.L.A.T.E. - Local AI Operations for GitHub</title>
     <link rel="icon" type="image/svg+xml" href="assets/slate-logo-v2.svg">
     <style>
-        :root {
-            /* SLATE Engineering Blueprint Theme v3.0.0 (LOCKED) */
+        /* ================================================================
+           S.L.A.T.E. Design System v3.0
+           Based on M3 Material Design + Anthropic Geometric Art
+           ================================================================ */
 
-            /* Primary Brand - Anthropic-inspired */
+        :root {
+            /* Primary Brand - Anthropic-inspired warm rust */
             --slate-primary: #B85A3C;
             --slate-primary-light: #D4785A;
             --slate-primary-dark: #8B4530;
+            --slate-primary-container: #FFE4D9;
+            --slate-on-primary: #FFFFFF;
+
+            /* Surface Colors - Natural Earth */
+            --slate-surface: #1A1816;
+            --slate-surface-variant: #2A2624;
+            --slate-surface-elevated: #352F2C;
+            --slate-on-surface: #E8E2DE;
+            --slate-on-surface-variant: #CAC4BF;
 
             /* Blueprint Engineering */
             --blueprint-bg: #0D1B2A;
@@ -27,67 +39,50 @@
             --blueprint-accent: #98C1D9;
             --blueprint-node: #E0FBFC;
 
-            /* Status Semantics */
-            --status-active: #22C55E;
-            --status-pending: #F59E0B;
-            --status-error: #EF4444;
-            --status-inactive: #6B7280;
+            /* Semantic Colors */
+            --slate-success: #4CAF50;
+            --slate-warning: #FF9800;
+            --slate-error: #F44336;
+            --slate-info: #2196F3;
 
-            /* Dark Mode Base */
-            --bg-dark: #0a0f0a;
-            --bg-surface: #121812;
-            --bg-card: rgba(20, 28, 20, 0.85);
-            --bg-elevated: rgba(28, 36, 28, 0.9);
-            --bg-overlay: rgba(10, 15, 10, 0.85);
+            /* Outline */
+            --slate-outline: #7D7873;
+            --slate-outline-variant: #4D4845;
 
-            /* Text Hierarchy */
-            --text-primary: #ffffff;
-            --text-secondary: #a3a3a3;
-            --text-muted: #525252;
+            /* Elevation Shadows */
+            --elevation-1: 0 1px 2px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.15);
+            --elevation-2: 0 2px 4px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.15);
+            --elevation-3: 0 4px 8px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.18);
+            --elevation-4: 0 8px 16px rgba(0,0,0,0.15), 0 16px 32px rgba(0,0,0,0.2);
 
-            /* Accent Colors */
-            --accent-green: #22c55e;
-            --accent-blue: #3b82f6;
-            --accent-yellow: #eab308;
-            --accent-red: #ef4444;
-
-            /* Border System */
-            --border: rgba(255, 255, 255, 0.06);
-            --border-hover: rgba(255, 255, 255, 0.12);
-
-            /* Shadows */
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-            --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+            /* Motion */
+            --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
             /* Spacing */
-            --space-xs: clamp(4px, 0.5vw, 8px);
-            --space-sm: clamp(8px, 1vw, 12px);
-            --space-md: clamp(16px, 2vw, 24px);
-            --space-lg: clamp(24px, 3vw, 36px);
-            --space-xl: clamp(32px, 4vw, 48px);
-            --space-2xl: clamp(48px, 6vw, 80px);
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
 
-            /* Typography */
-            --font-xs: clamp(0.65rem, 0.6rem + 0.25vw, 0.75rem);
-            --font-sm: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
-            --font-base: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-            --font-lg: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
-            --font-xl: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-            --font-2xl: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
-            --font-3xl: clamp(2rem, 1.5rem + 2vw, 3.5rem);
-            --font-display: clamp(2.5rem, 2rem + 3vw, 5rem);
+            /* Border Radius - M3 style */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
 
-            /* Border Radius */
-            --rounded-sm: 6px;
-            --rounded-md: 10px;
-            --rounded-lg: 16px;
-            --rounded-xl: 24px;
-            --rounded-full: 9999px;
-
-            /* Transitions */
-            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Typography Scale */
+            --font-display: clamp(2.5rem, 2rem + 3vw, 4rem);
+            --font-headline: clamp(1.75rem, 1.5rem + 1.5vw, 2.5rem);
+            --font-title: clamp(1.25rem, 1rem + 0.75vw, 1.5rem);
+            --font-body: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
+            --font-label: 0.875rem;
+            --font-caption: 0.75rem;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -95,39 +90,66 @@
         html {
             scroll-behavior: smooth;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-            background: var(--bg-dark);
-            background-image:
-                radial-gradient(ellipse at 0% 0%, rgba(34, 197, 94, 0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 100% 50%, rgba(59, 130, 246, 0.02) 0%, transparent 50%),
-                linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-surface) 100%);
-            background-attachment: fixed;
-            color: var(--text-primary);
-            min-height: 100vh;
+            background: var(--slate-surface);
+            color: var(--slate-on-surface);
             line-height: 1.6;
-            font-size: var(--font-base);
+            font-size: var(--font-body);
             overflow-x: hidden;
         }
+
+        /* ================================================================
+           Layout
+           ================================================================ */
 
         .container {
             width: min(100% - var(--space-lg) * 2, 1200px);
             margin-inline: auto;
         }
 
-        /* Navigation */
+        section {
+            padding: var(--space-3xl) var(--space-lg);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .section-header h2 {
+            font-size: var(--font-headline);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            background: linear-gradient(135deg, var(--slate-on-surface), var(--slate-on-surface-variant));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header p {
+            color: var(--slate-on-surface-variant);
+            max-width: 600px;
+            margin-inline: auto;
+        }
+
+        /* ================================================================
+           Navigation
+           ================================================================ */
+
         nav {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            z-index: 100;
+            z-index: 1000;
             padding: var(--space-md) var(--space-lg);
-            background: var(--bg-overlay);
+            background: rgba(26, 24, 22, 0.85);
             backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--slate-outline-variant);
         }
 
         nav .container {
@@ -141,57 +163,53 @@
             align-items: center;
             gap: var(--space-sm);
             text-decoration: none;
-            color: var(--text-primary);
+            color: var(--slate-on-surface);
         }
 
-        .nav-logo img { width: 40px; height: 40px; border-radius: var(--rounded-md); }
-        .nav-logo span { font-family: Consolas, monospace; font-weight: 700; letter-spacing: 2px; }
+        .nav-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+        }
 
-        .nav-links { display: flex; gap: var(--space-md); list-style: none; }
-        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: var(--font-sm); transition: color var(--transition-fast); padding: var(--space-xs) var(--space-sm); }
-        .nav-links a:hover { color: var(--text-primary); }
-        .nav-cta { background: var(--text-primary); color: var(--bg-dark) !important; border-radius: var(--rounded-full); font-weight: 600; }
+        .nav-logo span {
+            font-family: Consolas, 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
 
-        /* System Status Bar */
-        .status-bar {
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 99;
+        .nav-links {
             display: flex;
             gap: var(--space-md);
-            padding: var(--space-xs) var(--space-md);
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--rounded-full);
-            backdrop-filter: blur(10px);
-            font-size: var(--font-xs);
+            list-style: none;
         }
 
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .nav-links a {
+            color: var(--slate-on-surface-variant);
+            text-decoration: none;
+            font-size: var(--font-label);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-full);
+            transition: all 0.2s var(--ease-standard);
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
+        .nav-links a:hover {
+            color: var(--slate-on-surface);
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .status-dot.active { background: var(--status-active); }
-        .status-dot.pending { background: var(--status-pending); }
-        .status-dot.error { background: var(--status-error); }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.9); }
+        .nav-cta {
+            background: var(--slate-on-surface) !important;
+            color: var(--slate-surface) !important;
+            font-weight: 600;
+            padding: var(--space-sm) var(--space-md) !important;
         }
 
-        /* Hero Section */
+        /* ================================================================
+           Hero Section
+           ================================================================ */
+
         .hero {
             min-height: 100vh;
             display: flex;
@@ -199,475 +217,424 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: var(--space-2xl) var(--space-lg);
-            padding-top: calc(var(--space-2xl) + 100px);
+            padding: var(--space-3xl) var(--space-lg);
+            padding-top: calc(var(--space-3xl) + 80px);
+            background:
+                radial-gradient(ellipse at 20% 30%, rgba(184, 90, 60, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(33, 150, 243, 0.05) 0%, transparent 50%),
+                var(--slate-surface);
         }
 
         .hero-badge {
             display: inline-flex;
             align-items: center;
-            gap: var(--space-xs);
+            gap: var(--space-sm);
             padding: var(--space-xs) var(--space-md);
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--rounded-full);
-            font-size: var(--font-sm);
-            color: var(--text-secondary);
+            background: var(--slate-surface-variant);
+            border: 1px solid var(--slate-outline-variant);
+            border-radius: var(--radius-full);
+            font-size: var(--font-caption);
+            color: var(--slate-on-surface-variant);
             margin-bottom: var(--space-lg);
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--slate-success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
         }
 
         .hero h1 {
             font-size: var(--font-display);
             font-weight: 800;
-            letter-spacing: -0.03em;
             line-height: 1.1;
-            margin-bottom: var(--space-md);
-            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            letter-spacing: -0.03em;
+            margin-bottom: var(--space-lg);
+            max-width: 900px;
+        }
+
+        .hero h1 .accent {
+            background: linear-gradient(135deg, var(--slate-primary), var(--slate-primary-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .hero h1 .accent {
-            background: linear-gradient(135deg, var(--accent-green) 0%, #4ade80 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-        }
-
         .hero-subtitle {
-            font-size: var(--font-xl);
-            color: var(--text-secondary);
-            max-width: 700px;
+            font-size: var(--font-title);
+            color: var(--slate-on-surface-variant);
+            max-width: 650px;
             margin-bottom: var(--space-xl);
         }
 
-        .hero-buttons { display: flex; gap: var(--space-md); flex-wrap: wrap; justify-content: center; }
+        .hero-buttons {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ================================================================
+           Buttons
+           ================================================================ */
 
         .btn {
             display: inline-flex;
             align-items: center;
             gap: var(--space-sm);
             padding: var(--space-sm) var(--space-lg);
-            border-radius: var(--rounded-full);
+            border-radius: var(--radius-full);
             font-weight: 600;
-            font-size: var(--font-base);
+            font-size: var(--font-label);
             text-decoration: none;
-            transition: all var(--transition-base);
             cursor: pointer;
             border: none;
+            transition: all 0.25s var(--ease-standard);
         }
 
-        .btn-primary { background: var(--text-primary); color: var(--bg-dark); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,255,255,0.15); }
-        .btn-secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border-hover); }
-        .btn-secondary:hover { background: var(--bg-card); }
-
-        /* Section Headers */
-        .section { padding: var(--space-2xl) var(--space-lg); }
-        .section-header { text-align: center; margin-bottom: var(--space-xl); }
-        .section-header h2 { font-size: var(--font-3xl); font-weight: 700; margin-bottom: var(--space-sm); }
-        .section-header p { color: var(--text-secondary); font-size: var(--font-lg); }
-
-        /* Objective Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: var(--space-lg);
-            text-align: center;
-            margin-bottom: var(--space-xl);
+        .btn-primary {
+            background: var(--slate-on-surface);
+            color: var(--slate-surface);
         }
 
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--rounded-lg);
-            padding: var(--space-lg);
-            backdrop-filter: blur(10px);
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--elevation-3);
         }
 
-        .stat-card h3 {
-            font-size: var(--font-3xl);
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-green), #4ade80);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .btn-secondary {
+            background: transparent;
+            color: var(--slate-on-surface);
+            border: 1px solid var(--slate-outline);
         }
 
-        .stat-card p { color: var(--text-secondary); font-size: var(--font-sm); margin-top: var(--space-xs); }
-        .stat-card .stat-source { font-size: var(--font-xs); color: var(--text-muted); margin-top: var(--space-xs); }
-
-        /* AI Inference Matrix */
-        .matrix-section { background: var(--bg-surface); }
-
-        .matrix-container {
-            background: var(--blueprint-bg);
-            border: 1px solid var(--blueprint-grid);
-            border-radius: var(--rounded-xl);
-            overflow: hidden;
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--slate-on-surface-variant);
         }
 
-        .matrix-header {
-            background: var(--blueprint-grid);
-            padding: var(--space-md);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        /* ================================================================
+           Feature Cards
+           ================================================================ */
 
-        .matrix-title {
-            font-family: Consolas, monospace;
-            font-size: var(--font-lg);
-            color: var(--blueprint-accent);
-        }
-
-        .matrix-live {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: var(--font-xs);
-            color: var(--status-active);
-        }
-
-        .matrix-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: Consolas, monospace;
-            font-size: var(--font-sm);
-        }
-
-        .matrix-table th {
-            background: rgba(27, 58, 75, 0.5);
-            color: var(--blueprint-accent);
-            padding: var(--space-sm) var(--space-md);
-            text-align: left;
-            border-bottom: 1px solid var(--blueprint-grid);
-            font-weight: 600;
-        }
-
-        .matrix-table td {
-            padding: var(--space-sm) var(--space-md);
-            border-bottom: 1px solid rgba(27, 58, 75, 0.3);
-            color: var(--blueprint-node);
-        }
-
-        .matrix-table tr:hover td { background: rgba(152, 193, 217, 0.05); }
-
-        .matrix-backend {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 2px 8px;
-            background: rgba(34, 197, 94, 0.15);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            border-radius: var(--rounded-sm);
-            color: var(--status-active);
-        }
-
-        .matrix-cost {
-            color: var(--status-active);
-            font-weight: 700;
-        }
-
-        /* Tech Tree Progress */
-        .progress-section { }
-
-        .progress-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--rounded-xl);
-            padding: var(--space-xl);
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-lg);
-        }
-
-        .progress-title { font-size: var(--font-xl); font-weight: 600; }
-        .progress-percent { font-size: var(--font-2xl); color: var(--accent-green); font-weight: 800; }
-
-        .progress-bar {
-            height: 12px;
-            background: var(--bg-elevated);
-            border-radius: var(--rounded-full);
-            overflow: hidden;
-            margin-bottom: var(--space-lg);
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-green), #4ade80);
-            border-radius: var(--rounded-full);
-            transition: width 1s ease-out;
-        }
-
-        .progress-components {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--space-md);
-        }
-
-        .component-group h4 {
-            font-size: var(--font-sm);
-            color: var(--text-secondary);
-            margin-bottom: var(--space-sm);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .component-group .count {
-            background: var(--bg-elevated);
-            padding: 2px 8px;
-            border-radius: var(--rounded-sm);
-            font-size: var(--font-xs);
-        }
-
-        .component-list {
-            list-style: none;
-            font-size: var(--font-sm);
-        }
-
-        .component-list li {
-            padding: 4px 0;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .component-list li::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-        }
-
-        .component-group.complete .component-list li::before { background: var(--status-active); }
-        .component-group.in-progress .component-list li::before { background: var(--status-pending); }
-        .component-group.available .component-list li::before { background: var(--status-inactive); }
-
-        /* Operations Expansion */
-        .expansion-section { background: var(--bg-surface); }
-
-        .roadmap-container {
+        .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: var(--space-lg);
         }
 
-        .roadmap-phase {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--rounded-xl);
-            padding: var(--space-lg);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .roadmap-phase.active {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
-        }
-
-        .roadmap-phase.complete {
-            border-color: var(--accent-green);
-        }
-
-        .phase-header {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-md);
-        }
-
-        .phase-number {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-elevated);
-            border-radius: 50%;
-            font-weight: 700;
-            font-size: var(--font-sm);
-        }
-
-        .roadmap-phase.complete .phase-number { background: var(--accent-green); color: var(--bg-dark); }
-        .roadmap-phase.active .phase-number { background: var(--accent-blue); color: var(--text-primary); }
-
-        .phase-title { font-size: var(--font-lg); font-weight: 600; }
-
-        .phase-status {
-            position: absolute;
-            top: var(--space-md);
-            right: var(--space-md);
-            font-size: var(--font-xs);
-            padding: 2px 8px;
-            border-radius: var(--rounded-sm);
-        }
-
-        .roadmap-phase.complete .phase-status { background: rgba(34, 197, 94, 0.15); color: var(--status-active); }
-        .roadmap-phase.active .phase-status { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
-        .roadmap-phase.planned .phase-status { background: rgba(107, 114, 128, 0.15); color: var(--status-inactive); }
-
-        .phase-items {
-            list-style: none;
-            font-size: var(--font-sm);
-            color: var(--text-secondary);
-        }
-
-        .phase-items li { padding: 6px 0; display: flex; align-items: center; gap: 8px; }
-        .phase-items li::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
-
-        /* Architecture Blueprint */
-        .architecture { padding: var(--space-2xl) var(--space-lg); }
-
-        .arch-diagram {
-            background: var(--blueprint-bg);
-            border: 1px solid var(--blueprint-grid);
-            border-radius: var(--rounded-xl);
+        .feature-card {
+            background: var(--slate-surface-variant);
+            border: 1px solid var(--slate-outline-variant);
+            border-radius: var(--radius-lg);
             padding: var(--space-xl);
-            font-family: Consolas, monospace;
-            font-size: var(--font-sm);
-            overflow-x: auto;
+            transition: all 0.3s var(--ease-standard);
         }
 
-        .arch-diagram pre { color: var(--blueprint-accent); white-space: pre; line-height: 1.4; }
-
-        /* Integrations Grid */
-        .integrations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--space-lg);
-        }
-
-        .integration-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--rounded-lg);
-            padding: var(--space-lg);
-            transition: all var(--transition-base);
-        }
-
-        .integration-card:hover {
+        .feature-card:hover {
             transform: translateY(-4px);
-            border-color: var(--border-hover);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--elevation-3);
+            border-color: var(--slate-primary);
         }
 
-        .integration-header {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-md);
-        }
-
-        .integration-icon {
-            width: 40px;
-            height: 40px;
+        .feature-icon {
+            width: 48px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--bg-elevated);
-            border-radius: var(--rounded-md);
-            font-size: 20px;
+            background: rgba(184, 90, 60, 0.15);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-md);
+            font-size: 24px;
         }
 
-        .integration-name { font-weight: 600; font-size: var(--font-lg); }
-
-        .integration-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: var(--font-xs);
-            color: var(--status-active);
+        .feature-card h3 {
+            font-size: var(--font-title);
+            font-weight: 600;
             margin-bottom: var(--space-sm);
         }
 
-        .integration-metrics {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        .feature-card p {
+            color: var(--slate-on-surface-variant);
+            font-size: var(--font-body);
+        }
+
+        .feature-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            background: var(--slate-success);
+            color: white;
+            border-radius: var(--radius-full);
+            font-size: var(--font-caption);
+            font-weight: 600;
+            margin-top: var(--space-md);
+        }
+
+        /* ================================================================
+           Schematics Section
+           ================================================================ */
+
+        .schematic-section {
+            background: var(--blueprint-bg);
+            border-top: 1px solid var(--blueprint-grid);
+            border-bottom: 1px solid var(--blueprint-grid);
+        }
+
+        .schematic-container {
+            background: rgba(13, 27, 42, 0.5);
+            border: 1px solid var(--blueprint-grid);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .schematic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--blueprint-grid);
+            border-bottom: 1px solid rgba(152, 193, 217, 0.2);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .schematic-title {
+            font-family: Consolas, monospace;
+            color: var(--blueprint-accent);
+            font-size: var(--font-label);
+            font-weight: 600;
+        }
+
+        .schematic-tabs {
+            display: flex;
             gap: var(--space-sm);
-            font-size: var(--font-xs);
-            color: var(--text-secondary);
+            flex-wrap: wrap;
         }
 
-        .integration-metric { display: flex; flex-direction: column; }
-        .integration-metric .value { font-size: var(--font-lg); color: var(--text-primary); font-weight: 600; }
+        .schematic-tab {
+            padding: var(--space-xs) var(--space-md);
+            background: transparent;
+            border: 1px solid var(--blueprint-grid);
+            border-radius: var(--radius-sm);
+            color: var(--blueprint-accent);
+            font-size: var(--font-caption);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-        /* CTA Section */
-        .cta { padding: var(--space-2xl) var(--space-lg); text-align: center; }
+        .schematic-tab:hover,
+        .schematic-tab.active {
+            background: var(--blueprint-grid);
+            border-color: var(--blueprint-accent);
+        }
 
-        .cta-box {
-            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
-            border: 1px solid var(--border);
-            border-radius: var(--rounded-xl);
+        .schematic-body {
+            padding: var(--space-lg);
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            min-height: 400px;
+        }
+
+        .schematic-body object {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .schematic-pane {
+            display: none;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .schematic-pane.active {
+            display: flex;
+        }
+
+        /* ================================================================
+           Requirements Section
+           ================================================================ */
+
+        .requirements {
+            background: var(--slate-surface-variant);
+        }
+
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-xl);
+        }
+
+        .requirements-card {
+            background: var(--slate-surface);
+            border: 1px solid var(--slate-outline-variant);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+        }
+
+        .requirements-card h3 {
+            font-size: var(--font-title);
+            margin-bottom: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .requirements-card ul {
+            list-style: none;
+        }
+
+        .requirements-card li {
+            padding: var(--space-sm) 0;
+            color: var(--slate-on-surface-variant);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            border-bottom: 1px solid var(--slate-outline-variant);
+        }
+
+        .requirements-card li:last-child {
+            border-bottom: none;
+        }
+
+        .req-label {
+            color: var(--slate-on-surface);
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        /* ================================================================
+           Install Section
+           ================================================================ */
+
+        .install-section {
+            text-align: center;
+        }
+
+        .install-box {
+            background: linear-gradient(135deg, var(--slate-surface-variant), var(--slate-surface-elevated));
+            border: 1px solid var(--slate-outline-variant);
+            border-radius: var(--radius-xl);
             padding: var(--space-2xl);
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        .cta-box h2 { font-size: var(--font-2xl); margin-bottom: var(--space-md); }
-        .cta-box p { color: var(--text-secondary); margin-bottom: var(--space-lg); max-width: 500px; margin-inline: auto; }
+        .install-box h2 {
+            font-size: var(--font-headline);
+            margin-bottom: var(--space-sm);
+        }
+
+        .install-box p {
+            color: var(--slate-on-surface-variant);
+            margin-bottom: var(--space-lg);
+        }
 
         .install-code {
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: var(--rounded-lg);
-            padding: var(--space-md);
-            font-family: Consolas, monospace;
-            font-size: var(--font-sm);
-            color: var(--accent-green);
+            background: var(--slate-surface);
+            border: 1px solid var(--slate-outline-variant);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) var(--space-lg);
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: var(--font-body);
+            color: var(--slate-success);
             margin-bottom: var(--space-lg);
-            max-width: 700px;
-            margin-inline: auto;
             overflow-x: auto;
+            text-align: left;
         }
 
-        /* Data Source Notice */
-        .data-source {
-            text-align: center;
-            padding: var(--space-lg);
-            background: var(--bg-card);
-            border-top: 1px solid var(--border);
-        }
+        /* ================================================================
+           Footer
+           ================================================================ */
 
-        .data-source p {
-            font-size: var(--font-xs);
-            color: var(--text-muted);
-        }
-
-        .data-source code {
-            background: var(--bg-elevated);
-            padding: 2px 6px;
-            border-radius: var(--rounded-sm);
-        }
-
-        /* Footer */
         footer {
-            padding: var(--space-xl) var(--space-lg);
-            border-top: 1px solid var(--border);
+            padding: var(--space-2xl) var(--space-lg);
+            border-top: 1px solid var(--slate-outline-variant);
             text-align: center;
         }
 
-        .footer-content { display: flex; flex-direction: column; align-items: center; gap: var(--space-md); }
-        .footer-logo { display: flex; align-items: center; gap: var(--space-sm); }
-        .footer-logo img { width: 32px; height: 32px; border-radius: var(--rounded-sm); }
-        .footer-logo span { font-family: Consolas, monospace; font-weight: 600; letter-spacing: 1px; }
-        .footer-links { display: flex; gap: var(--space-lg); flex-wrap: wrap; justify-content: center; }
-        .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: var(--font-sm); transition: color var(--transition-fast); }
-        .footer-links a:hover { color: var(--text-primary); }
-        .footer-author { color: var(--text-muted); font-size: var(--font-xs); }
-        .footer-author a { color: var(--text-secondary); text-decoration: none; }
+        .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
 
-        /* Responsive */
+        .footer-logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+        }
+
+        .footer-logo span {
+            font-family: Consolas, monospace;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: var(--space-lg);
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: var(--space-md);
+        }
+
+        .footer-links a {
+            color: var(--slate-on-surface-variant);
+            text-decoration: none;
+            font-size: var(--font-label);
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--slate-on-surface);
+        }
+
+        .footer-author {
+            color: var(--slate-outline);
+            font-size: var(--font-caption);
+        }
+
+        .footer-author a {
+            color: var(--slate-on-surface-variant);
+            text-decoration: none;
+        }
+
+        /* ================================================================
+           Responsive
+           ================================================================ */
+
         @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .status-bar { display: none; }
-            .hero h1 { font-size: var(--font-3xl); }
-            .progress-components { grid-template-columns: 1fr; }
-            .matrix-table { font-size: var(--font-xs); }
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: clamp(2rem, 1.5rem + 2.5vw, 3rem);
+            }
+
+            .schematic-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .schematic-tabs {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -680,333 +647,154 @@
                 <span>S.L.A.T.E.</span>
             </a>
             <ul class="nav-links">
-                <li><a href="#matrix">AI Matrix</a></li>
-                <li><a href="#progress">Progress</a></li>
-                <li><a href="#expansion">Expansion</a></li>
+                <li><a href="#features">Features</a></li>
                 <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#requirements">Requirements</a></li>
                 <li><a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki">Docs</a></li>
                 <li><a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E" class="nav-cta">GitHub</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- System Status Bar -->
-    <div class="status-bar">
-        <div class="status-item">
-            <span class="status-dot active" id="status-system"></span>
-            <span>System: <span id="system-status">Operational</span></span>
-        </div>
-        <div class="status-item">
-            <span class="status-dot active" id="status-ollama"></span>
-            <span>Ollama: <span id="ollama-status">Active</span></span>
-        </div>
-        <div class="status-item">
-            <span class="status-dot active" id="status-runners"></span>
-            <span>Runners: <span id="runners-count">Auto</span></span>
-        </div>
-    </div>
-
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-badge">
-            <span class="status-dot active"></span>
-            <span id="version-badge">v2.5 - Production Ready</span>
+            <span class="dot"></span>
+            <span>v2.5 - Production Ready</span>
         </div>
         <h1>Turn Your Hardware Into<br>an <span class="accent">AI Operations Center</span></h1>
-        <p class="hero-subtitle">Stop paying for cloud AI. Run AI operations locally and integrate seamlessly with GitHub. All inference happens on your hardware.</p>
+        <p class="hero-subtitle">
+            Stop paying for cloud AI. Run AI operations locally on YOUR hardware and integrate seamlessly with GitHub.
+        </p>
         <div class="hero-buttons">
             <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E" class="btn btn-primary">Get Started</a>
             <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki" class="btn btn-secondary">Documentation</a>
         </div>
     </section>
 
-    <!-- Objective Stats -->
-    <section class="section">
-        <div class="container">
-            <div class="stats-grid" id="stats-grid">
-                <div class="stat-card">
-                    <h3 id="stat-cost">$0</h3>
-                    <p>Cloud AI Costs</p>
-                    <span class="stat-source">Monthly</span>
-                </div>
-                <div class="stat-card">
-                    <h3 id="stat-runners">Auto</h3>
-                    <p>Parallel Runners</p>
-                    <span class="stat-source">Scales to hardware</span>
-                </div>
-                <div class="stat-card">
-                    <h3 id="stat-local">100%</h3>
-                    <p>Local Processing</p>
-                    <span class="stat-source">No Cloud APIs</span>
-                </div>
-                <div class="stat-card">
-                    <h3 id="stat-vram">Your</h3>
-                    <p>GPU Memory</p>
-                    <span class="stat-source">Auto-Detected</span>
-                </div>
-                <div class="stat-card">
-                    <h3 id="stat-tasks">9</h3>
-                    <p>Task Types</p>
-                    <span class="stat-source">AI Routed</span>
-                </div>
-                <div class="stat-card">
-                    <h3>24/7</h3>
-                    <p>Autonomous Ops</p>
-                    <span class="stat-source">Self-Managing</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- AI Inference Matrix -->
-    <section class="section matrix-section" id="matrix">
+    <!-- Features Section -->
+    <section id="features">
         <div class="container">
             <div class="section-header">
-                <h2>AI Inference Matrix</h2>
-                <p>All AI tasks route through local backends. Zero cloud costs.</p>
+                <h2>Built for Your Hardware</h2>
+                <p>SLATE auto-detects and optimizes for whatever GPU and CPU resources you have available.</p>
             </div>
-            <div class="matrix-container">
-                <div class="matrix-header">
-                    <span class="matrix-title">TASK ROUTING MATRIX</span>
-                    <span class="matrix-live"><span class="status-dot active"></span> Live Data</span>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F9E0;</div>
+                    <h3>Local AI Engine</h3>
+                    <p>Ollama + Foundry Local running on your GPU. No API bills. No data leaving your machine.</p>
+                    <span class="feature-badge">FREE</span>
                 </div>
-                <table class="matrix-table" id="inference-matrix">
-                    <thead>
-                        <tr>
-                            <th>Task Type</th>
-                            <th>Backend</th>
-                            <th>Model</th>
-                            <th>Cost</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>code_generation</td><td><span class="matrix-backend">ollama_local</span></td><td>mistral-nemo</td><td class="matrix-cost">$0</td></tr>
-                        <tr><td>code_review</td><td><span class="matrix-backend">ollama_local</span></td><td>mistral-nemo</td><td class="matrix-cost">$0</td></tr>
-                        <tr><td>test_generation</td><td><span class="matrix-backend">ollama_local</span></td><td>mistral-nemo</td><td class="matrix-cost">$0</td></tr>
-                        <tr><td>bug_fix</td><td><span class="matrix-backend">ollama_local</span></td><td>mistral-nemo</td><td class="matrix-cost">$0</td></tr>
-                        <tr><td>refactoring</td><td><span class="matrix-backend">ollama_local</span></td><td>mistral-nemo</td><td class="matrix-cost">$0</td></tr>
-                        <tr><td>documentation</td><td><span class="matrix-backend">ollama_local</span></td><td>mistral-nemo</td><td class="matrix-cost">$0</td></tr>
-                        <tr><td>analysis</td><td><span class="matrix-backend">ollama_local</span></td><td>mistral-nemo</td><td class="matrix-cost">$0</td></tr>
-                        <tr><td>research</td><td><span class="matrix-backend">ollama_local</span></td><td>mistral-nemo</td><td class="matrix-cost">$0</td></tr>
-                        <tr><td>planning</td><td><span class="matrix-backend">spec_kit</span></td><td>local</td><td class="matrix-cost">$0</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <!-- Tech Tree Progress -->
-    <section class="section progress-section" id="progress">
-        <div class="container">
-            <div class="section-header">
-                <h2>Development Progress</h2>
-                <p>Objective status from tech tree. Updated locally via AI inference.</p>
-            </div>
-            <div class="progress-container">
-                <div class="progress-header">
-                    <span class="progress-title">Tech Tree Completion</span>
-                    <span class="progress-percent" id="progress-percent">68.75%</span>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x26A1;</div>
+                    <h3>GPU Optimized</h3>
+                    <p>Auto-detects your GPU architecture (Blackwell, Ada, Ampere) and applies optimal settings.</p>
+                    <span class="feature-badge">YOUR HARDWARE</span>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill" style="width: 68.75%"></div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F916;</div>
+                    <h3>Agentic Workflows</h3>
+                    <p>Claude Code MCP integration + VS Code extension with 26 AI tools at your command.</p>
+                    <span class="feature-badge">26 TOOLS</span>
                 </div>
-                <div class="progress-components">
-                    <div class="component-group complete">
-                        <h4>Complete <span class="count" id="complete-count">9</span></h4>
-                        <ul class="component-list" id="complete-list">
-                            <li>Core SDK</li>
-                            <li>Workflow System</li>
-                            <li>MCP Server</li>
-                            <li>Self-Hosted Runner</li>
-                            <li>Workflow Pipeline</li>
-                            <li>Docker Infrastructure</li>
-                            <li>Meta-Workflow System</li>
-                            <li>Multi-Runner System</li>
-                            <li>VSCode SDK Integration</li>
-                        </ul>
-                    </div>
-                    <div class="component-group in-progress">
-                        <h4>In Progress <span class="count" id="progress-count">2</span></h4>
-                        <ul class="component-list" id="progress-list">
-                            <li>Dashboard</li>
-                            <li>Tech Tree Visualization</li>
-                        </ul>
-                    </div>
-                    <div class="component-group available">
-                        <h4>Available <span class="count" id="available-count">5</span></h4>
-                        <ul class="component-list" id="available-list">
-                            <li>Copilot Development</li>
-                            <li>Claude Integration</li>
-                            <li>UI Development</li>
-                            <li>Agent System</li>
-                            <li>Discord Bot</li>
-                        </ul>
-                    </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F4E6;</div>
+                    <h3>GitHub Integration</h3>
+                    <p>Self-hosted runner with bidirectional sync to Issues, Projects V2, and Discussions.</p>
+                    <span class="feature-badge">AUTOMATED</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Operations Expansion -->
-    <section class="section expansion-section" id="expansion">
-        <div class="container">
-            <div class="section-header">
-                <h2>Operations Expansion</h2>
-                <p>Current capabilities and expanding features. Phase 2 active.</p>
-            </div>
-            <div class="roadmap-container">
-                <div class="roadmap-phase complete">
-                    <span class="phase-status">Complete</span>
-                    <div class="phase-header">
-                        <span class="phase-number">1</span>
-                        <span class="phase-title">Foundation</span>
-                    </div>
-                    <ul class="phase-items">
-                        <li>Core SDK infrastructure</li>
-                        <li>Workflow execution system</li>
-                        <li>MCP server integration</li>
-                        <li>Self-hosted GitHub runner</li>
-                    </ul>
-                </div>
-                <div class="roadmap-phase active">
-                    <span class="phase-status">Active</span>
-                    <div class="phase-header">
-                        <span class="phase-number">2</span>
-                        <span class="phase-title">Expansion</span>
-                    </div>
-                    <ul class="phase-items">
-                        <li>Multi-runner parallel system</li>
-                        <li>Docker containerization</li>
-                        <li>VSCode SDK integration</li>
-                        <li>Dashboard development</li>
-                    </ul>
-                </div>
-                <div class="roadmap-phase planned">
-                    <span class="phase-status">Planned</span>
-                    <div class="phase-header">
-                        <span class="phase-number">3</span>
-                        <span class="phase-title">Intelligence</span>
-                    </div>
-                    <ul class="phase-items">
-                        <li>Custom model training</li>
-                        <li>Agent system automation</li>
-                        <li>Discord integration</li>
-                        <li>UV package migration</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Integrations -->
-    <section class="section">
-        <div class="container">
-            <div class="section-header">
-                <h2>Integration Status</h2>
-                <p>Connected services and capabilities.</p>
-            </div>
-            <div class="integrations-grid">
-                <div class="integration-card">
-                    <div class="integration-header">
-                        <div class="integration-icon">&#128187;</div>
-                        <span class="integration-name">GitHub</span>
-                    </div>
-                    <div class="integration-status"><span class="status-dot active"></span> Connected</div>
-                    <div class="integration-metrics">
-                        <div class="integration-metric"><span class="value">Yes</span> Self-Hosted Runner</div>
-                        <div class="integration-metric"><span class="value">Yes</span> Actions Enabled</div>
-                        <div class="integration-metric"><span class="value">Yes</span> Projects V2</div>
-                        <div class="integration-metric"><span class="value">Yes</span> Discussions</div>
-                    </div>
-                </div>
-                <div class="integration-card">
-                    <div class="integration-header">
-                        <div class="integration-icon">&#128736;</div>
-                        <span class="integration-name">VSCode</span>
-                    </div>
-                    <div class="integration-status"><span class="status-dot active"></span> Active</div>
-                    <div class="integration-metrics">
-                        <div class="integration-metric"><span class="value" id="vscode-commands">21</span> Chat Commands</div>
-                        <div class="integration-metric"><span class="value" id="vscode-tools">26</span> LM Tools</div>
-                    </div>
-                </div>
-                <div class="integration-card">
-                    <div class="integration-header">
-                        <div class="integration-icon">&#129302;</div>
-                        <span class="integration-name">Claude Code</span>
-                    </div>
-                    <div class="integration-status"><span class="status-dot active"></span> Active</div>
-                    <div class="integration-metrics">
-                        <div class="integration-metric"><span class="value" id="claude-commands">10</span> Slash Commands</div>
-                        <div class="integration-metric"><span class="value" id="claude-tools">11</span> MCP Tools</div>
-                    </div>
-                </div>
-                <div class="integration-card">
-                    <div class="integration-header">
-                        <div class="integration-icon">&#128230;</div>
-                        <span class="integration-name">Docker</span>
-                    </div>
-                    <div class="integration-status"><span class="status-dot active"></span> Active</div>
-                    <div class="integration-metrics">
-                        <div class="integration-metric"><span class="value">Yes</span> GPU Image</div>
-                        <div class="integration-metric"><span class="value">Yes</span> CPU Image</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Architecture -->
-    <section class="architecture" id="architecture">
+    <!-- Architecture Schematics Section -->
+    <section id="architecture" class="schematic-section">
         <div class="container">
             <div class="section-header">
                 <h2>System Architecture</h2>
-                <p>Your local hardware runs the AI. Your cloud stays in sync.</p>
+                <p>Interactive schematics showing how SLATE components fit together.</p>
             </div>
-            <div class="arch-diagram">
-<pre>
-┌───────────────────────────────────────────────────────────────────────────┐
-│                           S.L.A.T.E. v2.5                                 │
-│                 Synchronized Living Architecture                           │
-├───────────────────────────────────────────────────────────────────────────┤
-│                                                                           │
-│   ┌───────────────────────────────────────────────────────────────────┐   │
-│   │               GitHub Projects V2 (Task Source)                    │   │
-│   │   KANBAN → BUG TRACKING → ITERATIVE DEV → ROADMAP                 │   │
-│   └─────────────────────────────┬─────────────────────────────────────┘   │
-│                                 │                                         │
-│                                 ▼                                         │
-│   ┌───────────────────────────────────────────────────────────────────┐   │
-│   │              Multi-Runner System (Scales to Hardware)             │   │
-│   │   GPU Runners                        CPU Runners                   │   │
-│   │   ├─ Light (2GB VRAM each)           ├─ Parallel Workers          │   │
-│   │   └─ Heavy (optional)                └─ Based on CPU cores        │   │
-│   └─────────────────────────────┬─────────────────────────────────────┘   │
-│                                 │                                         │
-│                                 ▼                                         │
-│   ┌───────────────────────────────────────────────────────────────────┐   │
-│   │                   AI Backend Router (Matrix)                      │   │
-│   │   Ollama :11434        Foundry :5272       External APIs          │   │
-│   │   (mistral-nemo)       (ONNX)              (blocked by default)   │   │
-│   └───────────────────────────────────────────────────────────────────┘   │
-│                                                                           │
-│   ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────┐   │
-│   │   ActionGuard   │  │ SDK Source Guard│  │    PII Scanner          │   │
-│   │   (Security)    │  │ (Publishers)    │  │    (Data Safety)        │   │
-│   └─────────────────┘  └─────────────────┘  └─────────────────────────┘   │
-│                                                                           │
-└───────────────────────────────────────────────────────────────────────────┘
-</pre>
+            <div class="schematic-container">
+                <div class="schematic-header">
+                    <span class="schematic-title">ARCHITECTURE DIAGRAMS</span>
+                    <div class="schematic-tabs">
+                        <button class="schematic-tab active" data-tab="system">System</button>
+                        <button class="schematic-tab" data-tab="modules">Modules</button>
+                        <button class="schematic-tab" data-tab="ai">AI Pipeline</button>
+                        <button class="schematic-tab" data-tab="github">GitHub</button>
+                        <button class="schematic-tab" data-tab="runners">Runners</button>
+                    </div>
+                </div>
+                <div class="schematic-body">
+                    <div id="schematic-system" class="schematic-pane active">
+                        <object type="image/svg+xml" data="assets/schematics/system-architecture-full.svg">
+                            Loading system architecture...
+                        </object>
+                    </div>
+                    <div id="schematic-modules" class="schematic-pane">
+                        <object type="image/svg+xml" data="assets/schematics/code-module-map.svg">
+                            Loading code module map...
+                        </object>
+                    </div>
+                    <div id="schematic-ai" class="schematic-pane">
+                        <object type="image/svg+xml" data="assets/schematics/ai-inference-pipeline.svg">
+                            Loading AI pipeline...
+                        </object>
+                    </div>
+                    <div id="schematic-github" class="schematic-pane">
+                        <object type="image/svg+xml" data="assets/schematics/github-integration.svg">
+                            Loading GitHub integration...
+                        </object>
+                    </div>
+                    <div id="schematic-runners" class="schematic-pane">
+                        <object type="image/svg+xml" data="assets/schematics/multi-runner-system.svg">
+                            Loading multi-runner system...
+                        </object>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta">
+    <!-- Requirements Section -->
+    <section id="requirements" class="requirements">
         <div class="container">
-            <div class="cta-box">
-                <h2>Ready to Go Local?</h2>
-                <p>Get started in minutes. One command installs everything.</p>
+            <div class="section-header">
+                <h2>System Requirements</h2>
+                <p>SLATE scales from modest hardware to high-end workstations.</p>
+            </div>
+            <div class="requirements-grid">
+                <div class="requirements-card">
+                    <h3>&#x2705; Minimum</h3>
+                    <ul>
+                        <li><span class="req-label">OS</span> Windows 10/11, Linux, macOS</li>
+                        <li><span class="req-label">Python</span> 3.11+</li>
+                        <li><span class="req-label">RAM</span> 8GB</li>
+                        <li><span class="req-label">GPU</span> None (CPU-only mode)</li>
+                        <li><span class="req-label">Storage</span> 10GB free</li>
+                    </ul>
+                </div>
+                <div class="requirements-card">
+                    <h3>&#x1F680; Recommended</h3>
+                    <ul>
+                        <li><span class="req-label">OS</span> Windows 11, Ubuntu 22.04+</li>
+                        <li><span class="req-label">Python</span> 3.11+</li>
+                        <li><span class="req-label">RAM</span> 16GB+</li>
+                        <li><span class="req-label">GPU</span> NVIDIA RTX 20xx+ (8GB+ VRAM)</li>
+                        <li><span class="req-label">Storage</span> 50GB+ SSD</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Install Section -->
+    <section class="install-section">
+        <div class="container">
+            <div class="install-box">
+                <h2>Quick Install</h2>
+                <p>One command installs everything. Full ecosystem ready in minutes.</p>
                 <div class="install-code">
                     git clone https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git && cd S.L.A.T.E && python install_slate.py
                 </div>
@@ -1015,138 +803,50 @@
         </div>
     </section>
 
-    <!-- Data Source Notice -->
-    <div class="data-source">
-        <p>Data sourced from <code>slate-data.json</code> | Updated locally via AI inference | Run <code>python update_pages.py</code> to refresh</p>
-    </div>
-
     <!-- Footer -->
     <footer>
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <img src="assets/slate-logo-v2.svg" alt="SLATE">
-                    <span>S.L.A.T.E.</span>
-                </div>
-                <div class="footer-links">
-                    <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E">GitHub</a>
-                    <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki">Documentation</a>
-                    <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/issues">Issues</a>
-                    <a href="https://github.com/orgs/SynchronizedLivingArchitecture/projects">Projects</a>
-                </div>
-                <p class="footer-author">
-                    Created by <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/blob/main/AUTHOR.md">Daniel Perry</a> | Canadian Forces Veteran | Afghanistan Veteran
-                    <br>
-                    Copyright &copy; 2024-2026 Daniel Perry. All Rights Reserved.
-                </p>
+            <div class="footer-logo">
+                <img src="assets/slate-logo-v2.svg" alt="SLATE">
+                <span>S.L.A.T.E.</span>
             </div>
+            <div class="footer-links">
+                <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E">GitHub</a>
+                <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki">Documentation</a>
+                <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/issues">Issues</a>
+                <a href="https://github.com/orgs/SynchronizedLivingArchitecture/projects">Projects</a>
+            </div>
+            <p class="footer-author">
+                Created by <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/blob/main/AUTHOR.md">Daniel Perry</a> | Canadian Forces Veteran | Afghanistan Veteran
+                <br>
+                Copyright &copy; 2024-2026 Daniel Perry. All Rights Reserved.
+            </p>
         </div>
     </footer>
 
-    <!-- Data Loading Script -->
     <script>
-        // Load and display data from slate-data.json
-        async function loadSlateData() {
-            try {
-                const response = await fetch('slate-data.json');
-                if (!response.ok) return;
-                const data = await response.json();
-                updateUI(data);
-            } catch (e) {
-                console.log('Using static data (slate-data.json not available)');
-            }
-        }
+        // Schematic tab switching
+        document.querySelectorAll('.schematic-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
 
-        function updateUI(data) {
-            // Version badge
-            if (data.version) {
-                document.getElementById('version-badge').textContent = `v${data.version} - Production Ready`;
-            }
+                // Hide all panes
+                document.querySelectorAll('.schematic-pane').forEach(pane => {
+                    pane.classList.remove('active');
+                });
 
-            // System status
-            if (data.system) {
-                document.getElementById('system-status').textContent = data.system.status === 'operational' ? 'Operational' : 'Degraded';
-                document.getElementById('status-system').className = 'status-dot ' + (data.system.status === 'operational' ? 'active' : 'pending');
-            }
+                // Deactivate all tabs
+                document.querySelectorAll('.schematic-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
 
-            // AI backends
-            if (data.ai_backends?.ollama) {
-                document.getElementById('ollama-status').textContent = data.ai_backends.ollama.status === 'active' ? 'Active' : 'Offline';
-                document.getElementById('status-ollama').className = 'status-dot ' + (data.ai_backends.ollama.status === 'active' ? 'active' : 'error');
-            }
+                // Show selected pane
+                document.getElementById('schematic-' + tabName).classList.add('active');
 
-            // Runners
-            if (data.runners) {
-                document.getElementById('runners-count').textContent = data.runners.total;
-                document.getElementById('stat-runners').textContent = data.runners.total;
-            }
-
-            // Metrics
-            if (data.metrics) {
-                document.getElementById('stat-cost').textContent = data.metrics.cloud_costs_monthly;
-                document.getElementById('stat-local').textContent = data.metrics.local_processing_percent + '%';
-                document.getElementById('stat-vram').textContent = data.metrics.gpu_memory_total_gb + 'GB';
-                document.getElementById('stat-tasks').textContent = data.metrics.task_types_supported;
-            }
-
-            // Tech tree progress
-            if (data.tech_tree) {
-                const percent = data.tech_tree.completion_percent;
-                document.getElementById('progress-percent').textContent = percent + '%';
-                document.getElementById('progress-fill').style.width = percent + '%';
-                document.getElementById('complete-count').textContent = data.tech_tree.nodes_complete;
-                document.getElementById('progress-count').textContent = data.tech_tree.nodes_in_progress;
-                document.getElementById('available-count').textContent = data.tech_tree.nodes_available;
-
-                // Update component lists
-                if (data.tech_tree.components) {
-                    updateComponentList('complete-list', data.tech_tree.components.complete);
-                    updateComponentList('progress-list', data.tech_tree.components.in_progress);
-                    updateComponentList('available-list', data.tech_tree.components.available);
-                }
-            }
-
-            // Integrations
-            if (data.integrations) {
-                if (data.integrations.vscode) {
-                    document.getElementById('vscode-commands').textContent = data.integrations.vscode.chat_commands;
-                    document.getElementById('vscode-tools').textContent = data.integrations.vscode.lm_tools;
-                }
-                if (data.integrations.claude_code) {
-                    document.getElementById('claude-commands').textContent = data.integrations.claude_code.slash_commands;
-                    document.getElementById('claude-tools').textContent = data.integrations.claude_code.mcp_tools;
-                }
-            }
-
-            // AI Inference Matrix
-            if (data.ai_inference_matrix?.task_routing) {
-                updateInferenceMatrix(data.ai_inference_matrix.task_routing);
-            }
-        }
-
-        function updateComponentList(elementId, items) {
-            const list = document.getElementById(elementId);
-            if (list && items) {
-                list.innerHTML = items.map(item => `<li>${item}</li>`).join('');
-            }
-        }
-
-        function updateInferenceMatrix(routing) {
-            const tbody = document.querySelector('#inference-matrix tbody');
-            if (tbody && routing.length > 0) {
-                tbody.innerHTML = routing.map(r => `
-                    <tr>
-                        <td>${r.task_type}</td>
-                        <td><span class="matrix-backend">${r.backend}</span></td>
-                        <td>${r.model}</td>
-                        <td class="matrix-cost">${r.cost}</td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        // Load data on page load
-        loadSlateData();
+                // Activate selected tab
+                this.classList.add('active');
+            });
+        });
     </script>
 </body>
 </html>
