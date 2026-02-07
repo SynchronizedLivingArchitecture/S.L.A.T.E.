@@ -2,7 +2,7 @@
 # Base: NVIDIA CUDA 12.4 Runtime on Ubuntu 22.04
 # Author: SLATE | Created: 2026-02-06
 
-FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
+FROM nvidia/cuda:13.1.1-runtime-ubuntu22.04
 
 LABEL org.opencontainers.image.source="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E"
 LABEL org.opencontainers.image.description="SLATE - Synchronized Living Architecture for Transformation and Evolution (GPU)"
