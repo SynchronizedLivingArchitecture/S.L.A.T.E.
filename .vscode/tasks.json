@@ -83,7 +83,7 @@
 			"label": "SLATE: Open Dashboard",
 			"type": "process",
 			"command": "cmd",
-			"args": ["/c", "start", "http://localhost:8080"],
+			"args": ["/c", "start", "http://127.0.0.1:8080"],
 			"presentation": {
 				"reveal": "never",
 				"panel": "shared"
@@ -91,65 +91,10 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "SLATE: Avatar Server",
+			"label": "SLATE: Build Models",
 			"type": "shell",
 			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
-			"args": ["${workspaceFolder}/agents/slate_avatar_server.py"],
-			"isBackground": true,
-			"problemMatcher": [],
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated"
-			}
-		},
-		{
-			"label": "SLATE: Open Avatar",
-			"type": "process",
-			"command": "cmd",
-			"args": ["/c", "start", "http://localhost:5000"],
-			"presentation": {
-				"reveal": "never",
-				"panel": "shared"
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "SLATE: Voice Test",
-			"type": "shell",
-			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
-			"args": ["${workspaceFolder}/slate/slate_voice.py", "--test"],
-			"isBackground": false,
-			"problemMatcher": [],
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated"
-			}
-		},
-		{
-			"label": "SLATE: Agent System",
-			"type": "shell",
-			"command": "powershell",
-			"args": [
-				"-ExecutionPolicy", "Bypass",
-				"-File", "${workspaceFolder}/caduceus/agents/launch_agent_system.ps1"
-			],
-			"isBackground": true,
-			"problemMatcher": [],
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated",
-				"focus": true
-			},
-			"group": {
-				"kind": "test",
-				"isDefault": true
-			}
-		},
-		{
-			"label": "SLATE: Setup Models",
-			"type": "shell",
-			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
-			"args": ["${workspaceFolder}/caduceus/agents/setup_local_models.py"],
+			"args": ["${workspaceFolder}/slate/slate_model_trainer.py", "--build-all"],
 			"presentation": {
 				"reveal": "always",
 				"panel": "dedicated"
@@ -173,23 +118,10 @@
 			}
 		},
 		{
-			"label": "SLATE: Continue Workflow",
-			"type": "shell",
-			"command": "py",
-			"args": ["slate_workflow.py", "--continue"],
-			"problemMatcher": [],
-			"presentation": {
-				"reveal": "always",
-				"panel": "shared",
-				"focus": true,
-				"clear": true
-			}
-		},
-		{
 			"label": "SLATE: Workflow Status",
 			"type": "shell",
-			"command": "py",
-			"args": ["slate_workflow.py", "--status"],
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": ["${workspaceFolder}/slate/slate_workflow_manager.py", "--status"],
 			"problemMatcher": [],
 			"presentation": {
 				"reveal": "always",
@@ -199,45 +131,30 @@
 			}
 		},
 		{
-			"label": "SLATE: Launch EXE",
+			"label": "SLATE: Workflow Cleanup",
 			"type": "shell",
-			"command": "${workspaceFolder}\\dist_v2\\SLATE\\SLATE.exe",
-			"isBackground": true,
-			"group": "test",
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": ["${workspaceFolder}/slate/slate_workflow_manager.py", "--cleanup"],
+			"problemMatcher": [],
 			"presentation": {
 				"reveal": "always",
-				"panel": "dedicated"
+				"panel": "shared",
+				"focus": true,
+				"clear": true
 			}
 		},
 		{
-			"label": "SLATE: Game System",
+			"label": "SLATE: Workflow Enforce",
 			"type": "shell",
-			"command": "py",
-			"args": ["caduceus/agents/launch_full_system.py"],
-			"isBackground": true,
+			"command": "${workspaceFolder}/.venv/Scripts/python.exe",
+			"args": ["${workspaceFolder}/slate/slate_workflow_manager.py", "--enforce"],
 			"problemMatcher": [],
 			"presentation": {
 				"reveal": "always",
-				"panel": "dedicated"
-			},
-			"group": "test"
-		},
-		{
-			"label": "SLATE: Autonomous Linux",
-			"type": "shell",
-			"command": "wsl",
-			"args": [
-				"--cd", ".",
-				"bash", "launch_autonomous_linux.sh"
-			],
-			"isBackground": true,
-			"problemMatcher": [],
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated",
-				"focus": true
-			},
-			"group": "test"
+				"panel": "shared",
+				"focus": true,
+				"clear": true
+			}
 		},
 		{
 			"label": "SLATE: Integrated Autonomous",
