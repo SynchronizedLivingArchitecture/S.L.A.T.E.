@@ -1,4 +1,4 @@
-﻿# Modified: 2026-02-06T00:00:00Z | Author: COPILOT | Change: Switch all jobs to self-hosted runner, fix paths
+# Modified: 2026-02-06T00:00:00Z | Author: COPILOT | Change: Switch all jobs to self-hosted runner, fix paths
 # Continuous Deployment Workflow
 # Builds EXE and publishes releases
 
@@ -39,7 +39,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - id: ver
         run: |
           if ("${{ github.ref }}".StartsWith("refs/tags/v")) {
@@ -61,7 +62,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -108,7 +110,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - uses: actions/download-artifact@v4
         with:
           name: SLATEPI-exe-${{ needs.version.outputs.version }}

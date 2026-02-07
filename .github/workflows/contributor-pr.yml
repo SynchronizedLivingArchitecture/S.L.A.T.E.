@@ -87,7 +87,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Install dependencies
         run: pip install -r requirements.txt 2>$null
         continue-on-error: true

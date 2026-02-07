@@ -1,4 +1,4 @@
-﻿# Modified: 2026-02-07T00:00:00Z | Author: COPILOT | Change: Simplified after repo rename (removed trailing dot)
+# Modified: 2026-02-07T00:00:00Z | Author: COPILOT | Change: Simplified after repo rename (removed trailing dot)
 name: SLATE PR Check
 
 on:
@@ -26,7 +26,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Ruff lint
         run: |
           pip install ruff --quiet 2>$null
@@ -40,7 +41,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Install test deps
         run: pip install pytest pytest-cov pytest-asyncio --quiet 2>$null
         continue-on-error: true
@@ -55,7 +57,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Validate SDK
         run: |
           python -c "import slate; print(f'SDK v{slate.__version__}')"
@@ -81,7 +84,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Security scan
         run: |
           pip install bandit --quiet 2>$null

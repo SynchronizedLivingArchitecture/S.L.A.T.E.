@@ -1,4 +1,4 @@
-﻿# Modified: 2026-02-06T00:00:00Z | Author: COPILOT | Change: Switch to self-hosted runner
+# Modified: 2026-02-06T00:00:00Z | Author: COPILOT | Change: Switch to self-hosted runner
 # Documentation Validation
 
 name: Docs Validation
@@ -38,7 +38,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Check internal links
         run: |
           python -c @"
@@ -80,7 +81,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Validate README
         run: |
           python -c @"

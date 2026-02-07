@@ -1,4 +1,4 @@
-﻿# Modified: 2026-02-07T00:00:00Z | Author: COPILOT | Change: Simplified after repo rename (removed trailing dot)
+# Modified: 2026-02-07T00:00:00Z | Author: COPILOT | Change: Simplified after repo rename (removed trailing dot)
 name: SLATE Integration
 
 on:
@@ -25,7 +25,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: SLATE Status
         run: python slate/slate_status.py --quick
 
@@ -36,7 +37,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Import all modules
         run: |
           python -c @"
@@ -63,7 +65,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Validate tech tree
         run: |
           python -c @"
@@ -86,7 +89,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Test dashboard import
         run: |
           python -c "from agents.slate_dashboard_server import create_app; print('Dashboard import OK')"
@@ -99,7 +103,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Test agent imports
         run: |
           python -c "import agents; print('agents package OK')"
@@ -114,7 +119,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        run: "E:\11132025\.venv\Scripts" | Out-File -Append $env:GITHUB_PATH
+        run: |
+          'E:\11132025\.venv\Scripts' | Out-File -Append $env:GITHUB_PATH
       - name: Validate task queue
         run: |
           python -c @"
