@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T15:45:00Z | Author: COPILOT | Change: Add push trigger for AI inference, increase schedule frequency
+# Modified: 2026-02-07T18:30:00Z | Author: COPILOT | Change: Add matrix strategies for model builds and transformer analysis
 name: SLATE Agentic AI
 
 on:
@@ -268,32 +268,143 @@ jobs:
       - name: Orchestrator status
         run: python slate/slate_orchestrator.py status
 
-  # ------------ Build/Rebuild SLATE Models ------------
+  # ------------ Build/Rebuild SLATE Models (Matrix per model) ------------
   build-models:
-    name: Build SLATE Models
+    name: Build ${{ matrix.model }}
     needs: inference-health
     if: github.event.inputs.mode == 'build-models'
     runs-on: [self-hosted, slate, gpu, gpu-2]
     timeout-minutes: 15
     env:
       CUDA_VISIBLE_DEVICES: '0,1'
+    strategy:
+      fail-fast: false
+      matrix:
+        model:
+          - slate-coder
+          - slate-fast
+          - slate-planner
+        include:
+          - model: slate-coder
+            modelfile: 'models/Modelfile.slate-coder'
+            gpu: '0'
+            description: '12B code generation (mistral-nemo base)'
+          - model: slate-fast
+            modelfile: 'models/Modelfile.slate-fast'
+            gpu: '1'
+            description: '3B classification/summary (llama3.2 base)'
+          - model: slate-planner
+            modelfile: 'models/Modelfile.slate-planner'
+            gpu: '0'
+            description: '7B planning/analysis (mistral base)'
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
         run: |
           "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
-      - name: GPU status
+      - name: GPU status before build
         run: nvidia-smi --query-gpu=index,name,memory.used,memory.total --format=csv,noheader
-      - name: Build all SLATE models
-        run: python slate/slate_model_trainer.py --build-all
-      - name: Test all SLATE models
-        run: python slate/slate_model_trainer.py --test
-      - name: Benchmark SLATE models
-        run: python slate/slate_model_trainer.py --benchmark
-      - name: Model status
-        run: python slate/slate_model_trainer.py --status
+      - name: Build ${{ matrix.model }} (${{ matrix.description }})
+        run: |
+          python -c @"
+          import json, urllib.request
+          print('Building ${{ matrix.model }}...')
+          payload = json.dumps({
+              'name': '${{ matrix.model }}',
+              'modelfile': open('${{ matrix.modelfile }}', encoding='utf-8').read(),
+              'stream': False
+          }).encode()
+          req = urllib.request.Request(
+              'http://127.0.0.1:11434/api/create',
+              data=payload,
+              headers={'Content-Type': 'application/json'},
+              method='POST'
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=300) as resp:
+                  data = json.loads(resp.read())
+              print(f'Built ${{ matrix.model }}: {data.get(\"status\", \"ok\")}')
+          except Exception as e:
+              print(f'Build failed: {e}')
+              exit(1)
+          "@
+      - name: Test ${{ matrix.model }}
+        run: |
+          python -c @"
+          import json, urllib.request, time
+          payload = json.dumps({
+              'model': '${{ matrix.model }}',
+              'prompt': 'Hello, test prompt for ${{ matrix.model }}.',
+              'stream': False,
+              'options': {'num_predict': 32, 'num_gpu': 99}
+          }).encode()
+          req = urllib.request.Request(
+              'http://127.0.0.1:11434/api/generate',
+              data=payload,
+              headers={'Content-Type': 'application/json'},
+              method='POST'
+          )
+          start = time.time()
+          with urllib.request.urlopen(req, timeout=60) as resp:
+              data = json.loads(resp.read())
+          elapsed = time.time() - start
+          tokens = data.get('eval_count', 0)
+          tps = tokens / max(data.get('eval_duration', 1) / 1e9, 0.001)
+          print(f'${{ matrix.model }}: {tokens} tokens @ {tps:.1f} tok/s ({elapsed:.1f}s)')
+          "@
       - name: GPU status after build
         run: nvidia-smi --query-gpu=index,name,memory.used,memory.total --format=csv,noheader
+
+  # ------------ HuggingFace Transformer Analysis (GPU matrix) ------------
+  transformer-analysis:
+    name: Transformer ${{ matrix.task }}
+    needs: inference-health
+    if: always()
+    runs-on: [self-hosted, slate, gpu, gpu-2]
+    timeout-minutes: 15
+    env:
+      CUDA_VISIBLE_DEVICES: '0,1'
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - status
+          - security-scan
+          - embeddings
+        include:
+          - task: status
+            script: 'python slate/slate_transformers.py --status --json'
+          - task: security-scan
+            script: >-
+              python -c "
+              from slate.slate_transformers import SlateTransformerPipeline;
+              import json, pathlib;
+              p = SlateTransformerPipeline();
+              results = [];
+              for f in sorted(pathlib.Path('slate').glob('*.py'))[:15]:
+                code = f.read_text(encoding='utf-8')[:2000];
+                r = p.security_scan(code);
+                if any(s.get('score',0) > 0.5 for s in r.get('results',[])):
+                  results.append({'file': str(f), 'scan': r});
+              print(json.dumps({'flagged': len(results), 'results': results}, indent=2))
+              "
+          - task: embeddings
+            script: >-
+              python -c "
+              from slate.slate_transformers import SlateTransformerPipeline;
+              import json;
+              p = SlateTransformerPipeline();
+              r = p.extract_embeddings('def hello(): return 42');
+              print(json.dumps({'shape': list(r['embedding'].shape) if hasattr(r.get('embedding'), 'shape') else 'scalar', 'model': r.get('model','?')}, indent=2))
+              "
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: Run ${{ matrix.task }}
+        run: ${{ matrix.script }}
+        continue-on-error: true
 
   # ------------ Copilot SDK + Inference Report ------------
   copilot-integration:

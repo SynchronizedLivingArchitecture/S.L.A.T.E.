@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add Docker daemon validation step and compose test job
+# Modified: 2026-02-07T18:30:00Z | Author: COPILOT | Change: Consolidate GPU/CPU builds into matrix strategy
 # S.L.A.T.E. Docker Build & Publish Workflow
 # Author: SLATE | Created: 2026-02-06
 #
@@ -70,14 +70,48 @@ jobs:
         shell: powershell
         continue-on-error: true
 
-  # Build GPU variant on self-hosted runner (has NVIDIA GPU)
-  build-gpu:
-    name: Build GPU Image
+  # ------------ Build images using matrix strategy (GPU + CPU + Dev) ------------
+  build:
+    name: Build ${{ matrix.variant }} Image
     runs-on: [self-hosted, slate]
     needs: [validate]
-    timeout-minutes: 30
+    timeout-minutes: ${{ matrix.timeout }}
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - gpu
+          - cpu
+          - dev
+        include:
+          - variant: gpu
+            dockerfile: ./Dockerfile
+            tag_prefix: gpu
+            tag_latest: latest-gpu
+            platforms: ''
+            timeout: 30
+            test_cmd: >-
+              docker run --rm --gpus all ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu nvidia-smi;
+              docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu python -c "import slate; print(f'SLATE v{slate.__version__}')"
+          - variant: cpu
+            dockerfile: ./Dockerfile.cpu
+            tag_prefix: cpu
+            tag_latest: latest-cpu
+            platforms: linux/amd64,linux/arm64
+            timeout: 20
+            test_cmd: >-
+              docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-cpu python -c "import slate; print(f'SLATE v{slate.__version__}')"
+          - variant: dev
+            dockerfile: ./Dockerfile.dev
+            tag_prefix: dev
+            tag_latest: latest-dev
+            platforms: ''
+            timeout: 20
+            test_cmd: >-
+              docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-dev python -c "import slate; print(f'SLATE v{slate.__version__}')"
     outputs:
-      digest: ${{ steps.build.outputs.digest }}
+      gpu-digest: ${{ steps.build.outputs.digest }}
+      cpu-digest: ${{ steps.build.outputs.digest }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -99,90 +133,37 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest-gpu
-            type=raw,value=gpu
-            type=sha,prefix=gpu-
-            type=ref,event=branch,suffix=-gpu
+            type=raw,value=${{ matrix.tag_latest }}
+            type=raw,value=${{ matrix.variant }}
+            type=sha,prefix=${{ matrix.tag_prefix }}-
+            type=ref,event=branch,suffix=-${{ matrix.variant }}
 
-      - name: Build and push GPU image
+      - name: Build and push ${{ matrix.variant }} image
         id: build
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ${{ matrix.dockerfile }}
           push: ${{ github.event_name != 'pull_request' && (github.event.inputs.push_images != 'false') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: ${{ matrix.platforms || '' }}
           build-args: |
             BUILD_DATE=${{ github.event.repository.updated_at }}
             VCS_REF=${{ github.sha }}
 
-      - name: Test GPU image
+      - name: Test ${{ matrix.variant }} image
         if: github.event_name != 'pull_request'
-        run: |
-          docker run --rm --gpus all ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu nvidia-smi
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu python -c "import slate; print(f'SLATE v{slate.__version__}')"
+        run: ${{ matrix.test_cmd }}
         shell: powershell
-
-  # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add validate dependency and compose test
-  # Build CPU variant on self-hosted runner (no GPU needed for CPU image)
-  build-cpu:
-    name: Build CPU Image
-    runs-on: [self-hosted, slate]
-    needs: [validate]
-    timeout-minutes: 20
-    outputs:
-      digest: ${{ steps.build.outputs.digest }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Container Registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest-cpu
-            type=raw,value=cpu
-            type=sha,prefix=cpu-
-            type=ref,event=branch,suffix=-cpu
-
-      - name: Build and push CPU image
-        id: build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile.cpu
-          push: ${{ github.event_name != 'pull_request' && (github.event.inputs.push_images != 'false') }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
-
-      - name: Test CPU image
-        run: |
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-cpu python -c "import slate; print(f'SLATE v{slate.__version__}')"
 
   # Tag latest after both builds succeed
   tag-latest:
     name: Tag Latest
     runs-on: [self-hosted, slate]
-    needs: [build-gpu, build-cpu]
+    needs: [build]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     steps:
       - name: Log in to Container Registry
@@ -202,7 +183,7 @@ jobs:
   compose-validate:
     name: Validate Compose Files
     runs-on: [self-hosted, slate]
-    needs: [build-gpu, build-cpu]
+    needs: [build]
     if: always()
     timeout-minutes: 5
     steps:
@@ -232,22 +213,24 @@ jobs:
   summary:
     name: Build Summary
     runs-on: [self-hosted, slate]
-    needs: [build-gpu, build-cpu, tag-latest, compose-validate]
+    needs: [build, tag-latest, compose-validate]
     if: always()
     steps:
       - name: Generate summary
         run: |
           echo "## Docker Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Image | Status | Digest |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| GPU | ${{ needs.build-gpu.result }} | \`${GITHUB_SHA::8}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| CPU | ${{ needs.build-cpu.result }} | \`${GITHUB_SHA::8}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Matrix (GPU/CPU/Dev) | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag Latest | ${{ needs.tag-latest.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Compose Validate | ${{ needs.compose-validate.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Images" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-gpu" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-cpu" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-dev" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
         env:

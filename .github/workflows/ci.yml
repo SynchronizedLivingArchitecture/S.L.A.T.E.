@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T15:45:00Z | Author: COPILOT | Change: Add AI inference on code changes, Copilot SDK integration
+# Modified: 2026-02-07T18:00:00Z | Author: COPILOT | Change: Add matrix strategies for unit tests and SDK modules
 name: SLATE CI
 
 on:
@@ -41,9 +41,26 @@ jobs:
         continue-on-error: true
 
   unit-tests:
-    name: Unit Tests
+    name: Tests (${{ matrix.suite }})
     runs-on: [self-hosted, slate]
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - core
+          - security
+          - agents
+          - ml
+        include:
+          - suite: core
+            pattern: 'test_slate_runtime or test_slate_workflow or test_feature_flags or test_install_tracker or test_slate_benchmark or test_watcher or test_module_registry or test_slate_terminal_monitor or test_runner_cost_tracker or test_runner_fallback'
+          - suite: security
+            pattern: 'test_pii_scanner or test_action_guard or test_sdk_source_guard or test_slate_workflow_analyzer'
+          - suite: agents
+            pattern: 'test_agent_registry or test_agent_plugins or test_slate_runner_manager or test_slate_runner_benchmark or test_slate_real_multi_runner or test_copilot_slate_runner or test_slate_discussion_manager or test_slate_project_board'
+          - suite: ml
+            pattern: 'test_ml_orchestrator or test_slate_model_trainer or test_slate_gpu_manager or test_slate_warmup or test_slate_unified_autonomous or test_integrated_autonomous_loop or test_slate_hardware_optimizer'
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
@@ -52,8 +69,8 @@ jobs:
       - name: Install test deps
         run: pip install pytest pytest-cov pytest-asyncio --quiet 2>$null
         continue-on-error: true
-      - name: Run tests
-        run: python -m pytest tests/ -v --tb=short --ignore=tests/integration/ -x
+      - name: Run ${{ matrix.suite }} tests
+        run: python -m pytest tests/ -v --tb=short -x -k "${{ matrix.pattern }}"
         continue-on-error: true
 
   sdk-validation:
@@ -359,10 +376,56 @@ jobs:
           print('Copilot SDK integration: PASSED')
           "@
 
+  # ------------ Transformer Pipeline Validation (Matrix across analysis types) ------------
+  transformer-analysis:
+    name: Transformer (${{ matrix.analysis }})
+    runs-on: [self-hosted, slate, gpu, gpu-2]
+    timeout-minutes: 15
+    env:
+      CUDA_VISIBLE_DEVICES: '0,1'
+    strategy:
+      fail-fast: false
+      matrix:
+        analysis:
+          - status
+          - security-scan
+          - commit-classify
+        include:
+          - analysis: status
+            script: 'python slate/slate_transformers.py --status'
+          - analysis: security-scan
+            script: >-
+              python -c "
+              from slate.slate_transformers import SlateTransformerPipeline;
+              import json;
+              p = SlateTransformerPipeline();
+              r = p.security_scan('import os; os.system(input())');
+              print(json.dumps(r, indent=2))
+              "
+          - analysis: commit-classify
+            script: >-
+              python -c "
+              from slate.slate_transformers import SlateTransformerPipeline;
+              import json, subprocess;
+              log = subprocess.run(['git', 'log', '--max-count=5', '--pretty=format:%s'],
+                capture_output=True, text=True).stdout.strip().split('\n');
+              p = SlateTransformerPipeline();
+              r = p.classify_commits(log);
+              print(json.dumps(r, indent=2))
+              "
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: Run ${{ matrix.analysis }}
+        run: ${{ matrix.script }}
+        continue-on-error: true
+
   summary:
     name: CI Summary
     runs-on: [self-hosted, slate]
-    needs: [lint, unit-tests, sdk-validation, security, slate-checks, gpu-validation, ai-code-review, ai-inference, copilot-sdk]
+    needs: [lint, unit-tests, sdk-validation, security, slate-checks, gpu-validation, ai-code-review, ai-inference, copilot-sdk, transformer-analysis]
     if: always()
     steps:
       - name: Generate summary
@@ -371,7 +434,7 @@ jobs:
           "| Job | Status |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "|-----|--------|" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| Lint | ${{ needs.lint.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-          "| Unit Tests | ${{ needs.unit-tests.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Unit Tests (matrix) | ${{ needs.unit-tests.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| SDK Validation | ${{ needs.sdk-validation.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| Security | ${{ needs.security.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| SLATE Checks | ${{ needs.slate-checks.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
@@ -379,3 +442,4 @@ jobs:
           "| AI Code Review | ${{ needs.ai-code-review.result || 'skipped' }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| AI Inference | ${{ needs.ai-inference.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| Copilot SDK | ${{ needs.copilot-sdk.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Transformer Analysis (matrix) | ${{ needs.transformer-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY

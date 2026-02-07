@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T07:15:00Z | Author: COPILOT | Change: Create AI-powered git analysis workflow
+# Modified: 2026-02-07T18:30:00Z | Author: COPILOT | Change: Add transformer analysis matrix and commit classification
 name: SLATE Git Intelligence
 
 on:
@@ -651,11 +651,87 @@ jobs:
               print(f'AI analysis skipped: {e}')
           "@
 
+  # ---- HuggingFace Transformer Analysis (Matrix) ----
+  transformer-analysis:
+    name: Transformer (${{ matrix.analysis }})
+    needs: verify-ai
+    if: always()
+    runs-on: [self-hosted, slate, gpu, gpu-2]
+    timeout-minutes: 15
+    env:
+      CUDA_VISIBLE_DEVICES: '0,1'
+    strategy:
+      fail-fast: false
+      matrix:
+        analysis:
+          - commit-classify
+          - security-scan
+          - code-embeddings
+        include:
+          - analysis: commit-classify
+            description: 'Classify recent commits using zero-shot transformer'
+            script: >-
+              python -c "
+              from slate.slate_transformers import SlateTransformerPipeline;
+              import json, subprocess;
+              log = subprocess.run(['git', 'log', '--max-count=30', '--pretty=format:%s'],
+                capture_output=True, text=True).stdout.strip().split('\n');
+              p = SlateTransformerPipeline();
+              r = p.classify_commits(log);
+              print(json.dumps(r, indent=2))
+              "
+          - analysis: security-scan
+            description: 'Scan core modules for security patterns using transformers'
+            script: >-
+              python -c "
+              from slate.slate_transformers import SlateTransformerPipeline;
+              import json, pathlib;
+              p = SlateTransformerPipeline();
+              results = [];
+              for f in sorted(pathlib.Path('slate').glob('*.py')):
+                try:
+                  code = f.read_text(encoding='utf-8')[:3000];
+                  r = p.security_scan(code);
+                  flagged = [s for s in r.get('results',[]) if s.get('score',0) > 0.3];
+                  if flagged:
+                    results.append({'file': str(f), 'flags': flagged});
+                except: pass;
+              print(json.dumps({'total_scanned': len(list(pathlib.Path('slate').glob('*.py'))), 'flagged_files': len(results), 'details': results}, indent=2))
+              "
+          - analysis: code-embeddings
+            description: 'Generate code embeddings for top modules'
+            script: >-
+              python -c "
+              from slate.slate_transformers import SlateTransformerPipeline;
+              import json, pathlib;
+              p = SlateTransformerPipeline();
+              results = [];
+              for f in sorted(pathlib.Path('slate').glob('*.py'))[:10]:
+                try:
+                  code = f.read_text(encoding='utf-8')[:1000];
+                  r = p.extract_embeddings(code);
+                  shape = list(r['embedding'].shape) if hasattr(r.get('embedding'), 'shape') else 'error';
+                  results.append({'file': str(f), 'embedding_shape': shape});
+                except Exception as e:
+                  results.append({'file': str(f), 'error': str(e)});
+              print(json.dumps({'modules': len(results), 'results': results}, indent=2))
+              "
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: ${{ matrix.description }}
+        run: ${{ matrix.script }}
+        continue-on-error: true
+
   # ---- Summary ----
   summary:
     name: Intelligence Summary
     runs-on: [self-hosted, slate]
-    needs: [verify-ai, git-analysis, failure-analysis, security-scan, codebase-analysis]
+    needs: [verify-ai, git-analysis, failure-analysis, security-scan, codebase-analysis, transformer-analysis]
     if: always()
     steps:
       - name: Generate summary
@@ -668,5 +744,6 @@ jobs:
           "| AI Services | ${{ needs.verify-ai.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| Git History | ${{ needs.git-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| Failure Analysis | ${{ needs.failure-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-          "| Security Scan | ${{ needs.security-scan.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Security Scan (Ollama) | ${{ needs.security-scan.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| Codebase Analysis | ${{ needs.codebase-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Transformer Analysis (matrix) | ${{ needs.transformer-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY

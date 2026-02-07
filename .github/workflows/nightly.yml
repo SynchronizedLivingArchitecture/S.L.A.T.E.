@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T12:00:00Z | Author: Claude | Change: Add concurrency, timeout, and task cleanup
+# Modified: 2026-02-07T18:30:00Z | Author: COPILOT | Change: Add matrix strategies for test suites and transformer analysis
 name: SLATE Nightly
 
 on:
@@ -19,9 +19,26 @@ defaults:
 
 jobs:
   full-test-suite:
-    name: Full Test Suite
+    name: Tests (${{ matrix.suite }})
     runs-on: [self-hosted, slate]
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - core
+          - security
+          - agents
+          - ml
+        include:
+          - suite: core
+            pattern: 'test_slate_runtime or test_slate_workflow or test_feature_flags or test_install_tracker or test_slate_benchmark or test_watcher or test_module_registry or test_slate_terminal_monitor or test_runner_cost_tracker or test_runner_fallback'
+          - suite: security
+            pattern: 'test_pii_scanner or test_action_guard or test_sdk_source_guard or test_slate_workflow_analyzer'
+          - suite: agents
+            pattern: 'test_agent_registry or test_agent_plugins or test_slate_runner_manager or test_slate_runner_benchmark or test_slate_real_multi_runner or test_copilot_slate_runner or test_slate_discussion_manager or test_slate_project_board'
+          - suite: ml
+            pattern: 'test_ml_orchestrator or test_slate_model_trainer or test_slate_gpu_manager or test_slate_warmup or test_slate_unified_autonomous or test_integrated_autonomous_loop or test_slate_hardware_optimizer'
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
@@ -30,8 +47,8 @@ jobs:
       - name: Install test deps
         run: pip install pytest pytest-cov pytest-asyncio --quiet 2>$null
         continue-on-error: true
-      - name: Run full tests with coverage
-        run: python -m pytest tests/ -v --tb=long --cov=slate --cov-report=term-missing
+      - name: Run ${{ matrix.suite }} tests with coverage
+        run: python -m pytest tests/ -v -k "${{ matrix.pattern }}" --tb=long --cov=slate --cov-report=term-missing
         continue-on-error: true
 
   slate-health:
@@ -167,10 +184,60 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
+  # ------------ Nightly Transformer Analysis (Matrix) ------------
+  transformer-nightly:
+    name: Transformer (${{ matrix.task }})
+    runs-on: [self-hosted, slate, gpu, gpu-2]
+    timeout-minutes: 20
+    env:
+      CUDA_VISIBLE_DEVICES: '0,1'
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - security-scan
+          - benchmark
+          - commit-history
+        include:
+          - task: security-scan
+            script: >-
+              python -c "
+              from slate.slate_transformers import SlateTransformerPipeline;
+              import json, pathlib;
+              p = SlateTransformerPipeline();
+              results = [];
+              for f in sorted(pathlib.Path('slate').glob('*.py'))[:10]:
+                code = f.read_text(encoding='utf-8')[:2000];
+                r = p.security_scan(code);
+                results.append({'file': str(f), 'scan': r});
+              print(json.dumps({'scanned': len(results), 'results': results}, indent=2))
+              "
+          - task: benchmark
+            script: 'python slate/slate_transformers.py --benchmark --json'
+          - task: commit-history
+            script: >-
+              python -c "
+              from slate.slate_transformers import SlateTransformerPipeline;
+              import json, subprocess;
+              log = subprocess.run(['git', 'log', '--max-count=20', '--pretty=format:%s'],
+                capture_output=True, text=True).stdout.strip().split('\n');
+              p = SlateTransformerPipeline();
+              r = p.classify_commits(log);
+              print(json.dumps(r, indent=2))
+              "
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: Run ${{ matrix.task }}
+        run: ${{ matrix.script }}
+        continue-on-error: true
+
   summary:
     name: Nightly Summary
     runs-on: [self-hosted, slate]
-    needs: [full-test-suite, slate-health, sdk-import-audit, dependency-check, ai-codebase-analysis]
+    needs: [full-test-suite, slate-health, sdk-import-audit, dependency-check, ai-codebase-analysis, transformer-nightly]
     if: always()
     steps:
       - name: Generate summary
@@ -178,9 +245,10 @@ jobs:
           "## Nightly Health Summary" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| Check | Status |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "|-------|--------|" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-          "| Full Tests | ${{ needs.full-test-suite.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Full Tests (matrix) | ${{ needs.full-test-suite.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| SLATE Health | ${{ needs.slate-health.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| SDK Import Audit | ${{ needs.sdk-import-audit.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| Dependency Check | ${{ needs.dependency-check.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| AI Analysis | ${{ needs.ai-codebase-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "| Transformer Analysis (matrix) | ${{ needs.transformer-nightly.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "Run at $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" | Out-File -Append $env:GITHUB_STEP_SUMMARY
