@@ -10,7 +10,7 @@
 </p>
 
 <h1 align="center">S.L.A.T.E.</h1>
-<!-- Modified: 2026-02-07T06:30:00Z | Author: CLAUDE | Change: Add SEO headers and marketing content for search visibility -->
+<!-- Modified: 2026-02-07T14:00:00Z | Author: CLAUDE | Change: Embed themed diagrams and visual identity -->
 
 <p align="center">
   <strong>Synchronized Living Architecture for Transformation and Evolution</strong>
@@ -52,6 +52,12 @@ GitHub Actions is powerful. But every workflow runs on GitHub's infrastructure o
 SLATE creates an AI operations layer on your local hardware that connects directly to your GitHub ecosystem. It doesn't replace GitHub - it **extends it** with local AI compute.
 
 ### What You Get
+
+<div align="center">
+
+![SLATE Features](docs/assets/feature-cards.svg)
+
+</div>
 
 - **Local AI Engine** - Ollama + Foundry running on your GPU. Handles automation, code analysis, and task routing locally. No API bills. Ever.
 - **Persistent Memory** - ChromaDB stores context about your codebase. Your AI ops get smarter over time.
@@ -249,51 +255,21 @@ The orchestrator uses local Ollama models. It learns your codebase over time. It
 
 ## System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              S.L.A.T.E. v2.4                                     │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│  ┌─────────────────────────────────────────────────────────────────────────┐    │
-│  │                    GitHub Projects V2 (Task Source)                      │    │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │    │
-│  │  │  KANBAN  │  │   BUGS   │  │ ITERATIVE│  │ ROADMAP  │  │ PLANNING │   │    │
-│  │  │  (5)     │  │   (7)    │  │   (8)    │  │  (10)    │  │   (4)    │   │    │
-│  │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │    │
-│  └───────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────┘    │
-│          │             │             │             │             │               │
-│          └─────────────┴──────┬──────┴─────────────┴─────────────┘               │
-│                               ▼                                                  │
-│  ┌─────────────────────────────────────────────────────────────────────────┐    │
-│  │                     slate_project_board.py                               │    │
-│  │                   (Bidirectional Sync Engine)                            │    │
-│  └──────────────────────────────┬──────────────────────────────────────────┘    │
-│                                 ▼                                                │
-│  ┌─────────────────────────────────────────────────────────────────────────┐    │
-│  │                        current_tasks.json                                │    │
-│  │                      (Local Task Queue)                                  │    │
-│  └──────────────────────────────┬──────────────────────────────────────────┘    │
-│                                 ▼                                                │
-│  ┌─────────────────────────────────────────────────────────────────────────┐    │
-│  │                     Multi-Runner System (19 Runners)                     │    │
-│  │  ┌───────────────────────────────────────────────────────────────────┐  │    │
-│  │  │  GPU Runners (7)           │  CPU Runners (12)                    │  │    │
-│  │  │  ├─ 6x Light (2GB VRAM)    │  ├─ 12x Parallel Workers             │  │    │
-│  │  │  └─ 1x Heavy (12GB VRAM)   │  └─ 24 CPU Threads                   │  │    │
-│  │  └───────────────────────────────────────────────────────────────────┘  │    │
-│  └──────────────────────────────┬──────────────────────────────────────────┘    │
-│                                 ▼                                                │
-│  ┌─────────────────────────────────────────────────────────────────────────┐    │
-│  │                        AI Backend Router                                 │    │
-│  │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐               │    │
-│  │  │    Ollama    │    │   Foundry    │    │  External    │               │    │
-│  │  │ mistral-nemo │    │    Local     │    │    APIs      │               │    │
-│  │  │ :11434       │    │   :5272      │    │  (optional)  │               │    │
-│  │  └──────────────┘    └──────────────┘    └──────────────┘               │    │
-│  └─────────────────────────────────────────────────────────────────────────┘    │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
+<div align="center">
+
+![SLATE System Architecture](docs/assets/system-architecture.svg)
+
+</div>
+
+### Architecture Layers
+
+| Layer | Components | Purpose |
+|:------|:-----------|:--------|
+| **Presentation** | Dashboard `:8080`, CLI, VS Code, Claude Code | User interfaces |
+| **Orchestration** | Task Router, Workflow Dispatcher, Load Balancer | Coordination |
+| **Execution** | GitHub Actions Runner, Multi-Runner System | GPU-enabled execution |
+| **AI Backends** | Ollama `:11434`, Foundry Local `:5272` | FREE local inference |
+| **Infrastructure** | ChromaDB, GPU Scheduler, LLM Cache | Core services |
 
 ### Component Map
 
@@ -777,6 +753,41 @@ SLATE won't run your GPU into the ground:
 - Automatic cleanup of abandoned work
 - GPU memory monitoring per-runner
 
+## Proven Integrations
+
+<div align="center">
+
+![SLATE Integrations](docs/assets/integrations-map.svg)
+
+</div>
+
+### Integration Status
+
+| Integration | Type | Status | Port/Protocol |
+|:------------|:-----|:-------|:--------------|
+| **Ollama** | AI Backend | Verified | `:11434` |
+| **Foundry Local** | AI Backend | Verified | `:5272` |
+| **VS Code** | IDE Extension | Active | @slate |
+| **Claude Code** | MCP Server | Active | 26 Tools |
+| **GitHub Copilot** | Participant | Active | @slate |
+| **GitHub Actions** | Runner | Self-hosted | GPU Labels |
+| **Docker** | Container | Compose | GPU/CPU |
+| **ChromaDB** | Vector Store | Local | RAG Memory |
+| **PyTorch** | ML Framework | 2.7+ | CUDA 12.4 |
+| **NVIDIA GPU** | Hardware | Dual RTX 5070 Ti | 32GB VRAM |
+
+---
+
+## Development Roadmap
+
+<div align="center">
+
+![SLATE Development Roadmap](docs/assets/development-roadmap.svg)
+
+</div>
+
+---
+
 ## Specifications
 
 SLATE development follows a specification-driven approach. Each major feature starts as a spec before implementation.
@@ -784,12 +795,12 @@ SLATE development follows a specification-driven approach. Each major feature st
 ### Active Specs
 
 | # | Specification | Status | Description |
-|---|---------------|--------|-------------|
-| 005 | Dashboard Monochrome Theme | Completed | Black/white base theme with minimal status colors |
-| 006 | Natural Theme System | Completed | Procedural dark/light slider with natural color palette |
-| 007 | Unified Design System | Completed | M3 Material Design + Anthropic Geometric Art |
-| 008 | Guided Experience | Implementing | AI-driven onboarding wizard |
-| 009 | Copilot Roadmap Awareness | Completed | @slate participant with dev cycle integration |
+|:--|:--------------|:------:|:------------|
+| 005 | Dashboard Monochrome Theme | `Completed` | Black/white base theme with minimal status colors |
+| 006 | Natural Theme System | `Completed` | Procedural dark/light slider with natural color palette |
+| 007 | Unified Design System | `Completed` | M3 Material Design + Anthropic Geometric Art |
+| 008 | Guided Experience | `Active` | AI-driven onboarding wizard with zero-config setup |
+| 009 | Copilot Roadmap Awareness | `Completed` | @slate participant with dev cycle integration |
 
 ### Spec Lifecycle
 
@@ -797,14 +808,21 @@ SLATE development follows a specification-driven approach. Each major feature st
 DRAFT → SPECIFIED → PLANNED → IMPLEMENTING → COMPLETED
 ```
 
-### Design Philosophy
+### Design System
 
-The visual identity combines three inspirations:
-- **M3 Material Design**: Design tokens, elevation, state layers
-- **Anthropic Geometric Art**: Starburst patterns, warm palette
-- **Awwwards Patterns**: Card architecture, modern interactions
+<table>
+<tr>
+<th colspan="4" align="center">SLATE Visual Identity</th>
+</tr>
+<tr>
+<td align="center"><strong>M3 Material Design</strong><br><sub>Design tokens, elevation, state layers</sub></td>
+<td align="center"><strong>Anthropic Geometric Art</strong><br><sub>Starburst patterns, warm palette</sub></td>
+<td align="center"><strong>Awwwards Patterns</strong><br><sub>Card architecture, interactions</sub></td>
+<td align="center"><strong>Blueprint Engineering</strong><br><sub>Technical precision, grid systems</sub></td>
+</tr>
+</table>
 
-Primary color: `#B85A3C` (Anthropic-inspired warm rust)
+**Primary Color**: `#B85A3C` (Anthropic-inspired warm rust)
 
 See the [Specifications Wiki](https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki/Specifications) for detailed documentation.
 

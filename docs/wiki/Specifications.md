@@ -1,7 +1,15 @@
 # SLATE Specifications
-<!-- Modified: 2026-02-07T12:30:00Z | Author: CLAUDE | Change: Create comprehensive specifications overview -->
+<!-- Modified: 2026-02-07T14:00:00Z | Author: CLAUDE | Change: Embed themed roadmap and visual styling -->
 
 This page provides an overview of all SLATE specifications, their status, and relationships.
+
+## Development Roadmap
+
+<div align="center">
+
+![SLATE Development Roadmap](../assets/development-roadmap.svg)
+
+</div>
 
 ## Specification Lifecycle
 
@@ -9,13 +17,38 @@ This page provides an overview of all SLATE specifications, their status, and re
 DRAFT → SPECIFIED → PLANNED → IMPLEMENTING → COMPLETED
 ```
 
-| Status | Symbol | Description |
-|--------|--------|-------------|
-| Draft | `[ ]` | Initial concept, gathering requirements |
-| Specified | `[s]` | Full spec written, awaiting planning |
-| Planned | `[p]` | Tasks created, ready for implementation |
-| Implementing | `[~]` | Active development in progress |
-| Completed | `[x]` | Fully implemented and verified |
+<table>
+<tr>
+<th>Status</th>
+<th>Symbol</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><span style="color:#4D4845">●</span> Draft</td>
+<td><code>[ ]</code></td>
+<td>Initial concept, gathering requirements</td>
+</tr>
+<tr>
+<td><span style="color:#3B82F6">●</span> Specified</td>
+<td><code>[s]</code></td>
+<td>Full spec written, awaiting planning</td>
+</tr>
+<tr>
+<td><span style="color:#60A5FA">●</span> Planned</td>
+<td><code>[p]</code></td>
+<td>Tasks created, ready for implementation</td>
+</tr>
+<tr>
+<td><span style="color:#B85A3C">●</span> Implementing</td>
+<td><code>[~]</code></td>
+<td>Active development in progress</td>
+</tr>
+<tr>
+<td><span style="color:#22C55E">●</span> Completed</td>
+<td><code>[x]</code></td>
+<td>Fully implemented and verified</td>
+</tr>
+</table>
 
 ## Active Specifications
 
