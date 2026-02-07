@@ -404,6 +404,154 @@ class GeometricPatternGenerator:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# WATCHMAKER PATTERN GENERATOR
+# (Precision mechanism aesthetic for 3D dashboard)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class WatchmakerPatternGenerator:
+    """
+    Generates SVG watchmaker mechanism patterns for dashboard backgrounds.
+
+    Design philosophy (Watchmaker Aesthetic - spec 012):
+    - Precision: Every element serves a purpose, 4px grid alignment
+    - Mechanism: Users see the system working — animated gears, flow lines
+    - Depth: Information in discoverable layers (z-index hierarchy)
+    - Function: Every UI element serves a specific purpose
+    - Craft: Beauty emerges from functional perfection
+    """
+
+    @staticmethod
+    def gear_svg(size: int = 100, teeth: int = 8, inner_radius: float = 0.35) -> str:
+        """Generate a single gear SVG path for CSS/inline use."""
+        center = size / 2
+        outer_r = size * 0.45
+        inner_r = size * inner_radius
+        tooth_height = outer_r * 0.15
+
+        points = []
+        for i in range(teeth * 2):
+            angle = (math.pi / teeth) * i - math.pi / 2
+            if i % 2 == 0:
+                # Tooth tip
+                r = outer_r + tooth_height
+            else:
+                # Tooth valley
+                r = outer_r
+            x = center + r * math.cos(angle)
+            y = center + r * math.sin(angle)
+            points.append(f"{x:.1f},{y:.1f}")
+
+        gear_path = " ".join(points)
+        return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {size} {size}" width="{size}" height="{size}">
+  <polygon points="{gear_path}" fill="none" stroke="currentColor" stroke-width="2"/>
+  <circle cx="{center}" cy="{center}" r="{inner_r}" fill="currentColor"/>
+</svg>'''
+
+    @staticmethod
+    def gear_mechanism_bg(width: int = 1920, height: int = 1080, gear_count: int = 5, seed: int = 42) -> str:
+        """Generate a background pattern of interlocking gears."""
+        import random
+        rng = random.Random(seed)
+        gears = []
+
+        positions = [
+            (0.05, 0.1, 120, 8),
+            (0.08, 0.6, 80, 6),
+            (0.85, 0.25, 150, 10),
+            (0.9, 0.8, 100, 8),
+            (0.4, 0.85, 60, 6),
+        ]
+
+        for i, (x_pct, y_pct, size, teeth) in enumerate(positions[:gear_count]):
+            x = width * x_pct
+            y = height * y_pct
+            center = size / 2
+            outer_r = size * 0.45
+            tooth_height = outer_r * 0.15
+
+            points = []
+            for j in range(teeth * 2):
+                angle = (math.pi / teeth) * j - math.pi / 2
+                r = outer_r + tooth_height if j % 2 == 0 else outer_r
+                px = center + r * math.cos(angle)
+                py = center + r * math.sin(angle)
+                points.append(f"{px:.1f},{py:.1f}")
+
+            gear_path = " ".join(points)
+            rotation_speed = 20 + i * 5
+            direction = "-" if i % 2 else ""
+
+            gears.append(f'''<g transform="translate({x:.0f},{y:.0f})" opacity="0.12">
+    <animateTransform attributeName="transform" type="rotate" from="0 {center} {center}" to="{direction}360 {center} {center}" dur="{rotation_speed}s" repeatCount="indefinite" additive="sum"/>
+    <polygon points="{gear_path}" fill="none" stroke="rgba(184,115,51,0.8)" stroke-width="3"/>
+    <circle cx="{center}" cy="{center}" r="{size*0.15}" fill="rgba(184,115,51,0.6)"/>
+</g>''')
+
+        return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid slice">
+  {chr(10).join(gears)}
+</svg>'''
+
+    @staticmethod
+    def flow_line_pattern(width: int = 1200, height: int = 100, nodes: int = 5) -> str:
+        """Generate a horizontal data flow line with animated pulses."""
+        node_spacing = width / (nodes + 1)
+        path_d = f"M 0,{height/2}"
+        nodes_svg = []
+
+        for i in range(nodes):
+            x = node_spacing * (i + 1)
+            path_d += f" L {x},{height/2}"
+            nodes_svg.append(f'<circle cx="{x}" cy="{height/2}" r="6" fill="rgba(152,193,217,0.8)"/>')
+
+        path_d += f" L {width},{height/2}"
+
+        return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">
+  <defs>
+    <linearGradient id="flowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(152,193,217,0)"/>
+      <stop offset="50%" stop-color="rgba(152,193,217,0.8)"/>
+      <stop offset="100%" stop-color="rgba(152,193,217,0)"/>
+    </linearGradient>
+  </defs>
+  <path d="{path_d}" fill="none" stroke="rgba(152,193,217,0.3)" stroke-width="2"/>
+  <path d="{path_d}" fill="none" stroke="url(#flowGrad)" stroke-width="2" stroke-dasharray="20 40">
+    <animate attributeName="stroke-dashoffset" from="0" to="-60" dur="1.5s" repeatCount="indefinite"/>
+  </path>
+  {chr(10).join(nodes_svg)}
+</svg>'''
+
+    @staticmethod
+    def status_jewel_svg(size: int = 16, status: str = "active") -> str:
+        """Generate a status jewel indicator."""
+        colors = {
+            "active": "#22C55E",
+            "pending": "#F59E0B",
+            "error": "#EF4444",
+            "inactive": "#6B7280",
+        }
+        color = colors.get(status, colors["inactive"])
+        center = size / 2
+
+        return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {size} {size}" width="{size}" height="{size}">
+  <defs>
+    <radialGradient id="jewelGrad_{status}">
+      <stop offset="30%" stop-color="{color}" stop-opacity="1"/>
+      <stop offset="100%" stop-color="{color}" stop-opacity="0.6"/>
+    </radialGradient>
+    <filter id="jewelGlow_{status}">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="{center}" cy="{center}" r="{size*0.4}" fill="url(#jewelGrad_{status})" filter="url(#jewelGlow_{status})"/>
+  <circle cx="{center*0.7}" cy="{center*0.7}" r="{size*0.1}" fill="rgba(255,255,255,0.4)"/>
+</svg>'''
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # LOGO GENERATOR
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -556,6 +704,8 @@ def build_design_assets(output_dir: str = None) -> Dict[str, str]:
         "constellation": GeometricPatternGenerator.constellation_grid(),
         "hexmesh": GeometricPatternGenerator.hex_mesh(),
         "crystalline": GeometricPatternGenerator.crystalline_field(),
+        "gears": WatchmakerPatternGenerator.gear_mechanism_bg(),
+        "flowline": WatchmakerPatternGenerator.flow_line_pattern(),
     }
     for name, svg in patterns.items():
         pat_path = os.path.join(output_dir, f"pattern-{name}.svg")
@@ -563,7 +713,15 @@ def build_design_assets(output_dir: str = None) -> Dict[str, str]:
             f.write(svg)
         assets[f"pattern_{name}"] = pat_path
 
-    # 4. Token JSON export (for VS Code theme generation)
+    # 4. Status jewel variants
+    for status in ["active", "pending", "error", "inactive"]:
+        jewel_svg = WatchmakerPatternGenerator.status_jewel_svg(16, status)
+        jewel_path = os.path.join(output_dir, f"jewel-{status}.svg")
+        with open(jewel_path, "w", encoding="utf-8") as f:
+            f.write(jewel_svg)
+        assets[f"jewel_{status}"] = jewel_path
+
+    # 5. Token JSON export (for VS Code theme generation)
     tokens_json = SlateDesignTokens.generate_tokens("dark")
     json_path = os.path.join(output_dir, "tokens.json")
     with open(json_path, "w", encoding="utf-8") as f:
