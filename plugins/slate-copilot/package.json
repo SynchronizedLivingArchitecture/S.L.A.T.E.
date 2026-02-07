@@ -13,7 +13,7 @@
 		"author": "COPILOT",
 		"change": "Add icon and bump version for new packaging"
 	},
-	"version": "2.5.2",
+	"version": "2.6.0",
 	"icon": "media/icon.png",
 	"engines": {
 		"vscode": "^1.100.0"
@@ -23,11 +23,29 @@
 		"Chat"
 	],
 	"activationEvents": [
-		"onCommand:slate.showStatus",
-		"onCommand:slate.openDashboard"
+		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "slate-explorer",
+					"title": "SLATE",
+					"icon": "media/icon.png"
+				}
+			]
+		},
+		"views": {
+			"slate-explorer": [
+				{
+					"type": "webview",
+					"id": "slate.dashboardView",
+					"name": "Dashboard",
+					"visibility": "visible"
+				}
+			]
+		},
 		"chatParticipants": [
 			{
 				"id": "slate-copilot.slate",
@@ -275,6 +293,10 @@
 			{
 				"command": "slate.openDashboard",
 				"title": "SLATE: Open Dashboard"
+			},
+			{
+				"command": "slate.refreshDashboard",
+				"title": "SLATE: Refresh Dashboard"
 			}
 		]
 	},

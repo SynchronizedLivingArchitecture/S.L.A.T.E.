@@ -1,13 +1,31 @@
-// Modified: 2026-02-07T04:57:00Z | Author: COPILOT | Change: Add dashboard webview command
+// Modified: 2026-02-07T05:50:00Z | Author: COPILOT | Change: Add sidebar dashboard view provider + panel command
 import * as vscode from 'vscode';
 import { registerSlateParticipant } from './slateParticipant';
 import { registerSlateTools } from './tools';
+import { SlateDashboardViewProvider } from './slateDashboardView';
 
 const DASHBOARD_URL = 'http://127.0.0.1:8080';
 
 export function activate(context: vscode.ExtensionContext) {
 	registerSlateTools(context);
 	registerSlateParticipant(context);
+
+	// Register the sidebar dashboard webview
+	const dashboardViewProvider = new SlateDashboardViewProvider(context.extensionUri);
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(
+			SlateDashboardViewProvider.viewType,
+			dashboardViewProvider,
+			{ webviewOptions: { retainContextWhenHidden: true } }
+		)
+	);
+
+	// Refresh command
+	context.subscriptions.push(
+		vscode.commands.registerCommand('slate.refreshDashboard', () => {
+			dashboardViewProvider.refresh();
+		})
+	);
 
 	// Register the status command
 	context.subscriptions.push(
