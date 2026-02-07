@@ -1,0 +1,227 @@
+{
+	"name": "slate-copilot",
+	"publisher": "slate",
+	"displayName": "SLATE Copilot Agent",
+	"description": "The @slate chat participant for SLATE system management — runner, CI, GPU, orchestrator, benchmarks.",
+	"version": "2.4.0",
+	"engines": {
+		"vscode": "^1.100.0"
+	},
+	"categories": [
+		"AI",
+		"Chat"
+	],
+	"activationEvents": [],
+	"main": "./out/extension.js",
+	"contributes": {
+		"chatParticipants": [
+			{
+				"id": "slate-copilot.slate",
+				"fullName": "SLATE",
+				"name": "slate",
+				"description": "SLATE system management — runner, CI, GPU, orchestrator & more",
+				"isSticky": true,
+				"commands": [
+					{
+						"name": "status",
+						"description": "Full system health check — GPU, Python, runner, services"
+					},
+					{
+						"name": "runner",
+						"description": "GitHub Actions self-hosted runner status and management"
+					},
+					{
+						"name": "ci",
+						"description": "Dispatch, monitor, or cancel CI/CD workflow runs"
+					},
+					{
+						"name": "hardware",
+						"description": "GPU detection, optimization, and PyTorch configuration"
+					},
+					{
+						"name": "benchmark",
+						"description": "Run performance benchmarks"
+					},
+					{
+						"name": "orchestrator",
+						"description": "Service lifecycle — start, stop, status of all services"
+					},
+					{
+						"name": "help",
+						"description": "List available SLATE commands and tools"
+					}
+				],
+				"disambiguation": [
+					{
+						"category": "slate_ops",
+						"description": "The user wants to manage SLATE infrastructure — runner, CI, GPU, services.",
+						"examples": [
+							"Check if the runner is online",
+							"What GPUs are available?",
+							"Dispatch the CI workflow",
+							"Show system status",
+							"Start the dashboard"
+						]
+					}
+				]
+			}
+		],
+		"languageModelTools": [
+			{
+				"name": "slate_systemStatus",
+				"tags": ["slate", "status", "health"],
+				"toolReferenceName": "slateStatus",
+				"displayName": "SLATE System Status",
+				"modelDescription": "Get full SLATE system health: Python, GPU, PyTorch, Ollama, services. Returns JSON.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"quick": {
+							"type": "boolean",
+							"description": "Quick check (true) or full JSON output (false)",
+							"default": false
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_runtimeCheck",
+				"tags": ["slate", "runtime", "dependencies"],
+				"toolReferenceName": "slateRuntime",
+				"displayName": "SLATE Runtime Check",
+				"modelDescription": "Check SLATE runtime integrations: Python, venv, GPU, PyTorch, Transformers, Ollama.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {}
+				}
+			},
+			{
+				"name": "slate_runnerStatus",
+				"tags": ["slate", "runner", "ci"],
+				"toolReferenceName": "slateRunner",
+				"displayName": "SLATE Runner Status",
+				"modelDescription": "Get GitHub Actions self-hosted runner status, active runs, and configuration.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action: 'status' (default), 'detect', or 'dispatch'",
+							"enum": ["status", "detect", "dispatch"],
+							"default": "status"
+						},
+						"workflow": {
+							"type": "string",
+							"description": "Workflow file to dispatch (only with action='dispatch')"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_hardwareInfo",
+				"tags": ["slate", "hardware", "gpu", "cuda"],
+				"toolReferenceName": "slateHardware",
+				"displayName": "SLATE Hardware Info",
+				"modelDescription": "Detect GPUs, CUDA configuration, and PyTorch compatibility. Can optimize settings.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"optimize": {
+							"type": "boolean",
+							"description": "Apply GPU optimizations (true) or just detect (false)",
+							"default": false
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_orchestrator",
+				"tags": ["slate", "services", "orchestrator"],
+				"toolReferenceName": "slateOrchestrator",
+				"displayName": "SLATE Orchestrator",
+				"modelDescription": "Manage SLATE services: start, stop, or check status of dashboard, runner, and health services.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action to perform: 'status', 'start', or 'stop'",
+							"enum": ["status", "start", "stop"],
+							"default": "status"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_workflow",
+				"tags": ["slate", "workflow", "tasks"],
+				"toolReferenceName": "slateWorkflow",
+				"displayName": "SLATE Workflow Manager",
+				"modelDescription": "Manage task lifecycle, PR workflows, and stale task cleanup.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Action: 'status', 'cleanup', or 'enforce'",
+							"enum": ["status", "cleanup", "enforce"],
+							"default": "status"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_benchmark",
+				"tags": ["slate", "benchmark", "performance"],
+				"toolReferenceName": "slateBenchmark",
+				"displayName": "SLATE Benchmark",
+				"modelDescription": "Run SLATE performance benchmarks.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"properties": {}
+				}
+			},
+			{
+				"name": "slate_runCommand",
+				"tags": ["slate", "terminal", "command"],
+				"displayName": "SLATE Run Command",
+				"modelDescription": "Run an arbitrary SLATE Python command and return the output. Use for custom operations.",
+				"canBeReferencedInPrompt": false,
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"command": {
+							"type": "string",
+							"description": "The Python command to run (e.g., 'slate/slate_status.py --quick')"
+						}
+					},
+					"required": ["command"]
+				}
+			}
+		],
+		"commands": [
+			{
+				"command": "slate.showStatus",
+				"title": "SLATE: Show System Status"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"lint": "eslint"
+	},
+	"devDependencies": {
+		"@types/node": "^22",
+		"@types/vscode": "^1.100.0",
+		"typescript": "^5.9.2"
+	}
+}
