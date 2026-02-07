@@ -110,7 +110,7 @@ jobs:
         run: |
           python -c @"
           import json
-          with open('.slate_tech_tree/tech_tree.json', 'r') as f:
+          with open('.slate_tech_tree/tech_tree.json', 'r', encoding='utf-8') as f:
               tree = json.load(f)
           nodes = tree.get('nodes', [])
           completed = sum(1 for n in nodes if n.get('status') == 'complete')
@@ -120,7 +120,7 @@ jobs:
         run: |
           python -c @"
           import json
-          with open('current_tasks.json', 'r') as f:
+          with open('current_tasks.json', 'r', encoding='utf-8') as f:
               data = json.load(f)
           tasks = data.get('tasks', data) if isinstance(data, dict) else data
           if isinstance(tasks, list):

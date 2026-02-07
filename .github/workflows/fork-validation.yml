@@ -140,7 +140,7 @@ jobs:
           python -c @"
           import json, sys
           try:
-              with open('current_tasks.json', 'r') as f:
+              with open('current_tasks.json', 'r', encoding='utf-8') as f:
                   data = json.load(f)
               tasks = data.get('tasks', data) if isinstance(data, dict) else data
               if not isinstance(tasks, list):

@@ -90,7 +90,7 @@ jobs:
           if not os.path.exists('README.md'):
               print('::error::README.md not found')
               exit(1)
-          with open('README.md', 'r') as f:
+          with open('README.md', 'r', encoding='utf-8', errors='ignore') as f:
               content = f.read()
           lines = content.strip().split('\n')
           print(f'README.md: {len(lines)} lines')
