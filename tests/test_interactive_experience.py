@@ -347,10 +347,25 @@ class TestInteractiveAPI:
 
     def test_transition_stage(self, client):
         """Test POST /api/devcycle/transition."""
-        # Modified: 2026-02-08T01:00:00Z | Author: COPILOT | Change: Fix transition target to valid stage
+        # Modified: 2026-02-09T06:10:00Z | Author: COPILOT | Change: Make transition test state-resilient
+        # Get current state to find valid target
+        cycle_response = client.get("/api/devcycle/state")
+        assert cycle_response.status_code == 200
+        current_stage = cycle_response.json().get("current_stage", "plan")
+
+        # Valid transitions map
+        valid_targets = {
+            "plan": "code",
+            "code": "test",
+            "test": "deploy",
+            "deploy": "feedback",
+            "feedback": "plan",
+        }
+        to_stage = valid_targets.get(current_stage, "code")
+
         response = client.post(
             "/api/devcycle/transition",
-            json={"to_stage": "test"}  # valid transition from default 'code' stage
+            json={"to_stage": to_stage}
         )
         assert response.status_code == 200
 

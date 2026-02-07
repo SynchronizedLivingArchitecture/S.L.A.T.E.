@@ -409,8 +409,59 @@ ruff check .
 
 - Python: Type hints required. Google-style docstrings. Use `Annotated` for tool parameters.
 - Imports: Add `WORKSPACE_ROOT` to `sys.path` when importing cross-module.
-- UI: Glassmorphism theme (75% opacity, muted pastels). System fonts only (Consolas, Segoe UI).
 - Task files: Always use `slate_core/file_lock.py` for `current_tasks.json` (prevents race conditions).
+
+## UI & Design System (Watchmaker Aesthetic)
+
+All UI and image design follows the **Watchmaker Design Philosophy** (spec 012):
+
+### Core Principles
+| Principle | Description |
+|-----------|-------------|
+| **Precision** | Every pixel serves a purpose. 4px grid alignment. No arbitrary elements. |
+| **Mechanism** | Users see the system working — animated gears, flow lines, visible connections. |
+| **Depth** | Information in discoverable layers (Surface → Mechanism → Components → Internals → Core). |
+| **Function** | Every UI element serves a specific purpose, like watch complications. |
+| **Craft** | Beauty emerges from functional perfection, not decoration. |
+
+### Visual Components
+- **Gear Icons**: Rotating when active, indicating processing
+- **Status Jewels**: Colored gems (green=active, amber=pending, red=error)
+- **Flow Lines**: Animated stroke-dasharray showing data paths
+- **3D Cards**: Depth on hover with perspective transforms
+- **Schematic Layout**: Blueprint-style organization with visible connections
+
+### Design Tokens (LOCKED)
+```css
+/* Primary: Anthropic-inspired warm rust */
+--slate-primary: #B85A3C;
+/* Blueprint: Technical precision */
+--blueprint-bg: #0D1B2A;
+--blueprint-grid: #1B3A4B;
+/* Typography: System fonts only */
+--font-display: 'Segoe UI', 'Inter', system-ui, sans-serif;
+--font-mono: 'Consolas', 'JetBrains Mono', monospace;
+/* Grid: Precision alignment */
+--grid-unit: 4px;
+```
+
+### 3D Dashboard Structure
+```
+Z=-200: Background gears (decorative, subtle rotation)
+Z=-100: Blueprint grid
+Z=-50:  Connection lines (animated data flows)
+Z=0:    Primary UI components
+Z=50:   Floating elements (tooltips, modals)
+Z=100:  Overlays (notifications)
+```
+
+### Schematic-Based Organization
+All information structures use schematic/blueprint layout:
+- **Hierarchy**: Tree views with nested containers
+- **Circuit**: Nodes connected by flow lines
+- **Dataflow**: Input → Processing → Output pipelines
+
+See: `specs/007-slate-design-system/`, `specs/012-watchmaker-3d-dashboard/`
 
 ## Security Architecture — LOCAL ONLY
 

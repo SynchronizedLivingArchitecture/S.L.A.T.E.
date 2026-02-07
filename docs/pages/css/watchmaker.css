@@ -1,0 +1,480 @@
+/* ================================================================
+   SLATE Watchmaker Design System v4.0
+   Interactive 3D Dashboard with Schematic Organization
+   ================================================================ */
+
+/* ================================================================
+   WATCHMAKER DESIGN TOKENS
+   ================================================================ */
+
+:root {
+  /* === GEAR SYSTEM === */
+  --gear-primary: var(--slate-primary, #B85A3C);
+  --gear-secondary: var(--slate-primary-dark, #8B4530);
+  --gear-accent: var(--blueprint-accent, #98C1D9);
+  --gear-speed-slow: 20s;
+  --gear-speed-medium: 10s;
+  --gear-speed-fast: 5s;
+
+  /* === 3D PERSPECTIVE === */
+  --perspective-distance: 1200px;
+  --z-background: -200px;
+  --z-grid: -100px;
+  --z-connections: -50px;
+  --z-components: 0px;
+  --z-floating: 50px;
+  --z-overlay: 100px;
+
+  /* === PRECISION GRID === */
+  --grid-unit: 4px;
+  --grid-micro: 8px;
+  --grid-small: 16px;
+  --grid-medium: 32px;
+  --grid-large: 64px;
+
+  /* === STATUS JEWELS === */
+  --jewel-size: 12px;
+  --jewel-glow-spread: 4px;
+  --jewel-active: #22C55E;
+  --jewel-pending: #F59E0B;
+  --jewel-error: #EF4444;
+  --jewel-inactive: #6B7280;
+
+  /* === POLISH EFFECTS === */
+  --polish-reflection: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.15) 0%,
+    rgba(255,255,255,0) 50%
+  );
+  --metal-sheen: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.1) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(0,0,0,0.1) 100%
+  );
+
+  /* === SHADOWS === */
+  --shadow-gear: 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-inset: inset 0 1px 2px rgba(0,0,0,0.1);
+  --shadow-depth: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* ================================================================
+   3D PERSPECTIVE CONTAINER
+   ================================================================ */
+
+.perspective-container {
+  perspective: var(--perspective-distance);
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  overflow: hidden;
+}
+
+.z-background { transform: translateZ(var(--z-background)); }
+.z-grid { transform: translateZ(var(--z-grid)); opacity: 0.6; }
+.z-connections { transform: translateZ(var(--z-connections)); }
+.z-components { transform: translateZ(var(--z-components)); }
+.z-floating { transform: translateZ(var(--z-floating)); }
+.z-overlay { transform: translateZ(var(--z-overlay)); }
+
+/* ================================================================
+   ANIMATED GEAR COMPONENT
+   ================================================================ */
+
+.gear {
+  display: inline-block;
+  transform-origin: center center;
+}
+
+.gear-spin-slow { animation: gear-rotate var(--gear-speed-slow) linear infinite; }
+.gear-spin-medium { animation: gear-rotate var(--gear-speed-medium) linear infinite; }
+.gear-spin-fast { animation: gear-rotate var(--gear-speed-fast) linear infinite; }
+.gear-spin-reverse { animation: gear-rotate-reverse var(--gear-speed-medium) linear infinite; }
+
+@keyframes gear-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gear-rotate-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* Gear cluster (interlocking gears) */
+.gear-cluster {
+  position: relative;
+  display: inline-flex;
+}
+
+.gear-cluster .gear:nth-child(2) {
+  margin-left: -10%;
+  animation-direction: reverse;
+}
+
+.gear-cluster .gear:nth-child(3) {
+  margin-left: -10%;
+}
+
+/* ================================================================
+   STATUS JEWEL COMPONENT
+   ================================================================ */
+
+.status-jewel {
+  width: var(--jewel-size);
+  height: var(--jewel-size);
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+}
+
+.status-jewel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    currentColor 0%,
+    color-mix(in srgb, currentColor 60%, black) 100%
+  );
+  box-shadow:
+    0 0 var(--jewel-glow-spread) currentColor,
+    inset 0 1px 2px rgba(255,255,255,0.3);
+}
+
+.status-jewel.active { color: var(--jewel-active); }
+.status-jewel.pending {
+  color: var(--jewel-pending);
+  animation: jewel-pulse 1.5s ease-in-out infinite;
+}
+.status-jewel.error { color: var(--jewel-error); }
+.status-jewel.inactive { color: var(--jewel-inactive); }
+
+@keyframes jewel-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.15); }
+}
+
+/* ================================================================
+   DATA FLOW LINES
+   ================================================================ */
+
+.flow-line {
+  stroke: var(--gear-accent);
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 8 4;
+  animation: flow-pulse 1.5s linear infinite;
+}
+
+.flow-line.active { stroke: var(--jewel-active); }
+.flow-line.slow { animation-duration: 3s; }
+.flow-line.fast { animation-duration: 0.75s; }
+
+@keyframes flow-pulse {
+  to { stroke-dashoffset: -12; }
+}
+
+/* ================================================================
+   WATCHMAKER CARD
+   ================================================================ */
+
+.watchmaker-card {
+  background: var(--slate-surface-variant, #2A2624);
+  border: 1px solid var(--slate-outline-variant, #4D4845);
+  border-radius: 16px;
+  padding: var(--grid-medium);
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+  box-shadow: var(--shadow-depth);
+}
+
+/* Polish reflection overlay */
+.watchmaker-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--polish-reflection);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.watchmaker-card:hover {
+  transform: translateZ(20px) rotateX(-1deg) rotateY(1deg);
+  box-shadow:
+    0 16px 32px rgba(0,0,0,0.25),
+    0 8px 16px rgba(0,0,0,0.2);
+}
+
+.watchmaker-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--grid-small);
+  margin-bottom: var(--grid-small);
+  padding-bottom: var(--grid-small);
+  border-bottom: 1px solid var(--slate-outline-variant, #4D4845);
+}
+
+.watchmaker-card-header .gear {
+  width: 24px;
+  height: 24px;
+  opacity: 0.6;
+}
+
+.watchmaker-card.active .watchmaker-card-header .gear {
+  opacity: 1;
+  animation: gear-rotate 8s linear infinite;
+}
+
+.watchmaker-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ================================================================
+   SCHEMATIC LAYOUT
+   ================================================================ */
+
+.schematic-container {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 19px,
+      var(--blueprint-grid, #1B3A4B) 19px,
+      var(--blueprint-grid, #1B3A4B) 20px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 19px,
+      var(--blueprint-grid, #1B3A4B) 19px,
+      var(--blueprint-grid, #1B3A4B) 20px
+    ),
+    var(--blueprint-bg, #0D1B2A);
+  padding: var(--grid-large);
+  border-radius: 16px;
+}
+
+.schematic-node {
+  background: var(--slate-surface-variant, #2A2624);
+  border: 2px solid var(--gear-accent);
+  border-radius: 12px;
+  padding: var(--grid-medium);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--grid-small);
+  box-shadow: 0 0 12px rgba(152, 193, 217, 0.2);
+}
+
+.schematic-node .status-jewel {
+  flex-shrink: 0;
+}
+
+.schematic-connector {
+  position: relative;
+  height: 2px;
+  background: var(--gear-accent);
+  margin: var(--grid-medium) 0;
+}
+
+.schematic-connector::before,
+.schematic-connector::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--gear-accent);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.schematic-connector::before { left: 0; }
+.schematic-connector::after { right: 0; }
+
+/* ================================================================
+   MECHANISM BACKGROUND
+   ================================================================ */
+
+.mechanism-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+  opacity: 0.15;
+}
+
+.mechanism-bg .gear {
+  position: absolute;
+  fill: var(--gear-primary);
+}
+
+.mechanism-bg .gear:nth-child(1) { top: 10%; left: 5%; width: 120px; }
+.mechanism-bg .gear:nth-child(2) { top: 60%; left: 8%; width: 80px; }
+.mechanism-bg .gear:nth-child(3) { top: 30%; right: 10%; width: 150px; }
+.mechanism-bg .gear:nth-child(4) { bottom: 15%; right: 5%; width: 100px; }
+.mechanism-bg .gear:nth-child(5) { top: 80%; left: 40%; width: 60px; }
+
+/* ================================================================
+   BALANCE WHEEL (Activity Indicator)
+   ================================================================ */
+
+.balance-wheel {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--gear-accent);
+  border-radius: 50%;
+  position: relative;
+  animation: balance-oscillate 1s ease-in-out infinite alternate;
+}
+
+.balance-wheel::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 50%;
+  background: var(--gear-primary);
+  transform-origin: center top;
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+@keyframes balance-oscillate {
+  from { transform: rotate(-15deg); }
+  to { transform: rotate(15deg); }
+}
+
+/* ================================================================
+   MAINSPRING (Load Indicator)
+   ================================================================ */
+
+.mainspring {
+  width: 60px;
+  height: 60px;
+  position: relative;
+}
+
+.mainspring-coil {
+  fill: none;
+  stroke: var(--gear-primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform-origin: center;
+}
+
+.mainspring.charging .mainspring-coil {
+  animation: coil-tighten 2s ease-in-out infinite;
+}
+
+@keyframes coil-tighten {
+  0%, 100% { stroke-dashoffset: 0; }
+  50% { stroke-dashoffset: 50; }
+}
+
+/* ================================================================
+   ESCAPEMENT (Rate Display)
+   ================================================================ */
+
+.escapement {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.escapement-tick {
+  width: 4px;
+  height: 16px;
+  background: var(--gear-accent);
+  border-radius: 2px;
+  animation: tick-tock 0.5s ease-in-out infinite alternate;
+}
+
+.escapement-tick:nth-child(odd) { animation-delay: 0s; }
+.escapement-tick:nth-child(even) { animation-delay: 0.25s; }
+
+@keyframes tick-tock {
+  from { transform: scaleY(0.5); opacity: 0.5; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+/* ================================================================
+   INFORMATION TIER NAVIGATION
+   ================================================================ */
+
+.tier-nav {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--slate-surface, #1A1816);
+  border-radius: 8px;
+}
+
+.tier-nav-item {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--slate-on-surface-variant);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tier-nav-item:hover {
+  background: var(--slate-surface-variant);
+  color: var(--slate-on-surface);
+}
+
+.tier-nav-item.active {
+  background: var(--slate-primary);
+  color: var(--slate-on-primary);
+}
+
+.tier-nav-item .depth-indicator {
+  width: 16px;
+  height: 4px;
+  background: currentColor;
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+/* ================================================================
+   RESPONSIVE ADJUSTMENTS
+   ================================================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --jewel-size: 10px;
+    --grid-medium: 24px;
+    --grid-large: 48px;
+  }
+
+  .mechanism-bg { opacity: 0.08; }
+
+  .watchmaker-card:hover {
+    transform: translateZ(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gear,
+  .balance-wheel,
+  .mainspring-coil,
+  .escapement-tick,
+  .status-jewel.pending,
+  .flow-line {
+    animation: none;
+  }
+}

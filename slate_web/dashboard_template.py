@@ -620,6 +620,132 @@ def build_template() -> str:
         .schematic-status-chip .ssc-dot.error {{ background: var(--sl-error, #EF4444); }}
         .schematic-status-chip .ssc-dot.idle {{ background: var(--sl-text-disabled, #666); }}
 
+        /* ─── Schematic Interactive Features (Spec 012 Phase 3) ───────── */
+
+        /* Component hover tooltips */
+        .schematic-tooltip {{
+            position: fixed;
+            z-index: 4000;
+            padding: 8px 12px;
+            background: rgba(15, 14, 13, 0.95);
+            border: 1px solid var(--sl-border, #2A2624);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            font-size: 11px;
+            color: var(--sl-text-primary, #E8E2DE);
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            max-width: 240px;
+        }}
+
+        .schematic-tooltip.visible {{
+            opacity: 1;
+            transform: translateY(0);
+        }}
+
+        .schematic-tooltip-title {{
+            font-weight: 600;
+            color: var(--sl-accent, #B85A3C);
+            margin-bottom: 4px;
+        }}
+
+        .schematic-tooltip-status {{
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid var(--sl-border, #2A2624);
+            font-family: 'Consolas', monospace;
+            font-size: 10px;
+        }}
+
+        .schematic-tooltip-status .sts-dot {{
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }}
+
+        /* Click-to-focus zoom */
+        .schematic-zoomable {{
+            cursor: zoom-in;
+            transition: transform 0.3s var(--sl-ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+            transform-origin: center center;
+        }}
+
+        .schematic-zoomable.zoomed {{
+            cursor: zoom-out;
+        }}
+
+        .schematic-zoom-controls {{
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            gap: 4px;
+            z-index: 10;
+        }}
+
+        .schematic-zoom-btn {{
+            width: 32px;
+            height: 32px;
+            background: rgba(15, 14, 13, 0.85);
+            border: 1px solid var(--sl-border, #2A2624);
+            border-radius: 6px;
+            color: var(--sl-text-secondary, #CAC4BF);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }}
+
+        .schematic-zoom-btn:hover {{
+            background: rgba(184, 90, 60, 0.2);
+            color: var(--sl-accent, #B85A3C);
+        }}
+
+        /* Connection highlighting */
+        .schematic-highlight-connections {{
+            --highlight-color: var(--sl-accent, #B85A3C);
+        }}
+
+        .schematic-connection {{
+            transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }}
+
+        .schematic-connection.highlighted {{
+            stroke: var(--highlight-color) !important;
+            stroke-width: 3px !important;
+            filter: drop-shadow(0 0 6px var(--highlight-color));
+        }}
+
+        .schematic-node {{
+            transition: filter 0.2s ease, transform 0.2s ease;
+        }}
+
+        .schematic-node.highlighted {{
+            filter: drop-shadow(0 0 8px var(--sl-accent, #B85A3C));
+            transform: scale(1.02);
+        }}
+
+        .schematic-node.dimmed {{
+            opacity: 0.4;
+        }}
+
+        /* Real-time activity flow animation */
+        .schematic-flow-active {{
+            stroke-dasharray: 6 3;
+            animation: schematic-flow 1s linear infinite;
+        }}
+
+        @keyframes schematic-flow {{
+            to {{ stroke-dashoffset: -9; }}
+        }}
+
         @media (max-width: 767px) {{
             .schematic-compact {{ aspect-ratio: auto; height: 120px; }}
             .schematic-modal {{ width: 96vw; height: 90vh; }}
@@ -2030,12 +2156,27 @@ def build_template() -> str:
 
     <div id="conn-status"><span class="pulse-dot" id="ws-dot"></span> <span id="ws-text">Connecting...</span></div>
 
+    <!-- Schematic Tooltip (Spec 012 Phase 3) -->
+    <div class="schematic-tooltip" id="schematic-tooltip">
+        <div class="schematic-tooltip-title" id="tooltip-title">Component</div>
+        <div class="schematic-tooltip-desc" id="tooltip-desc">Description</div>
+        <div class="schematic-tooltip-status">
+            <span class="sts-dot" id="tooltip-status-dot" style="background:#22C55E"></span>
+            <span id="tooltip-status-text">Active</span>
+        </div>
+    </div>
+
     <!-- Schematic Modal Detail View (Spec 012 Phase 2) -->
     <div class="schematic-modal-overlay" id="schematic-modal" role="dialog" aria-modal="true" aria-label="Schematic detail view">
         <div class="schematic-modal">
             <div class="schematic-modal-header">
                 <span class="schematic-modal-title" id="schematic-modal-title">System Architecture</span>
                 <div class="schematic-modal-actions">
+                    <div class="schematic-zoom-controls" style="position:static;margin-right:8px;">
+                        <button class="schematic-zoom-btn" onclick="zoomSchematic(-zoomStep)" title="Zoom out">-</button>
+                        <button class="schematic-zoom-btn" onclick="resetZoom()" title="Reset zoom">1:1</button>
+                        <button class="schematic-zoom-btn" onclick="zoomSchematic(zoomStep)" title="Zoom in">+</button>
+                    </div>
                     <span class="schematic-live-badge">
                         <span class="schematic-live-dot"></span>
                         Live
@@ -2818,6 +2959,146 @@ def build_template_js() -> str:
                 }
             } catch (e) {}
         }
+
+        // ─── Schematic Interactive Features (Spec 012 Phase 3) ─────────
+
+        // Component data for tooltips
+        const schematicComponents = {
+            'dashboard': { name: 'Dashboard', desc: 'Web UI at :8080', status: 'active', port: '8080' },
+            'ollama': { name: 'Ollama', desc: 'Local LLM inference', status: 'active', port: '11434' },
+            'foundry': { name: 'Foundry Local', desc: 'ONNX inference backend', status: 'idle', port: '5272' },
+            'chromadb': { name: 'ChromaDB', desc: 'Vector store for RAG', status: 'idle', port: '8000' },
+            'runner': { name: 'slate-runner', desc: 'GitHub Actions runner', status: 'active' },
+            'gpu-cluster': { name: 'Dual GPU', desc: 'RTX 5070 Ti x2', status: 'active' },
+            'task-router': { name: 'Task Router', desc: 'Agentic dispatch system', status: 'active' }
+        };
+
+        // Tooltip system
+        const tooltip = document.getElementById('schematic-tooltip');
+        const tooltipTitle = document.getElementById('tooltip-title');
+        const tooltipDesc = document.getElementById('tooltip-desc');
+        const tooltipDot = document.getElementById('tooltip-status-dot');
+        const tooltipStatus = document.getElementById('tooltip-status-text');
+
+        function showSchematicTooltip(componentId, x, y) {
+            const comp = schematicComponents[componentId];
+            if (!comp || !tooltip) return;
+
+            tooltipTitle.textContent = comp.name;
+            tooltipDesc.textContent = comp.desc + (comp.port ? ` (:${comp.port})` : '');
+
+            const statusColors = { active: '#22C55E', warning: '#F59E0B', error: '#EF4444', idle: '#6B7280' };
+            tooltipDot.style.background = statusColors[comp.status] || statusColors.idle;
+            tooltipStatus.textContent = comp.status.charAt(0).toUpperCase() + comp.status.slice(1);
+
+            // Position tooltip
+            const rect = tooltip.getBoundingClientRect();
+            let left = x + 12;
+            let top = y - 8;
+
+            if (left + 240 > window.innerWidth) left = x - 250;
+            if (top + 80 > window.innerHeight) top = y - 80;
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+            tooltip.classList.add('visible');
+        }
+
+        function hideSchematicTooltip() {
+            if (tooltip) tooltip.classList.remove('visible');
+        }
+
+        // Attach tooltip listeners to schematic SVG nodes
+        function attachSchematicInteractivity() {
+            document.querySelectorAll('.schematic-content svg, .schematic-modal-body svg').forEach(svg => {
+                // Find nodes (g elements or rects with data-component)
+                svg.querySelectorAll('[data-component]').forEach(node => {
+                    node.style.cursor = 'pointer';
+                    node.classList.add('schematic-node');
+
+                    node.addEventListener('mouseenter', function(e) {
+                        const compId = this.getAttribute('data-component');
+                        showSchematicTooltip(compId, e.clientX, e.clientY);
+                        highlightConnections(compId, svg);
+                    });
+
+                    node.addEventListener('mousemove', function(e) {
+                        const compId = this.getAttribute('data-component');
+                        showSchematicTooltip(compId, e.clientX, e.clientY);
+                    });
+
+                    node.addEventListener('mouseleave', function() {
+                        hideSchematicTooltip();
+                        clearConnectionHighlights(svg);
+                    });
+                });
+            });
+        }
+
+        // Connection highlighting
+        function highlightConnections(componentId, svg) {
+            svg.querySelectorAll('[data-from], [data-to]').forEach(conn => {
+                const from = conn.getAttribute('data-from');
+                const to = conn.getAttribute('data-to');
+                if (from === componentId || to === componentId) {
+                    conn.classList.add('highlighted', 'schematic-flow-active');
+                }
+            });
+
+            svg.querySelectorAll('[data-component]').forEach(node => {
+                if (node.getAttribute('data-component') === componentId) {
+                    node.classList.add('highlighted');
+                }
+            });
+        }
+
+        function clearConnectionHighlights(svg) {
+            svg.querySelectorAll('.highlighted').forEach(el => {
+                el.classList.remove('highlighted', 'schematic-flow-active');
+            });
+        }
+
+        // Zoom functionality
+        let currentZoom = 1;
+        const zoomStep = 0.25;
+        const maxZoom = 2.5;
+        const minZoom = 0.5;
+
+        function zoomSchematic(delta) {
+            const container = document.querySelector('.schematic-modal-body svg, .schematic-hero svg');
+            if (!container) return;
+
+            currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+            container.style.transform = `scale(${currentZoom})`;
+
+            if (currentZoom > 1) {
+                container.classList.add('zoomed');
+            } else {
+                container.classList.remove('zoomed');
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            const container = document.querySelector('.schematic-modal-body svg, .schematic-hero svg');
+            if (container) {
+                container.style.transform = 'scale(1)';
+                container.classList.remove('zoomed');
+            }
+        }
+
+        // Re-attach interactivity when schematics update
+        const schematicObserver = new MutationObserver(() => {
+            attachSchematicInteractivity();
+        });
+
+        ['schematic-svg-container', 'schematic-modal-body', 'sidebar-schematic-svg'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) schematicObserver.observe(el, { childList: true, subtree: true });
+        });
+
+        // Initial attachment
+        setTimeout(attachSchematicInteractivity, 1000);
 
         // ─── Initial Load ─────────────────────────────────────────────
         async function fetchInitialStatus() {

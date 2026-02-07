@@ -464,16 +464,16 @@ document.addEventListener('DOMContentLoaded', () => schematicManager.init());
 - [x] Generative UI protocol integration (`slate/slate_generative_ui.py`)
 
 ### Phase 2: Widget Library
-- [ ] Compact sidebar widget
-- [ ] Card schematic component
-- [ ] Modal detail view
-- [ ] Status overlay system
+- [x] Compact sidebar widget
+- [x] Card schematic component
+- [x] Modal detail view
+- [x] Status overlay system
 
 ### Phase 3: Interactive Features
-- [ ] Component hover tooltips
-- [ ] Click-to-focus zoom
-- [ ] Connection highlighting
-- [ ] Real-time activity flow animation
+- [x] Component hover tooltips (`schematic-tooltip`)
+- [x] Click-to-focus zoom (`zoomSchematic()`, zoom controls)
+- [x] Connection highlighting (`.highlighted`, `.schematic-flow-active`)
+- [x] Real-time activity flow animation (`@keyframes schematic-flow`)
 
 ## Theme Lock Declaration
 

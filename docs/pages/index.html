@@ -625,6 +625,78 @@
            Responsive
            ================================================================ */
 
+        /* ================================================================
+           Watchmaker Enhancements
+           ================================================================ */
+
+        .hero-gears {
+            position: absolute;
+            top: 20%;
+            right: 10%;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .hero.z-components {
+            position: relative;
+        }
+
+        /* Balance Wheel Activity Indicator in Footer */
+        .footer-activity {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        /* Escapement Animation in Install Section */
+        .install-escapement {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: var(--space-md);
+        }
+
+        /* Feature Card Watchmaker Enhancements */
+        .feature-card.watchmaker-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card.watchmaker-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--polish-reflection);
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        .feature-card.watchmaker-card .watchmaker-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-sm);
+            padding-bottom: var(--space-sm);
+            border-bottom: 1px solid var(--slate-outline-variant);
+        }
+
+        .feature-card.watchmaker-card:hover .gear {
+            animation: gear-rotate 4s linear infinite;
+        }
+
+        /* Data Flow SVG for Architecture */
+        .architecture-flow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -632,6 +704,10 @@
 
             .hero h1 {
                 font-size: clamp(2rem, 1.5rem + 2.5vw, 3rem);
+            }
+
+            .hero-gears {
+                display: none;
             }
 
             .schematic-header {
@@ -651,6 +727,49 @@
     </style>
 </head>
 <body>
+    <!-- Watchmaker Mechanism Background -->
+    <div class="mechanism-bg" aria-hidden="true">
+        <svg class="gear gear-spin-slow" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="8"/>
+            <circle cx="50" cy="50" r="12" fill="currentColor"/>
+            <rect x="45" y="5" width="10" height="20" rx="3" fill="currentColor"/>
+            <rect x="45" y="75" width="10" height="20" rx="3" fill="currentColor"/>
+            <rect x="5" y="45" width="20" height="10" rx="3" fill="currentColor"/>
+            <rect x="75" y="45" width="20" height="10" rx="3" fill="currentColor"/>
+            <rect x="16" y="16" width="10" height="15" rx="3" fill="currentColor" transform="rotate(45 21 23.5)"/>
+            <rect x="74" y="16" width="10" height="15" rx="3" fill="currentColor" transform="rotate(-45 79 23.5)"/>
+            <rect x="16" y="69" width="10" height="15" rx="3" fill="currentColor" transform="rotate(-45 21 76.5)"/>
+            <rect x="74" y="69" width="10" height="15" rx="3" fill="currentColor" transform="rotate(45 79 76.5)"/>
+        </svg>
+        <svg class="gear gear-spin-medium" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="6"/>
+            <circle cx="50" cy="50" r="10" fill="currentColor"/>
+            <rect x="46" y="10" width="8" height="16" rx="2" fill="currentColor"/>
+            <rect x="46" y="74" width="8" height="16" rx="2" fill="currentColor"/>
+            <rect x="10" y="46" width="16" height="8" rx="2" fill="currentColor"/>
+            <rect x="74" y="46" width="16" height="8" rx="2" fill="currentColor"/>
+        </svg>
+        <svg class="gear gear-spin-reverse" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="10"/>
+            <circle cx="50" cy="50" r="15" fill="currentColor"/>
+            <rect x="44" y="0" width="12" height="22" rx="4" fill="currentColor"/>
+            <rect x="44" y="78" width="12" height="22" rx="4" fill="currentColor"/>
+            <rect x="0" y="44" width="22" height="12" rx="4" fill="currentColor"/>
+            <rect x="78" y="44" width="22" height="12" rx="4" fill="currentColor"/>
+        </svg>
+        <svg class="gear gear-spin-slow" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" stroke-width="5"/>
+            <circle cx="50" cy="50" r="8" fill="currentColor"/>
+        </svg>
+        <svg class="gear gear-spin-fast" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" stroke-width="4"/>
+            <circle cx="50" cy="50" r="6" fill="currentColor"/>
+        </svg>
+    </div>
+
+    <!-- 3D Perspective Container -->
+    <div class="perspective-container">
+
     <!-- Navigation -->
     <nav>
         <div class="container">
@@ -669,10 +788,26 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero z-components">
         <div class="hero-badge">
-            <span class="dot"></span>
+            <span class="status-jewel active"></span>
             <span>v2.5 - Production Ready</span>
+        </div>
+
+        <!-- Decorative Gear Cluster -->
+        <div class="gear-cluster hero-gears" aria-hidden="true">
+            <svg class="gear gear-spin-slow" width="60" height="60" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="35" fill="none" stroke="var(--slate-primary)" stroke-width="8"/>
+                <circle cx="50" cy="50" r="12" fill="var(--slate-primary)"/>
+                <rect x="45" y="5" width="10" height="20" rx="3" fill="var(--slate-primary)"/>
+                <rect x="45" y="75" width="10" height="20" rx="3" fill="var(--slate-primary)"/>
+                <rect x="5" y="45" width="20" height="10" rx="3" fill="var(--slate-primary)"/>
+                <rect x="75" y="45" width="20" height="10" rx="3" fill="var(--slate-primary)"/>
+            </svg>
+            <svg class="gear" width="40" height="40" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="30" fill="none" stroke="var(--blueprint-accent)" stroke-width="6"/>
+                <circle cx="50" cy="50" r="10" fill="var(--blueprint-accent)"/>
+            </svg>
         </div>
         <h1>Turn Your Hardware Into<br>an <span class="accent">AI Operations Center</span></h1>
         <p class="hero-subtitle">
@@ -692,31 +827,66 @@
                 <p>SLATE auto-detects and optimizes for whatever GPU and CPU resources you have available.</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card">
+                <div class="feature-card watchmaker-card">
+                    <div class="watchmaker-card-header">
+                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
+                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
+                        </svg>
+                        <span class="status-jewel active"></span>
+                    </div>
                     <div class="feature-icon">&#x1F9E0;</div>
                     <h3>Local AI Engine</h3>
                     <p>Ollama + Foundry Local running on your GPU. No API bills. No data leaving your machine.</p>
                     <span class="feature-badge">FREE</span>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card watchmaker-card">
+                    <div class="watchmaker-card-header">
+                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
+                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
+                        </svg>
+                        <span class="status-jewel active"></span>
+                    </div>
                     <div class="feature-icon">&#x26A1;</div>
                     <h3>GPU Optimized</h3>
                     <p>Auto-detects your GPU architecture (Blackwell, Ada, Ampere) and applies optimal settings.</p>
                     <span class="feature-badge">YOUR HARDWARE</span>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card watchmaker-card">
+                    <div class="watchmaker-card-header">
+                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
+                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
+                        </svg>
+                        <span class="status-jewel active"></span>
+                    </div>
                     <div class="feature-icon">&#x1F916;</div>
                     <h3>Agentic Workflows</h3>
                     <p>Claude Code MCP integration + VS Code extension with 26 AI tools at your command.</p>
                     <span class="feature-badge">26 TOOLS</span>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card watchmaker-card">
+                    <div class="watchmaker-card-header">
+                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
+                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
+                        </svg>
+                        <span class="status-jewel active"></span>
+                    </div>
                     <div class="feature-icon">&#x1F4E6;</div>
                     <h3>GitHub Integration</h3>
                     <p>Self-hosted runner with bidirectional sync to Issues, Projects V2, and Discussions.</p>
                     <span class="feature-badge">AUTOMATED</span>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card watchmaker-card">
+                    <div class="watchmaker-card-header">
+                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
+                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
+                        </svg>
+                        <span class="status-jewel pending"></span>
+                    </div>
                     <div class="feature-icon">&#x1F5BC;</div>
                     <h3>Generative UI</h3>
                     <p>Schematic Diagram SDK with live WebSocket updates. Blueprint-style architecture visualization.</p>
@@ -810,7 +980,15 @@
     <!-- Install Section -->
     <section class="install-section">
         <div class="container">
-            <div class="install-box">
+            <div class="install-box watchmaker-card">
+                <!-- Escapement Activity Indicator -->
+                <div class="install-escapement escapement" aria-hidden="true">
+                    <span class="escapement-tick"></span>
+                    <span class="escapement-tick"></span>
+                    <span class="escapement-tick"></span>
+                    <span class="escapement-tick"></span>
+                    <span class="escapement-tick"></span>
+                </div>
                 <h2>Quick Install</h2>
                 <p>One command installs everything. Full ecosystem ready in minutes.</p>
                 <div class="install-code">
@@ -824,6 +1002,12 @@
     <!-- Footer -->
     <footer>
         <div class="container">
+            <!-- Balance Wheel Activity Indicator -->
+            <div class="footer-activity" aria-hidden="true">
+                <div class="balance-wheel"></div>
+                <span class="status-jewel active"></span>
+                <span style="color: var(--slate-on-surface-variant); font-size: 0.75rem;">System Active</span>
+            </div>
             <div class="footer-logo">
                 <img src="assets/slate-logo-v2.svg" alt="SLATE">
                 <span>S.L.A.T.E.</span>
@@ -841,6 +1025,8 @@
             </p>
         </div>
     </footer>
+
+    </div><!-- End Perspective Container -->
 
     <script>
         // Schematic tab switching
