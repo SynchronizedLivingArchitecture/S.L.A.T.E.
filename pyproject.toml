@@ -1,4 +1,4 @@
-# Modified: 2026-02-07T04:57:00Z | Author: COPILOT | Change: Update license metadata
+# Modified: 2026-02-07T22:00:00Z | Author: COPILOT | Change: Add upper-bound version pins for dep stability
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -23,34 +23,35 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    "psutil>=5.9.0",
-    "rich>=13.0.0",
-    "aiohttp>=3.9.0",
-    "python-dotenv>=1.0.0",
-    "fastapi>=0.109.0",
-    "uvicorn[standard]>=0.27.0",
-    "websockets>=12.0",
-    "httpx>=0.26.0",
-    "chromadb>=0.4.22",
+    "psutil>=5.9.0,<8",
+    "rich>=13.0.0,<15",
+    "aiohttp>=3.9.0,<4",
+    "python-dotenv>=1.0.0,<2",
+    "fastapi>=0.109.0,<1",
+    "uvicorn[standard]>=0.27.0,<1",
+    "websockets>=12.0,<17",
+    "httpx>=0.26.0,<1",
+    "chromadb>=0.4.22,<2",
+    "typing-extensions>=4.0.0,<5",
 ]
 
 [project.optional-dependencies]
 ai = [
-    "transformers>=4.40.0",
-    "accelerate>=0.30.0",
-    "peft>=0.10.0",
+    "transformers>=4.40.0,<6",
+    "accelerate>=0.30.0,<2",
+    "peft>=0.10.0,<1",
 ]
 dev = [
-    "pytest>=8.0.0",
-    "pytest-asyncio>=0.23.0",
-    "pytest-cov>=4.1.0",
-    "ruff>=0.2.0",
-    "mypy>=1.8.0",
+    "pytest>=8.0.0,<10",
+    "pytest-asyncio>=0.23.0,<2",
+    "pytest-cov>=4.1.0,<8",
+    "ruff>=0.2.0,<1",
+    "mypy>=1.8.0,<2",
 ]
 observability = [
-    "opentelemetry-api>=1.20.0",
-    "opentelemetry-sdk>=1.20.0",
-    "opentelemetry-exporter-otlp>=1.20.0",
+    "opentelemetry-api>=1.20.0,<2",
+    "opentelemetry-sdk>=1.20.0,<2",
+    "opentelemetry-exporter-otlp>=1.20.0,<2",
 ]
 
 [project.scripts]
