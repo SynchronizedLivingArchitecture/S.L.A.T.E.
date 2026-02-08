@@ -1,3 +1,4 @@
+# Modified: 2026-02-08T15:00:00Z | Author: COPILOT | Change: Integrate with stable release pipeline, add zero-downtime deploy step
 # Modified: 2026-02-07T18:30:00Z | Author: COPILOT | Change: Consolidate GPU/CPU builds into matrix strategy
 # S.L.A.T.E. Docker Build & Publish Workflow
 # Author: SLATE | Created: 2026-02-06
@@ -5,6 +6,8 @@
 # Builds and pushes Docker images to GitHub Container Registry (ghcr.io)
 # GPU variant: nvidia/cuda base, built on self-hosted runner
 # CPU variant: python:slim base, built on GitHub-hosted runner
+# Coordinates with: stable-release.yml, cd.yml, service-management.yml
+# Reference: https://github.com/features/actions
 
 name: Docker Build
 

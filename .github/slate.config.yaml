@@ -1,5 +1,6 @@
 # SLATE Configuration - AI-Optimized Format
-# Version: 2.1 | Updated: 2026-02-06
+# Version: 2.2 | Updated: 2026-02-08
+# Modified: 2026-02-08T15:00:00Z | Author: COPILOT | Change: Add stable release policy, workflow integration map
 # Format: YAML for minimal token overhead, maximum structure
 
 system:
@@ -216,3 +217,176 @@ document_rules:
     - .github/copilot-instructions.md
     - AGENTS.md
     - .github/slate.config.yaml
+
+# Modified: 2026-02-08T15:00:00Z | Author: COPILOT | Change: Add stable release policy
+# Stable Release Policy
+# The "stable" channel is the SINGLE SOURCE OF TRUTH for install_slate.py --update
+# A version MUST pass the full validation pipeline before being locked as stable.
+stable_release:
+  manager: slate/slate_release_manager.py
+  live_update: slate/slate_live_update.py
+  state_file: .slate_release_state.json
+  deploy_state_file: .slate_deploy_state.json
+  
+  channels:
+    stable:
+      description: "Production-ready, CI/CD passed, GPU validated"
+      tag_pattern: "v*.*.*"
+      requires_validation: true
+      requires_gpu_check: true
+      requires_docker_build: true
+    beta:
+      description: "Feature-complete, needs broader validation"
+      tag_pattern: "v*.*.*-beta.*"
+      requires_validation: true
+      requires_gpu_check: false
+    nightly:
+      description: "Auto-built from main, not tagged"
+      requires_validation: false
+
+  validation_pipeline:
+    - name: "CI Tests"
+      command: "python -m pytest tests/ -v --tb=short"
+      critical: true
+    - name: "System Health"
+      command: "python slate/slate_status.py --quick"
+      critical: true
+    - name: "Runtime Integrations"
+      command: "python slate/slate_runtime.py --check-all"
+      critical: true
+    - name: "Security Guards"
+      command: "python -c 'from slate.action_guard import ActionGuard; ActionGuard()'"
+      critical: true
+    - name: "SDK Bridge"
+      command: "python slate/slate_copilot_sdk_bridge.py --check"
+      critical: false
+    - name: "Install Script"
+      command: "python install_slate.py --check"
+      critical: true
+    - name: "Docker Compose Validity"
+      command: "python -c 'import yaml; yaml.safe_load(open(\"docker-compose.yml\"))'"
+      critical: false
+
+  deploy:
+    strategy: rolling  # zero-downtime rolling updates
+    rollback: automatic  # auto-rollback on health check failure
+    health_check_interval: 5  # seconds between health checks
+    max_health_retries: 12  # 60 seconds total health check window
+    components:
+      - git_repo
+      - dependencies
+      - python_services
+      - docker_containers
+      - ai_models
+
+# Modified: 2026-02-08T15:00:00Z | Author: COPILOT | Change: Add workflow integration map
+# Workflow Integration Map
+# Defines how all 28+ GitHub Actions workflows relate to each other.
+# Reference: https://github.com/features/actions
+workflow_integration:
+  primary_pipeline: stable-release.yml  # MASTER pipeline — coordinates all others
+  
+  # Pipeline chain: CI → Stable Release → CD → Docker → Deploy
+  chains:
+    release:
+      - ci.yml            # Gate: tests, lint, security
+      - stable-release.yml # Coordinate: validate → build → deploy → lock
+      - cd.yml            # Build: EXE, packages
+      - docker.yml        # Build: container images
+      - release.yml       # Publish: GitHub Release (manual fallback)
+    
+    quality:
+      - ci.yml            # On every push/PR
+      - pr.yml            # PR-specific checks
+      - codeql.yml        # Security analysis
+      - nightly.yml       # Full test suite + release health
+    
+    ai_inference:
+      - agentic.yml       # Autonomous agent loop (every 4h)
+      - ai-maintenance.yml # Codebase analysis (every 4h)
+      - ai-training.yml   # Weekly model training
+      - git-intelligence.yml # Weekly repo analysis
+    
+    operations:
+      - service-management.yml # Service lifecycle (every 15min health)
+      - runner-check.yml       # Runner selection (reusable)
+      - multi-runner.yml       # Parallel runner proof
+      - fork-sync.yml          # Dependency fork sync (daily)
+      - sync-copilot-sdk.yml   # Copilot SDK sync (daily)
+      - dependency-update.yml  # Pip dependency updates (weekly)
+    
+    community:
+      - fork-validation.yml     # Fork PR security
+      - contributor-pr.yml      # External contributor PRs
+      - discussion-automation.yml # Discussion management
+      - project-automation.yml  # KANBAN board sync
+      - stale.yml               # Stale issue/PR management
+      - label-sync.yml          # Label consistency
+      - dependabot-auto-merge.yml # Dependabot auto-merge
+    
+    docs:
+      - docs.yml          # Documentation validation
+      - pages.yml          # GitHub Pages deployment (ubuntu-latest)
+
+  # GitHub-hosted vs self-hosted classification
+  runner_types:
+    self_hosted:  # All SLATE core workflows — FREE, local GPU access
+      - ci.yml
+      - cd.yml
+      - slate.yml
+      - stable-release.yml
+      - agentic.yml
+      - nightly.yml
+      - codeql.yml
+      - pr.yml
+      - docs.yml
+      - docker.yml
+      - release.yml
+      - ai-maintenance.yml
+      - ai-training.yml
+      - service-management.yml
+      - fork-sync.yml
+      - sync-copilot-sdk.yml
+      - fork-intelligence.yml
+      - git-intelligence.yml
+      - multi-runner.yml
+      - fork-validation.yml
+      - contributor-pr.yml
+      - discussion-automation.yml
+      - project-automation.yml
+      - stale.yml
+      - label-sync.yml
+      - dependabot-auto-merge.yml
+      - dependency-update.yml
+    
+    github_hosted:  # Only for operations that MUST run on GitHub infra
+      - pages.yml          # GitHub Pages requires ubuntu-latest
+      - runner-check.yml   # Checks runner availability from external perspective
+
+  # Schedule coordination — avoid overlaps
+  schedules:
+    # Every 15 minutes:
+    "*/15 * * * *": [service-management.yml]
+    # Every 30 minutes:
+    "*/30 * * * *": [project-automation.yml]
+    # Hourly:
+    "0 * * * *": [discussion-automation.yml]
+    # Every 4 hours:
+    "0 */4 * * *": [agentic.yml, ai-maintenance.yml]
+    # Every 6 hours:
+    "0 */6 * * *": [fork-intelligence.yml]
+    # Daily 03:30 UTC:
+    "30 3 * * *": [stable-release.yml]
+    # Daily 04:00 UTC:
+    "0 4 * * *": [nightly.yml]
+    # Daily 06:00 UTC:
+    "0 6 * * *": [stale.yml, sync-copilot-sdk.yml]
+    # Daily 07:00 UTC:
+    "0 7 * * *": [fork-sync.yml]
+    # Weekly Monday 05:00 UTC:
+    "0 5 * * 1": [git-intelligence.yml, codeql.yml]
+    # Weekly Monday 08:00 UTC:
+    "0 8 * * 1": [dependency-update.yml]
+    # Weekly Sunday 05:00 UTC:
+    "0 5 * * 0": [ai-training.yml]
+

@@ -1,5 +1,10 @@
+# Modified: 2026-02-08T15:00:00Z | Author: COPILOT | Change: Integrate with stable release pipeline, add release manager lock step
 # Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
 # Release Workflow - Manual release creation with changelog generation
+# Coordinates with: stable-release.yml (primary), cd.yml
+# The stable-release.yml pipeline is the PREFERRED path for production releases.
+# This workflow is for manual/emergency releases only.
+# Reference: https://github.com/features/actions
 
 name: Release
 

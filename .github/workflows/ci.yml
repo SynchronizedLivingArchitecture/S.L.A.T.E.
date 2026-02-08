@@ -1,4 +1,19 @@
+# Modified: 2026-02-08T15:00:00Z | Author: COPILOT | Change: Mark as primary GitHub Actions pipeline per https://github.com/features/actions
 # Modified: 2026-02-07T18:00:00Z | Author: COPILOT | Change: Add matrix strategies for unit tests and SDK modules
+#
+# SLATE CI — Primary GitHub Actions Pipeline
+# This is the entry point for all code quality validation.
+# Reference: https://github.com/features/actions
+#
+# Pipeline Integration:
+#   CI (this) → stable-release.yml → CD → Docker → Deploy
+#   CI runs on EVERY push/PR. Stable release runs on validated code only.
+#
+# Local Runner Requirement:
+#   All jobs run on self-hosted [self-hosted, slate] runners with:
+#   - 2x NVIDIA RTX 5070 Ti (16GB each)
+#   - Local Ollama for AI-powered code review
+#   - SLATE SDK validation
 name: SLATE CI
 
 on:

@@ -1,4 +1,9 @@
+# Modified: 2026-02-08T15:00:00Z | Author: COPILOT | Change: Integrate with stable release validation, add release health check
 # Modified: 2026-02-07T18:30:00Z | Author: COPILOT | Change: Add matrix strategies for test suites and transformer analysis
+#
+# SLATE Nightly — Full Test Suite + Release Health
+# Runs at 04:00 UTC daily. Feeds into stable-release.yml validation (03:30 UTC).
+# Reference: https://github.com/features/actions
 name: SLATE Nightly
 
 on:
@@ -252,3 +257,34 @@ jobs:
           "| AI Analysis | ${{ needs.ai-codebase-analysis.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "| Transformer Analysis (matrix) | ${{ needs.transformer-nightly.result }} |" | Out-File -Append $env:GITHUB_STEP_SUMMARY
           "Run at $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+
+  # Modified: 2026-02-08T15:00:00Z | Author: COPILOT | Change: Add release health check to nightly
+  release-health:
+    name: Release Health Check
+    runs-on: [self-hosted, slate]
+    needs: [full-test-suite, slate-health]
+    if: always()
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setup Python
+        run: |
+          "$env:GITHUB_WORKSPACE\\.venv\\Scripts" | Out-File -Append $env:GITHUB_PATH
+      - name: Validate Stable Release
+        run: |
+          python slate/slate_release_manager.py --validate
+        continue-on-error: true
+      - name: Check for Updates
+        run: |
+          python slate/slate_release_manager.py --check-update
+        continue-on-error: true
+      - name: Live Update Pre-flight
+        run: |
+          python slate/slate_live_update.py --check
+        continue-on-error: true
+      - name: SDK Bridge Check
+        run: |
+          python slate/slate_copilot_sdk_bridge.py --check
+        continue-on-error: true

@@ -1,6 +1,9 @@
+# Modified: 2026-02-08T15:00:00Z | Author: COPILOT | Change: Integrate with stable release pipeline, add live update triggers
 # Modified: 2026-02-07T04:56:45Z | Author: COPILOT | Change: Normalize paths and clean workflow artifacts
 # Continuous Deployment Workflow
 # Builds EXE and publishes releases
+# Coordinates with: stable-release.yml (primary), docker.yml, service-management.yml
+# Reference: https://github.com/features/actions
 
 name: CD - Build & Deploy
 
@@ -15,6 +18,18 @@ on:
         required: false
         default: 'true'
         type: boolean
+  # Called by stable-release.yml after validation
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version to build'
+        required: false
+        type: string
+      trigger:
+        description: 'Trigger source'
+        required: false
+        type: string
+        default: 'manual'
 
 concurrency:
   group: cd-${{ github.ref }}
