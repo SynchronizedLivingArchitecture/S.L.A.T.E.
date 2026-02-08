@@ -248,10 +248,13 @@ class TestDependencyScanner:
         # Without GPU, action should be skip (can't install CUDA without hardware)
         assert result.action in ["skip", "install"]
 
+    # Modified: 2026-02-08T02:05:00Z | Author: COPILOT | Change: Mock OLLAMA_PATHS and shutil.which to fully simulate missing Ollama
+    @patch("slate.slate_dependency_scanner.shutil.which", return_value=None)
     @patch("slate.slate_dependency_scanner.DependencyScanner._run_cmd")
-    def test_scan_ollama_not_installed(self, mock_run):
+    def test_scan_ollama_not_installed(self, mock_run, mock_which):
         # Arrange
         scanner = DependencyScanner(verbose=False)
+        scanner.OLLAMA_PATHS = []  # No model directories
         mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="not found")
 
         # Act

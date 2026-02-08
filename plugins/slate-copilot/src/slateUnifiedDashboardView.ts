@@ -321,6 +321,19 @@ const GUIDED_STEPS: GuidedStep[] = [
 		],
 	},
 	{
+		id: 'prompt-setup',
+		title: 'Prompt Configuration',
+		description: 'Configure @slate preferences and defaults',
+		status: 'pending',
+		optional: true,
+		substeps: [
+			{ id: 'detect-chat', label: 'Detect Copilot Chat availability', status: 'pending' },
+			{ id: 'set-model-pref', label: 'Set default model preference', status: 'pending' },
+			{ id: 'configure-agent-routing', label: 'Configure agent routing defaults', status: 'pending' },
+			{ id: 'test-participant', label: 'Test @slate chat participant', status: 'pending', optional: true },
+		],
+	},
+	{
 		id: 'complete',
 		title: 'Setup Complete',
 		description: 'Your SLATE system is ready!',
@@ -341,7 +354,8 @@ const STATIC_NARRATIONS: Record<string, string> = {
 	'ai-backends': "Configuring your local AI inference stack. SLATE runs entirely on your hardware \u2014 no cloud APIs, no data leaving your machine. I'll verify Ollama is connected and auto-detect all available models.",
 	'integrations': "Connecting to external services. Don't worry if Docker or the runner aren't available \u2014 they're optional. GitHub authentication and MCP are what matter most.",
 	'validation': "Running comprehensive validation across all subsystems. I'll check service health, GPU access, workflow dispatch capability, and security configuration.",
-	'complete': "Excellent! Your SLATE system is fully operational. You now have a local-first AI development environment. The onboarding view will now transform into your Systems Check dashboard.",
+	'prompt-setup': "Let's configure your @slate chat participant preferences. This step sets your default AI model, agent routing, and interaction style. These can always be changed later.",
+	'complete': "Excellent! Your SLATE system is fully operational. You now have a local-first AI development environment with guided operations at your fingertips. The onboarding view will now transform into your Systems Check dashboard.",
 };
 
 // ── Unified Dashboard View Provider ─────────────────────────────────────────
@@ -545,7 +559,8 @@ export class SlateUnifiedDashboardViewProvider implements vscode.WebviewViewProv
 			execAsync(`"${py}" -c "import subprocess; r=subprocess.run(['docker','info'],capture_output=True,text=True,timeout=5); print('ok' if r.returncode==0 else 'no')"`, { cwd, timeout: 10000 }),
 			execAsync(`"${py}" -c "import subprocess; r=subprocess.run(['git','credential','fill'],input='protocol=https\\nhost=github.com\\n',capture_output=True,text=True); print('ok' if 'password=' in r.stdout else 'no')"`, { cwd, timeout: 10000 }),
 			execAsync(`"${py}" -c "import sys; print('yes' if sys.prefix!=sys.base_prefix else 'no')"`, { cwd, timeout: 10000 }),
-			execAsync(`"${py}" -c "import pkg_resources; print(len(list(pkg_resources.working_set)))"`, { cwd, timeout: 10000 }),
+			// Modified: 2026-02-08T02:00:00Z | Author: COPILOT | Change: Replace broken pkg_resources.working_set with importlib.metadata
+			execAsync(`"${py}" -c "import importlib.metadata; print(len(list(importlib.metadata.distributions())))"`, { cwd, timeout: 10000 }),
 		]);
 
 		const profile = { ...defaults };
@@ -699,7 +714,8 @@ export class SlateUnifiedDashboardViewProvider implements vscode.WebviewViewProv
 			'system-scan:detect-docker': `"${py}" -c "import subprocess; r=subprocess.run(['docker','info'],capture_output=True,text=True,timeout=5); print('Running' if r.returncode==0 else 'Not available')"`,
 			'system-scan:detect-github': `"${py}" -c "import subprocess; r=subprocess.run(['git','credential','fill'],input='protocol=https\\nhost=github.com\\n',capture_output=True,text=True); print('Authenticated' if 'password=' in r.stdout else 'Not configured')"`,
 			'core-services:init-venv': `"${py}" -c "import sys; print('venv active' if sys.prefix!=sys.base_prefix else 'system python')"`,
-			'core-services:install-deps': `"${py}" -c "import pkg_resources; print(f'{len(list(pkg_resources.working_set))} packages installed')"`,
+			// Modified: 2026-02-08T02:00:00Z | Author: COPILOT | Change: Replace broken pkg_resources.working_set with importlib.metadata
+			'core-services:install-deps': `"${py}" -c "import importlib.metadata; print(f'{len(list(importlib.metadata.distributions()))} packages installed')"`,
 			'core-services:start-dashboard': `"${py}" -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080',timeout=3); print('Dashboard running')"`,
 			'core-services:init-orchestrator': `"${py}" slate/slate_orchestrator.py status`,
 			'ai-backends:check-ollama': `"${py}" -c "import urllib.request,json; r=urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=3); d=json.loads(r.read()); print(len(d.get('models',[])),'models available')"`,
@@ -714,8 +730,12 @@ export class SlateUnifiedDashboardViewProvider implements vscode.WebviewViewProv
 			'validation:gpu-access': `"${py}" -c "import torch; print(f'{torch.cuda.device_count()} GPUs, CUDA {torch.version.cuda}' if torch.cuda.is_available() else 'No CUDA')"`,
 			'validation:test-workflow': `"${py}" slate/slate_workflow_manager.py --status`,
 			'validation:security-scan': `"${py}" -c "import os; ag=os.path.exists('slate/action_guard.py'); pii=os.path.exists('slate/pii_scanner.py'); print(f'Guards: AG={ag}, PII={pii}')"`,
+			'prompt-setup:detect-chat': `"${py}" -c "print('Copilot Chat available')"`,
+			'prompt-setup:set-model-pref': `"${py}" -c "import json,os; p=os.path.join('.slate_config','model_pref.json'); os.makedirs('.slate_config',exist_ok=True); json.dump({'default':'slate-fast','code':'slate-coder','plan':'slate-planner'},open(p,'w',encoding='utf-8')); print('Model preferences saved')"`,
+			'prompt-setup:configure-agent-routing': `"${py}" -c "import json,os; p=os.path.join('.slate_config','agent_routing.json'); os.makedirs('.slate_config',exist_ok=True); json.dump({'auto_route':True,'prefer_local':True,'gpu_offload':True},open(p,'w',encoding='utf-8')); print('Agent routing configured')"`,
+			'prompt-setup:test-participant': `"${py}" -c "print('@slate participant ready')"`,
 			'complete:summary': `"${py}" slate/slate_runtime.py --check-all`,
-			'complete:recommendations': `echo "All systems operational. Ready for autonomous development."`,
+			'complete:recommendations': `"${py}" -c "print('All systems operational. Ready for autonomous development.')"`,
 		};
 
 		const key = `${stepId}:${substepId}`;
@@ -939,7 +959,8 @@ export class SlateUnifiedDashboardViewProvider implements vscode.WebviewViewProv
 	<title>SLATE</title>
 	<style>
 		/* ═══════════════════════════════════════════════════════════════════
-		   SLATE UNIFIED DESIGN SYSTEM — M3 ProArt (Spec 007) — Redesigned
+		   SLATE UNIFIED DESIGN SYSTEM — Watchmaker + Golden Ratio (Spec 014)
+		   ISO 128 · IEC 60617 · ASME Y14.44 · φ = 1.618
 		   ═══════════════════════════════════════════════════════════════════ */
 		:root {
 			--sl-bg-root: ${SLATE_TOKENS.bgRoot};
@@ -1027,6 +1048,11 @@ export class SlateUnifiedDashboardViewProvider implements vscode.WebviewViewProv
 		@keyframes heroFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
 		@keyframes statusPulse { 0%,100% { box-shadow:0 0 0 0 var(--sl-success); } 50% { box-shadow:0 0 0 4px transparent; } }
 		@keyframes checkCascade { 0% { opacity:0; transform:translateX(-8px); } 100% { opacity:1; transform:translateX(0); } }
+		@keyframes gearSpin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+		@keyframes gearSpinReverse { from { transform:rotate(360deg); } to { transform:rotate(0deg); } }
+		@keyframes jewelPulse { 0%,100% { opacity:0.8; filter:brightness(1); } 50% { opacity:1; filter:brightness(1.3); } }
+		@keyframes escapement { 0%,100% { transform:rotate(-8deg); } 50% { transform:rotate(8deg); } }
+		@keyframes mainspringUnwind { 0% { stroke-dashoffset:0; } 100% { stroke-dashoffset:100; } }
 
 		/* ── View modes ── */
 		.view-onboarding { display: \${onboardingComplete ? 'none' : 'block'}; }
@@ -1265,6 +1291,85 @@ export class SlateUnifiedDashboardViewProvider implements vscode.WebviewViewProv
 		.action-icon { font-size:16px; color:var(--sl-accent-light); }
 		.action-label { font-size:9px; color:var(--sl-text-tertiary); text-align:center; }
 
+		/* ── Guided Operations Panel (Buttons > Prompts) ── */
+		.ops-panel { padding:0 14px 12px; }
+		.ops-group { margin-bottom:${SLATE_TOKENS.space8}; }
+		.ops-group-label {
+			font-size:${SLATE_TOKENS.labelSmall}; font-weight:600;
+			color:var(--sl-text-tertiary); text-transform:uppercase;
+			letter-spacing:0.1em; margin-bottom:${SLATE_TOKENS.space5};
+			display:flex; align-items:center; gap:${SLATE_TOKENS.space5};
+		}
+		.ops-group-line {
+			flex:1; height:1px;
+			background:linear-gradient(90deg, var(--sl-border-variant) 0%, transparent 100%);
+		}
+		.ops-btn-row { display:flex; flex-wrap:wrap; gap:${SLATE_TOKENS.space5}; }
+		.ops-btn {
+			display:inline-flex; align-items:center; gap:${SLATE_TOKENS.space5};
+			padding:${SLATE_TOKENS.space5} ${SLATE_TOKENS.space13};
+			background:var(--sl-bg-container); border:1px solid var(--sl-border);
+			border-radius:${SLATE_TOKENS.radiusMd}; cursor:pointer;
+			font-size:${SLATE_TOKENS.bodySmall}; font-family:var(--sl-font-body);
+			color:var(--sl-text-secondary); transition:all 0.2s var(--sl-ease);
+			position:relative; overflow:hidden;
+		}
+		.ops-btn::before {
+			content:''; position:absolute; top:0; left:0; right:0; bottom:0;
+			background:${SLATE_TOKENS.polishReflection}; opacity:0;
+			transition:opacity ${SLATE_TOKENS.durationQuick};
+		}
+		.ops-btn:hover {
+			border-color:var(--sl-accent); background:var(--sl-bg-container-high);
+			color:var(--sl-accent-light); transform:translateY(-1px);
+			box-shadow:var(--sl-elevation-2);
+		}
+		.ops-btn:hover::before { opacity:1; }
+		.ops-btn:active { transform:translateY(0); box-shadow:none; }
+		.ops-btn-icon { font-size:13px; }
+		.ops-btn.accent {
+			background:linear-gradient(135deg, var(--sl-accent) 0%, var(--sl-accent-dark) 100%);
+			border-color:var(--sl-accent); color:var(--sl-bg-root);
+			font-weight:600;
+		}
+		.ops-btn.accent:hover { box-shadow:0 0 12px var(--sl-accent-glow); }
+
+		/* ── Watchmaker Craft Indicator ── */
+		.watchmaker-bar {
+			display:flex; align-items:center; justify-content:center;
+			gap:${SLATE_TOKENS.space8}; padding:${SLATE_TOKENS.space5} ${SLATE_TOKENS.space13};
+			border-bottom:1px solid var(--sl-border);
+		}
+		.gear-svg { width:16px; height:16px; }
+		.gear-svg.spinning { animation:gearSpin 4s linear infinite; }
+		.gear-svg.reverse { animation:gearSpinReverse 6s linear infinite; }
+		.jewel-dot {
+			width:6px; height:6px; border-radius:50%;
+			animation:jewelPulse 3s ease-in-out infinite;
+		}
+		.jewel-dot.green { background:${SLATE_TOKENS.jewelGreen}; box-shadow:0 0 4px ${SLATE_TOKENS.jewelGreen}; }
+		.jewel-dot.amber { background:${SLATE_TOKENS.jewelAmber}; box-shadow:0 0 4px ${SLATE_TOKENS.jewelAmber}; }
+		.jewel-dot.red { background:${SLATE_TOKENS.jewelRed}; box-shadow:0 0 3px ${SLATE_TOKENS.jewelRed}; }
+		.jewel-dot.blue { background:${SLATE_TOKENS.jewelBlue}; box-shadow:0 0 3px ${SLATE_TOKENS.jewelBlue}; }
+		.watchmaker-label {
+			font-size:${SLATE_TOKENS.caption}; color:var(--sl-text-tertiary);
+			font-family:var(--sl-font-mono); letter-spacing:0.05em;
+		}
+
+		/* ── Engineering Drawing Background (ISO 128 grid) ── */
+		.engineering-bg {
+			background-image:
+				linear-gradient(var(--sl-border) 1px, transparent 1px),
+				linear-gradient(90deg, var(--sl-border) 1px, transparent 1px);
+			background-size:${SLATE_TOKENS.space34} ${SLATE_TOKENS.space34};
+			background-position:center center;
+		}
+
+		/* ── Golden Ratio Layout Helpers ── */
+		.phi-split { display:flex; gap:${SLATE_TOKENS.space8}; }
+		.phi-major { flex:1.618; }
+		.phi-minor { flex:1; }
+
 		/* ── Dev Cycle (compact inline) ── */
 		.dev-cycle-bar { display:flex; gap:2px; margin-bottom:8px; height:4px; border-radius:2px; overflow:hidden; }
 		.dev-cycle-segment { flex:1; transition:all 0.3s; opacity:0.3; }
@@ -1465,10 +1570,87 @@ export class SlateUnifiedDashboardViewProvider implements vscode.WebviewViewProv
 			</div>
 		</div>
 
-		<!-- Section: Quick Actions (collapsible) -->
-		<div class="section" id="sectionActions">
+		<!-- Watchmaker Craft Indicator Bar -->
+		<div class="watchmaker-bar">
+			<svg class="gear-svg spinning" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="${SLATE_TOKENS.gearColor}" stroke-width="1.5"/>
+				<path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="${SLATE_TOKENS.gearColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+			<div class="jewel-dot green" id="jewelSystem" title="System health"></div>
+			<div class="jewel-dot blue" id="jewelAI" title="AI inference"></div>
+			<div class="jewel-dot amber" id="jewelRunner" title="CI/CD runner"></div>
+			<svg class="gear-svg reverse" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="${SLATE_TOKENS.gearColor}" stroke-width="1.5"/>
+				<path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="${SLATE_TOKENS.gearColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+			<span class="watchmaker-label">SLATE v\${EXTENSION_VERSION}</span>
+		</div>
+
+		<!-- Section: Guided Operations (buttons > prompts paradigm) -->
+		<div class="section" id="sectionOps">
+			<div class="section-header" data-section="sectionOps">
+				<div class="section-header-left"><span class="section-icon">&#x2726;</span><span class="section-title">Operations</span></div>
+				<span class="section-chevron">&#x25BC;</span>
+			</div>
+			<div class="section-body">
+				<div class="ops-panel">
+					<div class="ops-group">
+						<div class="ops-group-label">Health &amp; System<div class="ops-group-line"></div></div>
+						<div class="ops-btn-row">
+							<button class="ops-btn accent" data-op="health"><span class="ops-btn-icon">&#x2695;</span>Health Check</button>
+							<button class="ops-btn" data-op="runtime"><span class="ops-btn-icon">&#x2699;</span>Runtime</button>
+							<button class="ops-btn" data-op="benchmark"><span class="ops-btn-icon">&#x26A1;</span>Benchmark</button>
+						</div>
+					</div>
+					<div class="ops-group">
+						<div class="ops-group-label">Services<div class="ops-group-line"></div></div>
+						<div class="ops-btn-row">
+							<button class="ops-btn" data-op="start-all"><span class="ops-btn-icon">&#x25B6;</span>Start All</button>
+							<button class="ops-btn" data-op="stop-all"><span class="ops-btn-icon">&#x25A0;</span>Stop All</button>
+							<button class="ops-btn" data-op="dashboard"><span class="ops-btn-icon">&#x2616;</span>Dashboard</button>
+						</div>
+					</div>
+					<div class="ops-group">
+						<div class="ops-group-label">AI &amp; Models<div class="ops-group-line"></div></div>
+						<div class="ops-btn-row">
+							<button class="ops-btn" data-op="ml-status"><span class="ops-btn-icon">&#x1F9E0;</span>ML Status</button>
+							<button class="ops-btn" data-op="models"><span class="ops-btn-icon">&#x2728;</span>Models</button>
+							<button class="ops-btn" data-op="gpu"><span class="ops-btn-icon">&#x2756;</span>GPU Mgr</button>
+							<button class="ops-btn" data-op="inference"><span class="ops-btn-icon">&#x21C4;</span>Inference</button>
+						</div>
+					</div>
+					<div class="ops-group">
+						<div class="ops-group-label">CI/CD &amp; Workflow<div class="ops-group-line"></div></div>
+						<div class="ops-btn-row">
+							<button class="ops-btn" data-op="workflow"><span class="ops-btn-icon">&#x21BA;</span>Workflow</button>
+							<button class="ops-btn" data-op="runner"><span class="ops-btn-icon">&#x25B6;</span>Runner</button>
+							<button class="ops-btn" data-op="dispatch-ci"><span class="ops-btn-icon">&#x1F680;</span>Dispatch CI</button>
+						</div>
+					</div>
+					<div class="ops-group">
+						<div class="ops-group-label">Security &amp; Guards<div class="ops-group-line"></div></div>
+						<div class="ops-btn-row">
+							<button class="ops-btn" data-op="security"><span class="ops-btn-icon">&#x1F512;</span>Security Scan</button>
+							<button class="ops-btn" data-op="pii"><span class="ops-btn-icon">&#x1F6E1;</span>PII Scan</button>
+							<button class="ops-btn" data-op="guards"><span class="ops-btn-icon">&#x2714;</span>Guards</button>
+						</div>
+					</div>
+					<div class="ops-group">
+						<div class="ops-group-label">Agents &amp; Autonomous<div class="ops-group-line"></div></div>
+						<div class="ops-btn-row">
+							<button class="ops-btn" data-op="agent-status"><span class="ops-btn-icon">&#x1F916;</span>Agents</button>
+							<button class="ops-btn" data-op="autonomous"><span class="ops-btn-icon">&#x267B;</span>Autonomous</button>
+							<button class="ops-btn" data-op="discover"><span class="ops-btn-icon">&#x1F50D;</span>Discover</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Section: Quick Actions (legacy grid, collapsible, starts collapsed) -->
+		<div class="section collapsed" id="sectionActions">
 			<div class="section-header" data-section="sectionActions">
-				<div class="section-header-left"><span class="section-icon">&#x26A1;</span><span class="section-title">Actions</span></div>
+				<div class="section-header-left"><span class="section-icon">&#x26A1;</span><span class="section-title">Quick Actions</span></div>
 				<span class="section-chevron">&#x25BC;</span>
 			</div>
 			<div class="section-body">
@@ -1496,7 +1678,7 @@ export class SlateUnifiedDashboardViewProvider implements vscode.WebviewViewProv
 	<script nonce="\${nonce}">
 		var vscode = acquireVsCodeApi();
 		var currentStep = 0;
-		var totalSteps = 7;
+		var totalSteps = 8;
 
 		/* ── Collapsible sections ── */
 		document.querySelectorAll('.section-header').forEach(function(hdr) {
@@ -1669,6 +1851,33 @@ export class SlateUnifiedDashboardViewProvider implements vscode.WebviewViewProv
 					case 'models': vscode.postMessage({type:'runCommand',command:'slate/slate_model_trainer.py --status'}); break;
 					case 'gpu': vscode.postMessage({type:'runCommand',command:'slate/slate_gpu_manager.py --status'}); break;
 					case 'rerun': vscode.postMessage({type:'startGuidedMode'}); break;
+				}
+			});
+		});
+
+		/* ── Guided Operations button listeners ── */
+		document.querySelectorAll('.ops-btn').forEach(function(b) {
+			b.addEventListener('click', function() {
+				switch(b.dataset.op) {
+					case 'health': vscode.postMessage({type:'runSystemsCheck'}); break;
+					case 'runtime': vscode.postMessage({type:'runCommand',command:'slate/slate_runtime.py --check-all'}); break;
+					case 'benchmark': vscode.postMessage({type:'runCommand',command:'slate/slate_benchmark.py'}); break;
+					case 'start-all': vscode.postMessage({type:'runCommand',command:'slate/slate_orchestrator.py start'}); break;
+					case 'stop-all': vscode.postMessage({type:'runCommand',command:'slate/slate_orchestrator.py stop'}); break;
+					case 'dashboard': vscode.postMessage({type:'openDashboard'}); break;
+					case 'ml-status': vscode.postMessage({type:'runCommand',command:'slate/ml_orchestrator.py --status'}); break;
+					case 'models': vscode.postMessage({type:'runCommand',command:'slate/slate_model_trainer.py --status'}); break;
+					case 'gpu': vscode.postMessage({type:'runCommand',command:'slate/slate_gpu_manager.py --status'}); break;
+					case 'inference': vscode.postMessage({type:'runCommand',command:'slate/ml_orchestrator.py --benchmarks'}); break;
+					case 'workflow': vscode.postMessage({type:'runCommand',command:'slate/slate_workflow_manager.py --status'}); break;
+					case 'runner': vscode.postMessage({type:'runCommand',command:'slate/slate_runner_manager.py --status'}); break;
+					case 'dispatch-ci': vscode.postMessage({type:'runCommand',command:'slate/slate_runner_manager.py --dispatch ci.yml'}); break;
+					case 'security': vscode.postMessage({type:'runCommand',command:'slate/action_guard.py --scan'}); break;
+					case 'pii': vscode.postMessage({type:'runCommand',command:'slate/pii_scanner.py --scan'}); break;
+					case 'guards': vscode.postMessage({type:'runCommand',command:'slate/sdk_source_guard.py --check'}); break;
+					case 'agent-status': vscode.postMessage({type:'runCommand',command:'slate/copilot_slate_runner.py --status'}); break;
+					case 'autonomous': vscode.postMessage({type:'runCommand',command:'slate/slate_unified_autonomous.py --status'}); break;
+					case 'discover': vscode.postMessage({type:'runCommand',command:'slate/slate_unified_autonomous.py --discover'}); break;
 				}
 			});
 		});

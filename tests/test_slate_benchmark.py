@@ -109,6 +109,7 @@ class TestRunBenchmarks:
         result = run_benchmarks()
         assert isinstance(result["benchmarks"], list)
 
-    def test_four_benchmarks(self):
+    # Modified: 2026-02-08T02:06:00Z | Author: COPILOT | Change: Update expected count from 4 to 5 after GPU memory benchmark addition
+    def test_five_benchmarks(self):
         result = run_benchmarks()
-        assert len(result["benchmarks"]) == 4
+        assert len(result["benchmarks"]) == 5
