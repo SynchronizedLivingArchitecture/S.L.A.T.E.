@@ -9,11 +9,11 @@
 		"url": "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git"
 	},
 	"slateMetadata": {
-		"modified": "2026-02-07T18:00:00Z",
+		"modified": "2026-02-08T04:00:00Z",
 		"author": "COPILOT",
-		"change": "Unified dashboard — merge guided setup, control board, and dashboard into single integrated view with shared SLATE M3 ProArt design system"
+		"change": "Fix hardcoded hardware — dynamic runtime detection for all end-user installs"
 	},
-	"version": "3.2.0",
+	"version": "3.2.1",
 	"icon": "media/icon.png",
 	"engines": {
 		"vscode": "^1.100.0"

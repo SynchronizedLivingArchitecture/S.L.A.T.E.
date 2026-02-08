@@ -1,5 +1,5 @@
 # S.L.A.T.E. Agent Instructions
-# Modified: 2026-02-07T04:57:00Z | Author: COPILOT | Change: Add AAA standards for agent workflows
+# Modified: 2026-02-08T04:00:00Z | Author: COPILOT | Change: Add hardware portability rules — never hardcode dev machine specs
 
 ## Overview
 SLATE (Synchronized Living Architecture for Transformation and Evolution) is a local-first
@@ -184,13 +184,13 @@ skills/             # Copilot Chat skill definitions
 
 ## Self-Hosted Runner
 - **Name**: slate-runner
-- **Labels**: `[self-hosted, Windows, X64, slate, gpu, cuda, gpu-2, blackwell]`
+- **Labels**: `[self-hosted, Windows, X64, slate, gpu, cuda]`
 - **Work folder**: `slate_work`
-- **GPUs**: 2x NVIDIA GeForce RTX 5070 Ti (Blackwell, compute 12.0, 16GB each)
-- **Pre-job hook**: Sets `CUDA_VISIBLE_DEVICES=0,1`, SLATE env vars, Python PATH
-- **Python**: `<workspace>\.venv\Scripts\python.exe` (3.11.9)
+- **GPUs**: Detected at runtime via `nvidia-smi` or `torch.cuda` — NEVER hardcode GPU models/counts
+- **Pre-job hook**: Sets `CUDA_VISIBLE_DEVICES`, SLATE env vars, Python PATH
+- **Python**: `<workspace>\.venv\Scripts\python.exe`
 - **No `actions/setup-python`**: All jobs use `GITHUB_PATH` to prepend venv
-- **SLATE Custom Models**: slate-coder (12B), slate-fast (3B), slate-planner (7B)
+- **SLATE Custom Models**: Detected via Ollama at runtime — query the API, never assume
 
 ## Workflow Conventions
 - All jobs: `runs-on: [self-hosted, slate]`
@@ -205,6 +205,17 @@ skills/             # Copilot Chat skill definitions
 - No `curl.exe` (freezes on this system  use `urllib.request`)
 - Protected files in forks: `.github/workflows/*`, `CODEOWNERS`, action guards
 - Blocked patterns: `eval(`, `exec(os`, `rm -rf /`, `base64.b64decode`
+
+## Hardware Portability Rules (ENFORCED)
+SLATE is installed on many different machines. Code MUST detect hardware at runtime:
+- **NEVER** hardcode GPU model names (e.g., "RTX 5070 Ti"), counts (e.g., "2x"), or VRAM sizes
+- **NEVER** hardcode `CUDA_VISIBLE_DEVICES` values — detect device count dynamically
+- **ALWAYS** use `nvidia-smi`, `torch.cuda`, or SLATE detection scripts to get actual hardware
+- **ALWAYS** use placeholder/generic text in UI that gets replaced by runtime detection
+- **Dashboard/Extension**: Service cards, status text, and prompts must show detected values
+- **System prompts**: Never include specific GPU specs — instruct the agent to detect at runtime
+- **Ollama models**: Never assume which models are installed — query the API
+- When writing GPU-related code, test the path where `gpuCount == 0` (CPU-only installs)
 
 ## Terminal Rules
 - Use `isBackground=true` for long-running commands (servers, watchers, runner)

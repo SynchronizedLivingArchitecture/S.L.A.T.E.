@@ -1,4 +1,4 @@
-﻿// Modified: 2026-02-07T16:00:00Z | Author: COPILOT | Change: Agentic transformation — @slate is now an autonomous agent brain that plans, decides, delegates, and executes
+﻿// Modified: 2026-02-08T04:00:00Z | Author: COPILOT | Change: Remove hardcoded GPU specs from system prompt — use dynamic runtime detection for end-user hardware
 import * as vscode from 'vscode';
 import { getSystemState, type SlateSystemState } from './tools';
 
@@ -72,12 +72,13 @@ For any non-trivial request:
 
 ## ENVIRONMENT
 
-- Python: 3.11.9 at <workspace>/.venv/Scripts/python.exe
-- Runner: slate-runner [self-hosted, Windows, X64, slate, gpu, cuda, gpu-2, blackwell]
-- GPUs: 2x NVIDIA GeForce RTX 5070 Ti (Blackwell, CC 12.0, 16 GB each)
-- CUDA_VISIBLE_DEVICES: 0,1
-- SLATE Models: slate-coder (12B, GPU 0), slate-fast (3B, GPU 1), slate-planner (7B, GPU 0)
+- Python: Detected at runtime via <workspace>/.venv/Scripts/python.exe
+- Runner: slate-runner [self-hosted]
+- GPUs: {{DETECTED_AT_RUNTIME}} — always run slate_systemStatus or slate_hardwareInfo to get actual hardware
+- SLATE Models: Detected via Ollama at runtime — run slate_runtimeCheck to verify
 - Agents: 8 registered (ALPHA, BETA, GAMMA, DELTA, EPSILON, ZETA, COPILOT, COPILOT_CHAT)
+
+IMPORTANT: NEVER assume specific GPU models, counts, or VRAM. Always detect the end user's actual hardware dynamically via tools. Different installations have different hardware.
 
 ## ECOSYSTEM — 8 LAYERS
 
@@ -332,12 +333,19 @@ export function registerSlateParticipant(context: vscode.ExtensionContext) {
 		}
 
 		// Inject auto-context: always tell the agent what resources it has
+		// Modified: 2026-02-08T04:00:00Z | Author: COPILOT | Change: Dynamic hardware detection — never hardcode dev machine specs
+		const state = getSystemState();
 		systemMessage += `\n\n## AUTO-CONTEXT (injected by handler)
 Available tool count: ${vscode.lm.tools.filter(t => t.tags.includes('slate')).length} SLATE tools
 Handler config: MAX_TOOL_ROUNDS=${MAX_TOOL_ROUNDS}, TIMEOUT=${HANDLER_TIMEOUT_MS / 1000}s
 Current time: ${new Date().toISOString()}
 Last command: ${request.command ?? 'free-chat'}
 User prompt length: ${(request.prompt || '').length} chars
+GPU loaded: ${state.gpuLoaded ? 'Yes' : 'Unknown — run slate_hardwareInfo to detect'}
+Services up: ${state.servicesUp ? 'Yes' : 'Unknown — run slate_systemStatus to check'}
+Platform: ${process.platform}
+
+CRITICAL: Hardware specs MUST be detected at runtime on the end user's machine. Never assume GPU model, count, or VRAM. Always use slate_systemStatus or slate_hardwareInfo to get actual hardware info.
 
 REMEMBER: You are an AGENT. Plan → Execute → Verify → Report outcomes. Don't ask — DO.`;
 

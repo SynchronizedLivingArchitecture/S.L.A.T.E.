@@ -1,4 +1,4 @@
-// Modified: 2026-02-07T06:30:00Z | Author: COPILOT | Change: Add handoff + service control tools, state-aware architecture for adaptive GUI buttons
+// Modified: 2026-02-08T04:00:00Z | Author: COPILOT | Change: Broaden GPU detection beyond RTX — support any NVIDIA/AMD/Intel GPU for end-user installs
 import * as vscode from 'vscode';
 import { execSlateCommand, execSlateCommandLong, execSlateCommandWithTimeout } from './slateRunner';
 
@@ -61,9 +61,9 @@ function updateStateFromOutput(toolName: string, output: string): void {
 		_systemState.runnerOnline = lower.includes('online') || lower.includes('idle') || lower.includes('listening');
 	}
 
-	// GPU detection
+	// GPU detection — detect any NVIDIA/AMD/Intel GPU, not just RTX
 	if (toolName === 'slate_hardwareInfo' || toolName === 'slate_gpuManager') {
-		_systemState.gpuLoaded = lower.includes('rtx') || lower.includes('gpu 0');
+		_systemState.gpuLoaded = lower.includes('gpu') && (lower.includes('cuda') || lower.includes('nvidia') || lower.includes('rtx') || lower.includes('gtx') || lower.includes('geforce') || lower.includes('radeon') || lower.includes('gpu 0'));
 	}
 
 	// Task detection
