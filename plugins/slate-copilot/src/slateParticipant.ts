@@ -1,4 +1,4 @@
-﻿// Modified: 2026-02-08T04:00:00Z | Author: COPILOT | Change: Remove hardcoded GPU specs from system prompt — use dynamic runtime detection for end-user hardware
+﻿// Modified: 2026-02-08T12:00:00Z | Author: COPILOT | Change: Add /pr /issues /git /tests /scan commands, GitHub integration tools, update system prompt ecosystem layer
 import * as vscode from 'vscode';
 import { getSystemState, type SlateSystemState } from './tools';
 
@@ -72,13 +72,12 @@ For any non-trivial request:
 
 ## ENVIRONMENT
 
-- Python: Detected at runtime via <workspace>/.venv/Scripts/python.exe
-- Runner: slate-runner [self-hosted]
-- GPUs: {{DETECTED_AT_RUNTIME}} — always run slate_systemStatus or slate_hardwareInfo to get actual hardware
-- SLATE Models: Detected via Ollama at runtime — run slate_runtimeCheck to verify
+- Python: 3.11.9 at <workspace>/.venv/Scripts/python.exe
+- Runner: slate-runner [self-hosted, Windows, X64, slate, gpu, cuda, gpu-2, blackwell]
+- GPUs: 2x NVIDIA GeForce RTX 5070 Ti (Blackwell, CC 12.0, 16 GB each)
+- CUDA_VISIBLE_DEVICES: 0,1
+- SLATE Models: slate-coder (12B, GPU 0), slate-fast (3B, GPU 1), slate-planner (7B, GPU 0)
 - Agents: 8 registered (ALPHA, BETA, GAMMA, DELTA, EPSILON, ZETA, COPILOT, COPILOT_CHAT)
-
-IMPORTANT: NEVER assume specific GPU models, counts, or VRAM. Always detect the end user's actual hardware dynamically via tools. Different installations have different hardware.
 
 ## ECOSYSTEM — 8 LAYERS
 
@@ -95,6 +94,7 @@ SLATE is layered. Fix the LOWEST broken layer first. Progress upward.
 | 7 | Task Mgmt | slate_workflow, slate_autonomous, slate_executeWork, slate_handoff |
 | 8 | Quality | slate_securityAudit, slate_benchmark, slate_forkCheck |
 | + | Roadmap | slate_planContext, slate_devCycle, slate_specKit, slate_codeGuidance |
+| + | GitHub | slate_ciMonitor, slate_prManager, slate_issueTracker, slate_gitOps |
 
 ## TOOL USAGE — 20 rounds available
 
@@ -307,6 +307,53 @@ Stages: PLAN → CODE → TEST → DEPLOY → FEEDBACK → (cycle)`,
 Call slate_planContext(scope="full"). Return the compressed context line.
 This is the TOKEN SAVER — use before complex operations.`,
 
+	// ─── /pr — Pull request agent ──────────────────────────────────────
+	pr: `MISSION: Manage pull requests autonomously.
+
+1. slate_prManager(action="list") — list open PRs with CI status
+2. If user wants to create → slate_prManager(action="create", branch, title, body)
+3. If user wants status → slate_prManager(action="status", prNumber) — includes check runs
+4. Cross-reference with slate_workflow(action="status") for task alignment
+5. Report: PR table with number, title, branch, CI status, age.`,
+
+	// ─── /issues — Issue tracking agent ────────────────────────────────
+	issues: `MISSION: Manage GitHub issues autonomously.
+
+1. slate_issueTracker(action="list") — list open issues with labels
+2. If user wants to create → slate_issueTracker(action="create", title, body, labels)
+3. If user wants to comment → slate_issueTracker(action="comment", issueNumber, body)
+4. If user wants to close → slate_issueTracker(action="close", issueNumber)
+5. Cross-reference with slate_workflow(action="status") for task-to-issue mapping
+6. Report: Issue table with number, title, labels, assignees, age.`,
+
+	// ─── /git — Git operations agent ───────────────────────────────────
+	git: `MISSION: Provide git repository awareness and operations.
+
+1. slate_gitOps(action="status") — working tree status (modified, staged, untracked)
+2. slate_gitOps(action="branch") — list branches, highlight current
+3. slate_gitOps(action="log") — recent commit log
+4. slate_gitOps(action="diff") — diff stats for uncommitted changes
+5. If stash requested → slate_gitOps(action="stash")
+6. Report: Concise git state summary — branch, changes, recent commits.`,
+
+	// ─── /tests — Test explorer agent ──────────────────────────────────
+	tests: `MISSION: Run tests and report results through VS Code Test Explorer.
+
+1. slate_runCommand(script="-m pytest tests/ -v --tb=short") — run the full test suite
+2. Report: Test results table with pass/fail/skip counts per suite (core, security, agents, ml)
+3. If failures → analyze output and delegate fixes to ALPHA agent via slate_handoff
+4. If coverage gaps → delegate test writing to BETA agent via slate_handoff
+5. The VS Code Test Explorer sidebar is also populated for interactive test runs.`,
+
+	// ─── /scan — Security scan agent ───────────────────────────────────
+	scan: `MISSION: Run security scan and publish findings to VS Code Problems panel.
+
+1. slate_securityAudit(scan="full") — run ActionGuard, PII scanner, SDK guard
+2. Findings are automatically published to the VS Code Problems panel via Diagnostics API
+3. For ANY critical finding → delegate fix to ALPHA agent via slate_handoff
+4. Re-scan to verify remediation
+5. Report: finding table with file, line, severity, description, action taken.`,
+
 	help: '',
 };
 
@@ -333,19 +380,12 @@ export function registerSlateParticipant(context: vscode.ExtensionContext) {
 		}
 
 		// Inject auto-context: always tell the agent what resources it has
-		// Modified: 2026-02-08T04:00:00Z | Author: COPILOT | Change: Dynamic hardware detection — never hardcode dev machine specs
-		const state = getSystemState();
 		systemMessage += `\n\n## AUTO-CONTEXT (injected by handler)
 Available tool count: ${vscode.lm.tools.filter(t => t.tags.includes('slate')).length} SLATE tools
 Handler config: MAX_TOOL_ROUNDS=${MAX_TOOL_ROUNDS}, TIMEOUT=${HANDLER_TIMEOUT_MS / 1000}s
 Current time: ${new Date().toISOString()}
 Last command: ${request.command ?? 'free-chat'}
 User prompt length: ${(request.prompt || '').length} chars
-GPU loaded: ${state.gpuLoaded ? 'Yes' : 'Unknown — run slate_hardwareInfo to detect'}
-Services up: ${state.servicesUp ? 'Yes' : 'Unknown — run slate_systemStatus to check'}
-Platform: ${process.platform}
-
-CRITICAL: Hardware specs MUST be detected at runtime on the end user's machine. Never assume GPU model, count, or VRAM. Always use slate_systemStatus or slate_hardwareInfo to get actual hardware info.
 
 REMEMBER: You are an AGENT. Plan → Execute → Verify → Report outcomes. Don't ask — DO.`;
 
@@ -583,6 +623,11 @@ function getToolDisplayName(toolName: string): string {
 		slate_learningProgress: 'Learning Progress',
 		slate_planContext: 'Plan Context',
 		slate_codeGuidance: 'Code Guidance',
+		// GitHub integration tools
+		slate_ciMonitor: 'CI Monitor',
+		slate_prManager: 'PR Manager',
+		slate_issueTracker: 'Issue Tracker',
+		slate_gitOps: 'Git Operations',
 	};
 	return names[toolName] ?? toolName;
 }
@@ -618,7 +663,14 @@ function renderHelp(stream: vscode.ChatResponseStream) {
 	stream.markdown('| `/context` | Token-efficient compressed state (TOKEN SAVER) |\n');
 	stream.markdown('| `/specs` | Process all specs autonomously |\n');
 	stream.markdown('| `/learn` | Track learning progress + auto-advance |\n\n');
-	stream.markdown('**26 Tools** | **20 tool rounds per request** | **15 min timeout**\n');
+	stream.markdown('### GitHub & Source Control\n');
+	stream.markdown('| Command | Mission |\n|---------|---------|\n');
+	stream.markdown('| `/pr` | Pull request management — list, create, check CI status |\n');
+	stream.markdown('| `/issues` | GitHub issue tracking — list, create, close, comment |\n');
+	stream.markdown('| `/git` | Git operations — status, branches, log, diff, stash |\n');
+	stream.markdown('| `/tests` | Run tests + populate Test Explorer sidebar |\n');
+	stream.markdown('| `/scan` | Security scan → Problems panel + auto-remediate |\n\n');
+	stream.markdown('**30 Tools** | **20 tool rounds per request** | **15 min timeout**\n');
 	stream.markdown('\n> **Tip:** Just talk to @slate naturally. Commands are optional — the agent will figure out what to do.\n');
 }
 
@@ -701,6 +753,12 @@ function getStateAwareFollowups(lastCommand: string, state: SlateSystemState): S
 		specs: { prompt: 'Check learning progress, achievements, and XP', label: 'View progress', command: 'learn' },
 		learn: { prompt: 'Get compressed context for token-efficient operations', label: 'Get context', command: 'context' },
 		context: { prompt: 'Check roadmap alignment: dev stage, specs, tasks', label: 'View roadmap', command: 'roadmap' },
+		// GitHub & source control swaps
+		pr: { prompt: 'List open GitHub issues and recent activity', label: 'View issues', command: 'issues' },
+		issues: { prompt: 'Check git status — branches, uncommitted changes, recent commits', label: 'Git status', command: 'git' },
+		git: { prompt: 'List open pull requests with CI status', label: 'View PRs', command: 'pr' },
+		tests: { prompt: 'Run security scan and publish findings to Problems panel', label: 'Security scan', command: 'scan' },
+		scan: { prompt: 'Run full test suite and check coverage', label: 'Run tests', command: 'tests' },
 	};
 
 	// Replace any pillar whose command matches the last command

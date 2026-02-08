@@ -1,4 +1,4 @@
-// Modified: 2026-02-07T22:00:00Z | Author: COPILOT | Change: Fix full-panel dashboard theme to SLATE M3 ProArt + unified view cleanup
+// Modified: 2026-02-07T23:00:00Z | Author: COPILOT | Change: Add VS Code + GitHub deep integrations — diagnostics, test explorer, task provider, CodeLens, CI monitor, PR/issue tools
 import * as vscode from 'vscode';
 import { registerSlateParticipant } from './slateParticipant';
 import { registerSlateTools } from './tools';
@@ -9,6 +9,11 @@ import {
 	registerBackgroundCommands,
 	watchForStateChanges
 } from './slateSchematicBackground';
+import { SlateDiagnosticsProvider } from './slateDiagnostics';
+import { SlateTestController } from './slateTestController';
+import { SlateTaskProvider } from './slateTaskProvider';
+import { SlateCodeLensProvider } from './slateCodeLens';
+import { registerGitHubTools } from './slateGitHubIntegration';
 
 const DASHBOARD_URL = 'http://127.0.0.1:8080';
 const SLATE_THEME_ID = 'SLATE Dark';
@@ -19,6 +24,28 @@ let slateStatusBarItem: vscode.StatusBarItem;
 export function activate(context: vscode.ExtensionContext) {
 	registerSlateTools(context);
 	registerSlateParticipant(context);
+
+	// ─── VS Code Deep Integrations ─────────────────────────────────────────
+	// These hook SLATE into native VS Code systems for seamless DX
+
+	// Diagnostics: Security scan findings → Problems panel
+	const diagnostics = new SlateDiagnosticsProvider();
+	diagnostics.activate(context);
+
+	// Test Explorer: SLATE tests → VS Code Test Explorer sidebar
+	const testController = new SlateTestController();
+	testController.activate(context);
+
+	// Task Provider: Dynamic SLATE tasks → Terminal > Run Task
+	const taskProvider = new SlateTaskProvider();
+	taskProvider.activate(context);
+
+	// CodeLens: Inline actions on Python/YAML files
+	const codeLens = new SlateCodeLensProvider();
+	codeLens.activate(context);
+
+	// GitHub Integration: CI monitor, PR manager, issue tracker, git ops
+	registerGitHubTools(context);
 
 	// ─── SLATE Theme & Background Initialization ───────────────────────────
 	// Embodies the SLATE ethos: systems evolve with progress

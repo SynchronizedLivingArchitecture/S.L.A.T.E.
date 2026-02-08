@@ -9,11 +9,11 @@
 		"url": "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git"
 	},
 	"slateMetadata": {
-		"modified": "2026-02-07T18:00:00Z",
+		"modified": "2026-02-07T23:00:00Z",
 		"author": "COPILOT",
-		"change": "Dashboard redesign — collapsible sections, consolidated layout, sidebar-optimized, version-aware onboarding"
+		"change": "Add VS Code + GitHub deep integrations — diagnostics, test explorer, task provider, CodeLens, CI monitor, PR/issue/git tools"
 	},
-	"version": "3.4.0",
+	"version": "4.1.0",
 	"icon": "media/icon.png",
 	"engines": {
 		"vscode": "^1.100.0"
@@ -147,6 +147,26 @@
 					{
 						"name": "context",
 						"description": "Get compressed SLATE state context (token-optimized)"
+					},
+					{
+						"name": "pr",
+						"description": "Pull request management — list, create, check status with CI"
+					},
+					{
+						"name": "issues",
+						"description": "GitHub issue tracking — list, create, close, comment"
+					},
+					{
+						"name": "git",
+						"description": "Git operations — status, branches, log, diff, stash"
+					},
+					{
+						"name": "tests",
+						"description": "Test Explorer — run tests, refresh suites, view results"
+					},
+					{
+						"name": "scan",
+						"description": "Security scan — run diagnostics and show in Problems panel"
 					}
 				],
 				"disambiguation": [
@@ -159,6 +179,27 @@
 							"Dispatch the CI workflow",
 							"Show system status",
 							"Start the dashboard"
+						]
+					},
+					{
+						"category": "slate_github",
+						"description": "The user wants to interact with GitHub — PRs, issues, CI runs, git operations.",
+						"examples": [
+							"List open pull requests",
+							"Create an issue for this bug",
+							"Show recent CI runs",
+							"What branch am I on?",
+							"Check the git diff"
+						]
+					},
+					{
+						"category": "slate_quality",
+						"description": "The user wants to run tests, security scans, or code quality checks.",
+						"examples": [
+							"Run the test suite",
+							"Scan for security issues",
+							"Check code coverage",
+							"Run the security audit"
 						]
 					}
 				]
@@ -674,6 +715,132 @@
 						}
 					}
 				}
+			},
+			{
+				"name": "slate_ciMonitor",
+				"tags": ["slate", "ci", "github", "actions", "workflow"],
+				"toolReferenceName": "slateCiMonitor",
+				"displayName": "SLATE CI Monitor",
+				"modelDescription": "Monitor GitHub Actions CI/CD: list recent runs, check active runs, dispatch workflows, get job logs, cancel or re-run failed jobs. Deep integration with the self-hosted slate-runner.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"required": ["action"],
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "CI action: 'runs' (list recent), 'status' (active runs), 'dispatch' (trigger workflow), 'logs' (job details), 'cancel', 'rerun'",
+							"enum": ["runs", "status", "dispatch", "logs", "cancel", "rerun"]
+						},
+						"workflow": {
+							"type": "string",
+							"description": "Workflow file name for dispatch (e.g., 'ci.yml', 'agentic.yml')"
+						},
+						"runId": {
+							"type": "string",
+							"description": "Workflow run ID for logs/cancel/rerun actions"
+						},
+						"count": {
+							"type": "number",
+							"description": "Number of runs to list (default 10)",
+							"default": 10
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_prManager",
+				"tags": ["slate", "github", "pr", "pull-request"],
+				"toolReferenceName": "slatePrManager",
+				"displayName": "SLATE PR Manager",
+				"modelDescription": "Manage GitHub pull requests: list open PRs, create new PRs, check PR status with check runs. Integrates with SLATE workflow for task-to-PR lifecycle.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"required": ["action"],
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "PR action: 'list' (open PRs), 'create' (new PR), 'status' (check PR with CI status)",
+							"enum": ["list", "create", "status"]
+						},
+						"branch": {
+							"type": "string",
+							"description": "Source branch for creating a PR"
+						},
+						"title": {
+							"type": "string",
+							"description": "PR title"
+						},
+						"body": {
+							"type": "string",
+							"description": "PR description body"
+						},
+						"prNumber": {
+							"type": "number",
+							"description": "PR number for status check"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_issueTracker",
+				"tags": ["slate", "github", "issues", "bugs"],
+				"toolReferenceName": "slateIssueTracker",
+				"displayName": "SLATE Issue Tracker",
+				"modelDescription": "Manage GitHub issues: list open issues, create new issues with labels, close issues, add comments. Bridges SLATE task management with GitHub issue tracking.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"required": ["action"],
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Issue action: 'list' (open issues), 'create' (new issue), 'close', 'comment'",
+							"enum": ["list", "create", "close", "comment"]
+						},
+						"title": {
+							"type": "string",
+							"description": "Issue title (for create)"
+						},
+						"body": {
+							"type": "string",
+							"description": "Issue body or comment text"
+						},
+						"labels": {
+							"type": "array",
+							"items": { "type": "string" },
+							"description": "Labels to apply (for create)"
+						},
+						"issueNumber": {
+							"type": "number",
+							"description": "Issue number (for close/comment)"
+						}
+					}
+				}
+			},
+			{
+				"name": "slate_gitOps",
+				"tags": ["slate", "git", "source-control", "branch"],
+				"toolReferenceName": "slateGitOps",
+				"displayName": "SLATE Git Operations",
+				"modelDescription": "Git source control operations: check status, list branches, view commit log, show diff stats, list stashes. Provides repository awareness for the @slate agent.",
+				"canBeReferencedInPrompt": true,
+				"inputSchema": {
+					"type": "object",
+					"required": ["action"],
+					"properties": {
+						"action": {
+							"type": "string",
+							"description": "Git action: 'status', 'branch', 'log', 'diff', 'stash'",
+							"enum": ["status", "branch", "log", "diff", "stash"]
+						},
+						"branch": {
+							"type": "string",
+							"description": "Branch name (for branch operations)"
+						}
+					}
+				}
 			}
 		],
 		"commands": [
@@ -700,6 +867,51 @@
 			{
 				"command": "slate.toggleBackground",
 				"title": "SLATE: Toggle Schematic Background"
+			},
+			{
+				"command": "slate.scanDiagnostics",
+				"title": "SLATE: Run Security Scan (Diagnostics)"
+			},
+			{
+				"command": "slate.clearDiagnostics",
+				"title": "SLATE: Clear Security Diagnostics"
+			},
+			{
+				"command": "slate.refreshTests",
+				"title": "SLATE: Refresh Test Explorer"
+			},
+			{
+				"command": "slate.codeLens.runTest",
+				"title": "SLATE: Run Test at Cursor"
+			},
+			{
+				"command": "slate.codeLens.runModule",
+				"title": "SLATE: Check Module Status"
+			},
+			{
+				"command": "slate.codeLens.scanFile",
+				"title": "SLATE: Scan File for Security Issues"
+			},
+			{
+				"command": "slate.codeLens.dispatchWorkflow",
+				"title": "SLATE: Dispatch Workflow"
+			}
+		],
+		"taskDefinitions": [
+			{
+				"type": "slate",
+				"required": ["operation"],
+				"properties": {
+					"operation": {
+						"type": "string",
+						"description": "The SLATE operation to run (e.g., 'status', 'workflow-status', 'gpu-status')"
+					},
+					"args": {
+						"type": "array",
+						"items": { "type": "string" },
+						"description": "Additional arguments for the operation"
+					}
+				}
 			}
 		],
 		"configuration": {
