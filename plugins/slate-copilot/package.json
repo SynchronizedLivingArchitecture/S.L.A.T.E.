@@ -9,9 +9,9 @@
 		"url": "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git"
 	},
 	"slateMetadata": {
-		"modified": "2026-02-08T05:00:00Z",
-		"author": "Claude Opus 4.5",
-		"change": "Add evolving schematic background system - background reflects system state and updates as SLATE progresses"
+		"modified": "2026-02-08T18:00:00Z",
+		"author": "COPILOT",
+		"change": "Unified dashboard — merge guided setup, control board, and dashboard into single integrated view with shared SLATE M3 ProArt design system"
 	},
 	"version": "3.2.0",
 	"icon": "media/icon.png",
@@ -48,25 +48,11 @@
 			"slate-explorer": [
 				{
 					"type": "webview",
-					"id": "slate.guidedInstall",
-					"name": "Guided Setup",
+					"id": "slate.unifiedDashboard",
+					"name": "SLATE Dashboard",
 					"icon": "media/slate-activity-icon.svg",
 					"visibility": "visible",
-					"contextualTitle": "AI-Powered Setup"
-				},
-				{
-					"type": "webview",
-					"id": "slate.controlBoardView",
-					"name": "Control Board",
-					"icon": "media/slate-activity-icon.svg",
-					"visibility": "visible"
-				},
-				{
-					"type": "webview",
-					"id": "slate.dashboardView",
-					"name": "Dashboard",
-					"icon": "media/slate-activity-icon.svg",
-					"visibility": "visible"
+					"contextualTitle": "SLATE — Dashboard & Control Board"
 				}
 			]
 		},

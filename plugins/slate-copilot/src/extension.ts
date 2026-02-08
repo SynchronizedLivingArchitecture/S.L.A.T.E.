@@ -1,10 +1,8 @@
-// Modified: 2026-02-08T05:00:00Z | Author: Claude Opus 4.5 | Change: Add evolving schematic background system
+// Modified: 2026-02-08T18:00:00Z | Author: COPILOT | Change: Unified dashboard — merge guided setup, control board, and dashboard into single view
 import * as vscode from 'vscode';
 import { registerSlateParticipant } from './slateParticipant';
 import { registerSlateTools } from './tools';
-import { SlateDashboardViewProvider } from './slateDashboardView';
-import { SlateControlBoardViewProvider } from './slateControlBoardView';
-import { registerGuidedInstallView } from './slateGuidedInstallView';
+import { SlateUnifiedDashboardViewProvider, registerUnifiedDashboard } from './slateUnifiedDashboardView';
 import { registerServiceMonitor } from './slateServiceMonitor';
 import {
 	applySchematicBackground,
@@ -41,25 +39,12 @@ export function activate(context: vscode.ExtensionContext) {
 	// Register service monitor for auto-restart
 	const serviceMonitor = registerServiceMonitor(context);
 
-	// Register the AI-powered Guided Install view
-	context.subscriptions.push(registerGuidedInstallView(context));
-
-	// Register the sidebar Control Board webview (above Dashboard)
-	const controlBoardViewProvider = new SlateControlBoardViewProvider(context.extensionUri);
+	// Register the unified dashboard (combines guided setup, control board, and dashboard)
+	const unifiedDashboardProvider = new SlateUnifiedDashboardViewProvider(context.extensionUri, context);
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
-			SlateControlBoardViewProvider.viewType,
-			controlBoardViewProvider,
-			{ webviewOptions: { retainContextWhenHidden: true } }
-		)
-	);
-
-	// Register the sidebar dashboard webview
-	const dashboardViewProvider = new SlateDashboardViewProvider(context.extensionUri);
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(
-			SlateDashboardViewProvider.viewType,
-			dashboardViewProvider,
+			SlateUnifiedDashboardViewProvider.viewType,
+			unifiedDashboardProvider,
 			{ webviewOptions: { retainContextWhenHidden: true } }
 		)
 	);
@@ -67,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// Refresh command
 	context.subscriptions.push(
 		vscode.commands.registerCommand('slate.refreshDashboard', () => {
-			dashboardViewProvider.refresh();
+			unifiedDashboardProvider.refresh();
 		})
 	);
 
