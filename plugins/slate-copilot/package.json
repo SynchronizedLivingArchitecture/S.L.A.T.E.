@@ -939,7 +939,7 @@
 		"lint": "eslint"
 	},
 	"devDependencies": {
-		"@types/node": "^22",
+		"@types/node": "^25",
 		"@types/vscode": "^1.100.0",
 		"typescript": "^5.9.2"
 	}
