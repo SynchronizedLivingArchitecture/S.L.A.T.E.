@@ -1344,6 +1344,267 @@ def build_template() -> str:
             }}
         }}
 
+        /* ═══ Phase 5: Information Architecture ═════════════════════════ */
+        /* Modified: 2026-02-08T09:00:00Z | Author: COPILOT | Change: Add tier-based navigation, breadcrumbs, drill-down, zoom/focus, schematic organization */
+
+        /* --- Breadcrumb Trail --- */
+        .breadcrumb-trail {{
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 0.65rem;
+            font-family: var(--sl-font-mono);
+            color: var(--sl-text-disabled);
+            background: rgba(15,14,13,0.5);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }}
+        .breadcrumb-item {{
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 3px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            color: var(--sl-text-secondary);
+        }}
+        .breadcrumb-item:hover {{
+            background: rgba(255,255,255,0.05);
+            color: var(--sl-text-primary);
+        }}
+        .breadcrumb-item.active {{
+            color: var(--sl-accent);
+            font-weight: 600;
+        }}
+        .breadcrumb-separator {{
+            color: var(--sl-text-disabled);
+            font-size: 0.55rem;
+        }}
+        .breadcrumb-depth-label {{
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 4px;
+        }}
+        .breadcrumb-depth-label.depth-surface {{
+            background: rgba(34,197,94,0.15);
+            color: #22C55E;
+        }}
+        .breadcrumb-depth-label.depth-mechanism {{
+            background: rgba(245,158,11,0.15);
+            color: #F59E0B;
+        }}
+        .breadcrumb-depth-label.depth-components {{
+            background: rgba(59,130,246,0.15);
+            color: #3B82F6;
+        }}
+        .breadcrumb-depth-label.depth-internals {{
+            background: rgba(168,85,247,0.15);
+            color: #A855F7;
+        }}
+        .breadcrumb-depth-label.depth-core {{
+            background: rgba(239,68,68,0.15);
+            color: #EF4444;
+        }}
+
+        /* --- Tier-Based Navigation Indicators --- */
+        .tier-indicator {{
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 0;
+            margin-bottom: 12px;
+        }}
+        .tier-dot {{
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--sl-border);
+            transition: all 0.3s ease;
+        }}
+        .tier-dot.filled {{
+            background: var(--sl-accent);
+            box-shadow: 0 0 4px var(--sl-accent);
+        }}
+        .tier-label {{
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--sl-text-disabled);
+            font-family: var(--sl-font-mono);
+            margin-left: 8px;
+        }}
+
+        /* --- Schematic Section Organization --- */
+        .schematic-section-header {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--sl-border);
+            position: relative;
+        }}
+        .schematic-section-header::before {{
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--sl-accent);
+        }}
+        .schematic-section-icon {{
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(184,90,60,0.1);
+            border: 1px solid rgba(184,90,60,0.2);
+            border-radius: 8px;
+            font-size: 1rem;
+        }}
+        .schematic-section-meta {{
+            flex: 1;
+        }}
+        .schematic-section-title {{
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--sl-text-primary);
+            letter-spacing: 0.04em;
+        }}
+        .schematic-section-subtitle {{
+            font-size: 0.6rem;
+            color: var(--sl-text-disabled);
+            font-family: var(--sl-font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }}
+
+        /* --- Drill-Down Interaction --- */
+        .drilldown-trigger {{
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }}
+        .drilldown-trigger:hover {{
+            transform: scale(1.02);
+            box-shadow: 0 0 0 2px var(--sl-accent), 0 4px 12px rgba(184,90,60,0.15);
+        }}
+        .drilldown-trigger::after {{
+            content: '\\279C';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.7rem;
+            color: var(--sl-text-disabled);
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }}
+        .drilldown-trigger:hover::after {{
+            opacity: 1;
+            transform: translateX(4px);
+        }}
+
+        /* Drill-down expansion panel */
+        .drilldown-detail {{
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out, opacity 0.3s ease;
+            opacity: 0;
+            padding: 0 16px;
+        }}
+        .drilldown-detail.expanded {{
+            max-height: 1000px;
+            opacity: 1;
+            padding: 16px;
+            margin-top: 12px;
+            background: rgba(15,14,13,0.3);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 8px;
+        }}
+
+        /* --- Zoom/Focus Interaction --- */
+        .focus-container {{
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            position: relative;
+        }}
+        .focus-container.focused {{
+            transform: scale(1.05) translateZ(20px);
+            z-index: 10;
+            box-shadow: 0 0 0 3px var(--sl-accent), 0 8px 32px rgba(0,0,0,0.3);
+            border-radius: 12px;
+        }}
+        .focus-container.dimmed {{
+            opacity: 0.3;
+            filter: blur(1px);
+            pointer-events: none;
+        }}
+        .focus-dismiss {{
+            display: none;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--sl-accent);
+            color: var(--sl-text-on-accent);
+            border: none;
+            cursor: pointer;
+            font-size: 0.6rem;
+            z-index: 11;
+            align-items: center;
+            justify-content: center;
+        }}
+        .focus-container.focused .focus-dismiss {{
+            display: flex;
+        }}
+
+        /* --- Schematic Grid Layout --- */
+        .schematic-grid {{
+            display: grid;
+            gap: 16px;
+        }}
+        .schematic-grid.cols-2 {{
+            grid-template-columns: repeat(2, 1fr);
+        }}
+        .schematic-grid.cols-3 {{
+            grid-template-columns: repeat(3, 1fr);
+        }}
+        .schematic-grid.cols-4 {{
+            grid-template-columns: repeat(4, 1fr);
+        }}
+
+        @media (max-width: 900px) {{
+            .schematic-grid.cols-3,
+            .schematic-grid.cols-4 {{
+                grid-template-columns: repeat(2, 1fr);
+            }}
+            .breadcrumb-trail {{
+                font-size: 0.55rem;
+                padding: 6px 12px;
+            }}
+            .schematic-section-header {{
+                gap: 8px;
+            }}
+        }}
+
+        @media (max-width: 600px) {{
+            .schematic-grid.cols-2,
+            .schematic-grid.cols-3,
+            .schematic-grid.cols-4 {{
+                grid-template-columns: 1fr;
+            }}
+        }}
+
         /* ─── Buttons (M3-inspired) ────────────────────────────────── */
         .btn {{
             display: inline-flex;
@@ -2362,6 +2623,18 @@ def build_template() -> str:
                 </header>
 
                 <main id="main" role="main">
+
+                <!-- ═══ Breadcrumb Trail (Phase 5) ═══ -->
+                <div class="breadcrumb-trail" id="breadcrumb-trail" aria-label="Navigation breadcrumb">
+                    <div class="breadcrumb-item active" data-section="overview" onclick="navigateBreadcrumb('overview')">
+                        &#9670; S.L.A.T.E.
+                    </div>
+                    <div class="breadcrumb-separator" id="bc-sep-1" style="display:none;">&#9656;</div>
+                    <div class="breadcrumb-item" id="bc-section" style="display:none;"></div>
+                    <div class="breadcrumb-separator" id="bc-sep-2" style="display:none;">&#9656;</div>
+                    <div class="breadcrumb-item" id="bc-detail" style="display:none;"></div>
+                    <span class="breadcrumb-depth-label depth-surface" id="bc-depth">Surface</span>
+                </div>
 
                 <!-- ═══ SECTION: Overview ═══ -->
                 <div class="dash-section active" id="sec-overview">
@@ -4443,6 +4716,174 @@ def build_template_js() -> str:
             }
         };
 
+        // ─── Watchmaker Phase 5: Information Architecture ─────────────
+        // Modified: 2026-02-08T09:00:00Z | Author: COPILOT | Change: Tier-based navigation, breadcrumb trail, drill-down, zoom/focus
+
+        // Depth tier mapping
+        const depthTiers = {
+            'overview': { tier: 1, depth: 'surface', label: 'System Overview' },
+            'controls': { tier: 2, depth: 'mechanism', label: 'Controls' },
+            'hardware': { tier: 2, depth: 'mechanism', label: 'Hardware' },
+            'workflows': { tier: 3, depth: 'components', label: 'Workflows' },
+            'tasks': { tier: 3, depth: 'components', label: 'Tasks' },
+            'github': { tier: 3, depth: 'components', label: 'GitHub' },
+            'agents': { tier: 4, depth: 'internals', label: 'Agents' },
+            'activity': { tier: 4, depth: 'internals', label: 'Activity' },
+            'command-center': { tier: 1, depth: 'surface', label: 'Command Center' },
+            'constellation': { tier: 2, depth: 'mechanism', label: 'Service Constellation' },
+            'gpu-workbench': { tier: 2, depth: 'mechanism', label: 'GPU Workbench' },
+            'task-orch': { tier: 3, depth: 'components', label: 'Task Orchestration' }
+        };
+
+        // Breadcrumb management
+        function updateBreadcrumb(sectionId, detail) {
+            const bcSection = document.getElementById('bc-section');
+            const bcDetail = document.getElementById('bc-detail');
+            const bcSep1 = document.getElementById('bc-sep-1');
+            const bcSep2 = document.getElementById('bc-sep-2');
+            const bcDepth = document.getElementById('bc-depth');
+
+            const tier = depthTiers[sectionId] || { tier: 1, depth: 'surface', label: sectionId };
+
+            // Show section breadcrumb
+            if (sectionId && sectionId !== 'overview') {
+                bcSection.textContent = tier.label;
+                bcSection.style.display = 'flex';
+                bcSection.setAttribute('data-section', sectionId);
+                bcSection.onclick = () => navigateBreadcrumb(sectionId);
+                bcSep1.style.display = 'flex';
+            } else {
+                bcSection.style.display = 'none';
+                bcSep1.style.display = 'none';
+            }
+
+            // Show detail breadcrumb
+            if (detail) {
+                bcDetail.textContent = detail;
+                bcDetail.style.display = 'flex';
+                bcDetail.classList.add('active');
+                bcSep2.style.display = 'flex';
+                bcSection.classList.remove('active');
+            } else {
+                bcDetail.style.display = 'none';
+                bcSep2.style.display = 'none';
+                bcSection.classList.add('active');
+            }
+
+            // Update depth label
+            if (bcDepth) {
+                const depthClasses = ['depth-surface', 'depth-mechanism', 'depth-components', 'depth-internals', 'depth-core'];
+                depthClasses.forEach(c => bcDepth.classList.remove(c));
+                bcDepth.classList.add('depth-' + tier.depth);
+                bcDepth.textContent = tier.depth.charAt(0).toUpperCase() + tier.depth.slice(1);
+            }
+
+            // Update tier dots if present
+            updateTierIndicator(tier.tier);
+        }
+
+        function navigateBreadcrumb(sectionId) {
+            // Find nav item and click it
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('onclick')?.includes(sectionId)) {
+                    item.click();
+                }
+            });
+        }
+
+        // Tier indicator dots
+        function updateTierIndicator(activeTier) {
+            const dots = document.querySelectorAll('.tier-dot');
+            dots.forEach((dot, i) => {
+                if (i < activeTier) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                }
+            });
+        }
+
+        // Drill-down interactions
+        function initDrillDown() {
+            document.querySelectorAll('.drilldown-trigger').forEach(trigger => {
+                trigger.addEventListener('click', function() {
+                    const detailId = this.getAttribute('data-drilldown');
+                    const detailEl = document.getElementById(detailId);
+                    if (!detailEl) return;
+
+                    const isExpanded = detailEl.classList.contains('expanded');
+                    // Close all other expansions first
+                    document.querySelectorAll('.drilldown-detail.expanded').forEach(el => {
+                        el.classList.remove('expanded');
+                    });
+
+                    if (!isExpanded) {
+                        detailEl.classList.add('expanded');
+                        const label = this.querySelector('.schematic-section-title, .watchmaker-card-header span')?.textContent || '';
+                        const section = this.closest('.dash-section')?.id?.replace('sec-', '') || '';
+                        updateBreadcrumb(section, label);
+                    } else {
+                        const section = this.closest('.dash-section')?.id?.replace('sec-', '') || '';
+                        updateBreadcrumb(section);
+                    }
+                });
+            });
+        }
+
+        // Zoom/focus interactions
+        function initZoomFocus() {
+            document.querySelectorAll('.focus-container').forEach(container => {
+                container.addEventListener('dblclick', function(e) {
+                    e.stopPropagation();
+                    const isFocused = this.classList.contains('focused');
+
+                    // Reset all
+                    document.querySelectorAll('.focus-container').forEach(c => {
+                        c.classList.remove('focused', 'dimmed');
+                    });
+
+                    if (!isFocused) {
+                        this.classList.add('focused');
+                        // Dim siblings
+                        const parent = this.parentElement;
+                        if (parent) {
+                            parent.querySelectorAll('.focus-container').forEach(sibling => {
+                                if (sibling !== this) sibling.classList.add('dimmed');
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Click outside to dismiss focus
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.focus-container')) {
+                    document.querySelectorAll('.focus-container').forEach(c => {
+                        c.classList.remove('focused', 'dimmed');
+                    });
+                }
+            });
+        }
+
+        // Hook into showSection to update breadcrumb
+        const _originalShowSection = typeof showSection === 'function' ? showSection : null;
+
+        function initInfoArchitecture() {
+            initDrillDown();
+            initZoomFocus();
+            // Patch showSection to update breadcrumb
+            if (_originalShowSection) {
+                const origFn = _originalShowSection;
+                window.showSection = function(name, el) {
+                    origFn(name, el);
+                    updateBreadcrumb(name);
+                };
+            }
+            // Set initial breadcrumb
+            updateBreadcrumb('overview');
+        }
+
         // --- Animation System Initialization ---
         function initAnimationSystem() {
             GearController.init();
@@ -4484,6 +4925,8 @@ def build_template_js() -> str:
         setInterval(refreshTaskOrchestration, 30000);
         // Watchmaker Phase 4 - animation system
         initAnimationSystem();
+        // Watchmaker Phase 5 - information architecture
+        initInfoArchitecture();
     </script>
 </body>
 </html>'''

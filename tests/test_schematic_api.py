@@ -1075,5 +1075,277 @@ class TestReducedMotionAccessibility:
         assert "animation: none !important" in template
 
 
+# ════════════════════════════════════════════════════════════════════════════
+# Phase 5: Information Architecture Tests
+# Modified: 2026-02-09T06:00:00Z | Author: COPILOT | Change: Add Phase 5 tests
+# ════════════════════════════════════════════════════════════════════════════
+
+
+class TestBreadcrumbTrailCSS:
+    """Phase 5: Breadcrumb trail CSS styling."""
+
+    @pytest.fixture
+    def template(self):
+        from slate_web.dashboard_template import build_template
+        return build_template()
+
+    def test_breadcrumb_trail_class(self, template):
+        assert "breadcrumb-trail" in template
+
+    def test_breadcrumb_trail_sticky(self, template):
+        assert "position: sticky" in template
+
+    def test_breadcrumb_item_class(self, template):
+        assert "breadcrumb-item" in template
+
+    def test_breadcrumb_separator_class(self, template):
+        assert "breadcrumb-separator" in template
+
+    def test_breadcrumb_depth_label_class(self, template):
+        assert "breadcrumb-depth-label" in template
+
+    def test_depth_surface_class(self, template):
+        assert "depth-surface" in template
+
+    def test_depth_mechanism_class(self, template):
+        assert "depth-mechanism" in template
+
+    def test_depth_components_class(self, template):
+        assert "depth-components" in template
+
+    def test_depth_internals_class(self, template):
+        assert "depth-internals" in template
+
+    def test_depth_core_class(self, template):
+        assert "depth-core" in template
+
+
+class TestTierIndicatorCSS:
+    """Phase 5: Tier indicator dots and labels."""
+
+    @pytest.fixture
+    def template(self):
+        from slate_web.dashboard_template import build_template
+        return build_template()
+
+    def test_tier_indicator_class(self, template):
+        assert "tier-indicator" in template
+
+    def test_tier_dot_class(self, template):
+        assert "tier-dot" in template
+
+    def test_tier_label_class(self, template):
+        assert "tier-label" in template
+
+    def test_tier_dot_filled_state(self, template):
+        assert ".tier-dot.filled" in template
+
+
+class TestSchematicSectionHeaderCSS:
+    """Phase 5: Section header with accent line."""
+
+    @pytest.fixture
+    def template(self):
+        from slate_web.dashboard_template import build_template
+        return build_template()
+
+    def test_section_header_class(self, template):
+        assert "schematic-section-header" in template
+
+    def test_section_header_accent_line(self, template):
+        # The ::before pseudo-element creates the accent line
+        assert "schematic-section-header" in template
+
+    def test_section_icon_class(self, template):
+        assert "schematic-section-icon" in template
+
+    def test_section_meta_class(self, template):
+        assert "schematic-section-meta" in template
+
+    def test_section_title_class(self, template):
+        assert "schematic-section-title" in template
+
+    def test_section_subtitle_class(self, template):
+        assert "schematic-section-subtitle" in template
+
+
+class TestDrilldownInteractionCSS:
+    """Phase 5: Drill-down trigger and detail panels."""
+
+    @pytest.fixture
+    def template(self):
+        from slate_web.dashboard_template import build_template
+        return build_template()
+
+    def test_drilldown_trigger_class(self, template):
+        assert "drilldown-trigger" in template
+
+    def test_drilldown_detail_class(self, template):
+        assert "drilldown-detail" in template
+
+    def test_drilldown_expanded_class(self, template):
+        assert ".drilldown-detail.expanded" in template
+
+    def test_drilldown_trigger_hover(self, template):
+        assert "drilldown-trigger" in template
+        assert "scale(1.02)" in template
+
+    def test_drilldown_max_height_transition(self, template):
+        assert "max-height" in template
+
+
+class TestZoomFocusCSS:
+    """Phase 5: Zoom/focus interaction CSS."""
+
+    @pytest.fixture
+    def template(self):
+        from slate_web.dashboard_template import build_template
+        return build_template()
+
+    def test_focus_container_class(self, template):
+        assert "focus-container" in template
+
+    def test_focus_focused_state(self, template):
+        assert ".focus-container.focused" in template
+
+    def test_focus_dimmed_state(self, template):
+        assert ".focus-container.dimmed" in template
+
+    def test_focus_dismiss_button(self, template):
+        assert "focus-dismiss" in template
+
+    def test_dimmed_opacity(self, template):
+        assert "opacity: 0.3" in template
+
+    def test_focused_scale(self, template):
+        assert "scale(1.05)" in template
+
+
+class TestSchematicGridCSS:
+    """Phase 5: Schematic grid layout system."""
+
+    @pytest.fixture
+    def template(self):
+        from slate_web.dashboard_template import build_template
+        return build_template()
+
+    def test_schematic_grid_class(self, template):
+        assert "schematic-grid" in template
+
+    def test_cols_2_class(self, template):
+        assert ".cols-2" in template
+
+    def test_cols_3_class(self, template):
+        assert ".cols-3" in template
+
+    def test_cols_4_class(self, template):
+        assert ".cols-4" in template
+
+
+class TestBreadcrumbTrailHTML:
+    """Phase 5: Breadcrumb trail HTML elements."""
+
+    @pytest.fixture
+    def template(self):
+        from slate_web.dashboard_template import build_template
+        return build_template()
+
+    def test_breadcrumb_trail_element(self, template):
+        assert 'id="breadcrumb-trail"' in template
+
+    def test_breadcrumb_root_item(self, template):
+        assert "S.L.A.T.E." in template
+
+    def test_breadcrumb_section_item(self, template):
+        assert 'id="bc-section"' in template
+
+    def test_breadcrumb_detail_item(self, template):
+        assert 'id="bc-detail"' in template
+
+    def test_breadcrumb_depth_label(self, template):
+        assert 'id="bc-depth"' in template
+
+    def test_breadcrumb_separators(self, template):
+        assert 'id="bc-sep-1"' in template
+        assert 'id="bc-sep-2"' in template
+
+
+class TestInfoArchitectureJS:
+    """Phase 5: JavaScript functions for information architecture."""
+
+    @pytest.fixture
+    def full_template(self):
+        from slate_web.dashboard_template import get_full_template
+        return get_full_template()
+
+    def test_depth_tiers_object(self, full_template):
+        assert "depthTiers" in full_template
+
+    def test_update_breadcrumb_function(self, full_template):
+        assert "updateBreadcrumb" in full_template
+
+    def test_navigate_breadcrumb_function(self, full_template):
+        assert "navigateBreadcrumb" in full_template
+
+    def test_update_tier_indicator_function(self, full_template):
+        assert "updateTierIndicator" in full_template
+
+    def test_init_drill_down_function(self, full_template):
+        assert "initDrillDown" in full_template
+
+    def test_init_zoom_focus_function(self, full_template):
+        assert "initZoomFocus" in full_template
+
+    def test_init_info_architecture_function(self, full_template):
+        assert "initInfoArchitecture" in full_template
+
+    def test_original_show_section_reference(self, full_template):
+        assert "_originalShowSection" in full_template
+
+    def test_depth_tiers_has_overview(self, full_template):
+        assert "'overview'" in full_template or '"overview"' in full_template
+
+    def test_depth_tiers_has_surface_tier(self, full_template):
+        assert "surface" in full_template
+
+    def test_depth_tiers_has_mechanism_tier(self, full_template):
+        assert "mechanism" in full_template
+
+    def test_depth_tiers_has_components_tier(self, full_template):
+        assert "components" in full_template
+
+    def test_depth_tiers_has_internals_tier(self, full_template):
+        assert "internals" in full_template
+
+    def test_drilldown_trigger_click_listener(self, full_template):
+        assert "drilldown-trigger" in full_template
+        assert "addEventListener" in full_template
+
+    def test_zoom_focus_dblclick(self, full_template):
+        assert "dblclick" in full_template
+
+    def test_init_info_architecture_called(self, full_template):
+        assert "initInfoArchitecture();" in full_template
+
+
+class TestInfoArchitectureResponsive:
+    """Phase 5: Responsive rules for information architecture."""
+
+    @pytest.fixture
+    def template(self):
+        from slate_web.dashboard_template import build_template
+        return build_template()
+
+    def test_900px_breakpoint(self, template):
+        assert "900px" in template
+
+    def test_600px_breakpoint(self, template):
+        assert "600px" in template
+
+    def test_grid_responsive(self, template):
+        # Grid columns should collapse on smaller screens
+        assert "schematic-grid" in template
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
