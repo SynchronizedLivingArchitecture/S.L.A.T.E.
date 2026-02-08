@@ -3,1054 +3,1483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="S.L.A.T.E. - Synchronized Living Architecture for Transformation and Evolution. Turn your local hardware into an AI operations center for GitHub.">
-    <meta name="keywords" content="local ai, github actions, self-hosted runner, ollama, ai automation, devops ai, free ai development, local llm, ai workflow">
+    <meta name="description" content="S.L.A.T.E. - Synchronized Living Architecture for Transformation and Evolution. Transform your local hardware into an AI operations center. Free, private, and secure.">
+    <meta name="keywords" content="local ai, github actions, self-hosted runner, ollama, ai automation, free ai, local llm, open source ai">
     <meta name="author" content="Daniel Perry">
-    <meta property="og:title" content="S.L.A.T.E. - Local AI Operations for GitHub">
-    <meta property="og:description" content="Stop paying for cloud AI. Run AI operations locally and integrate seamlessly with GitHub.">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="S.L.A.T.E. - Local AI Operations Platform">
+    <meta property="og:description" content="Transform your hardware into an AI operations center. Free, private, secure.">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://synchronizedlivingarchitecture.github.io/S.L.A.T.E/">
+    <meta property="og:image" content="https://synchronizedlivingarchitecture.github.io/S.L.A.T.E/assets/og-image.png">
+
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <title>S.L.A.T.E. - Local AI Operations for GitHub</title>
+    <meta name="twitter:title" content="S.L.A.T.E. - Local AI Operations Platform">
+    <meta name="twitter:description" content="Transform your hardware into an AI operations center. Free, private, secure.">
+
+    <title>S.L.A.T.E. - Local AI Operations Platform</title>
     <link rel="icon" type="image/svg+xml" href="assets/slate-logo-v2.svg">
-    <link rel="stylesheet" href="css/watchmaker.css">
+    <link rel="canonical" href="https://synchronizedlivingarchitecture.github.io/S.L.A.T.E/">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "S.L.A.T.E.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Windows, Linux, macOS",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "description": "Synchronized Living Architecture for Transformation and Evolution - Local AI Operations Platform",
+        "url": "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E",
+        "author": {
+            "@type": "Person",
+            "name": "Daniel Perry"
+        }
+    }
+    </script>
+
     <style>
-        /* ================================================================
-           S.L.A.T.E. Design System v3.0
-           Based on M3 Material Design + Anthropic Geometric Art
-           ================================================================ */
-
-        :root {
-            /* Primary Brand - Anthropic-inspired warm rust */
-            --slate-primary: #B85A3C;
-            --slate-primary-light: #D4785A;
-            --slate-primary-dark: #8B4530;
-            --slate-primary-container: #FFE4D9;
-            --slate-on-primary: #FFFFFF;
-
-            /* Surface Colors - Natural Earth */
-            --slate-surface: #1A1816;
-            --slate-surface-variant: #2A2624;
-            --slate-surface-elevated: #352F2C;
-            --slate-on-surface: #E8E2DE;
-            --slate-on-surface-variant: #CAC4BF;
-
-            /* Blueprint Engineering */
-            --blueprint-bg: #0D1B2A;
-            --blueprint-grid: #1B3A4B;
-            --blueprint-accent: #98C1D9;
-            --blueprint-node: #E0FBFC;
-
-            /* Semantic Colors - Using primary rust for accents */
-            --slate-success: #22C55E;  /* For actual success states only */
-            --slate-warning: #F59E0B;
-            --slate-error: #EF4444;
-            --slate-info: #2196F3;
-            --slate-accent-glow: rgba(184, 90, 60, 0.5);
-
-            /* Outline */
-            --slate-outline: #7D7873;
-            --slate-outline-variant: #4D4845;
-
-            /* Elevation Shadows */
-            --elevation-1: 0 1px 2px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.15);
-            --elevation-2: 0 2px 4px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.15);
-            --elevation-3: 0 4px 8px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.18);
-            --elevation-4: 0 8px 16px rgba(0,0,0,0.15), 0 16px 32px rgba(0,0,0,0.2);
-
-            /* Motion */
-            --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-            --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
-            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-
-            /* Spacing */
-            --space-xs: 4px;
-            --space-sm: 8px;
-            --space-md: 16px;
-            --space-lg: 24px;
-            --space-xl: 32px;
-            --space-2xl: 48px;
-            --space-3xl: 64px;
-
-            /* Border Radius - M3 style */
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 24px;
-            --radius-full: 9999px;
-
-            /* Typography Scale */
-            --font-display: clamp(2.5rem, 2rem + 3vw, 4rem);
-            --font-headline: clamp(1.75rem, 1.5rem + 1.5vw, 2.5rem);
-            --font-title: clamp(1.25rem, 1rem + 0.75vw, 1.5rem);
-            --font-body: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
-            --font-label: 0.875rem;
-            --font-caption: 0.75rem;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        html {
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-            background: var(--slate-surface);
-            color: var(--slate-on-surface);
-            line-height: 1.6;
-            font-size: var(--font-body);
-            overflow-x: hidden;
-        }
-
-        /* ================================================================
-           Layout
-           ================================================================ */
-
-        .container {
-            width: min(100% - var(--space-lg) * 2, 1200px);
-            margin-inline: auto;
-        }
-
-        section {
-            padding: var(--space-3xl) var(--space-lg);
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: var(--space-2xl);
-        }
-
-        .section-header h2 {
-            font-size: var(--font-headline);
-            font-weight: 600;
-            margin-bottom: var(--space-sm);
-            background: linear-gradient(135deg, var(--slate-on-surface), var(--slate-on-surface-variant));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .section-header p {
-            color: var(--slate-on-surface-variant);
-            max-width: 600px;
-            margin-inline: auto;
-        }
-
-        /* ================================================================
-           Navigation
-           ================================================================ */
-
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            padding: var(--space-md) var(--space-lg);
-            background: rgba(26, 24, 22, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid var(--slate-outline-variant);
-        }
-
-        nav .container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            text-decoration: none;
-            color: var(--slate-on-surface);
-        }
-
-        .nav-logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-sm);
-        }
-
-        .nav-logo span {
-            font-family: Consolas, 'Courier New', monospace;
-            font-weight: 700;
-            font-size: 1.1rem;
-            letter-spacing: 2px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: var(--space-md);
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--slate-on-surface-variant);
-            text-decoration: none;
-            font-size: var(--font-label);
-            padding: var(--space-xs) var(--space-sm);
-            border-radius: var(--radius-full);
-            transition: all 0.2s var(--ease-standard);
-        }
-
-        .nav-links a:hover {
-            color: var(--slate-on-surface);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .nav-cta {
-            background: var(--slate-primary) !important;
-            color: var(--slate-on-primary) !important;
-            font-weight: 600;
-            padding: var(--space-sm) var(--space-md) !important;
-        }
-
-        .nav-cta:hover {
-            background: var(--slate-primary-light) !important;
-        }
-
-        /* ================================================================
-           Hero Section
-           ================================================================ */
-
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: var(--space-3xl) var(--space-lg);
-            padding-top: calc(var(--space-3xl) + 80px);
-            background:
-                radial-gradient(ellipse at 20% 30%, rgba(184, 90, 60, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 70%, rgba(33, 150, 243, 0.05) 0%, transparent 50%),
-                var(--slate-surface);
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-xs) var(--space-md);
-            background: var(--slate-surface-variant);
-            border: 1px solid var(--slate-outline-variant);
-            border-radius: var(--radius-full);
-            font-size: var(--font-caption);
-            color: var(--slate-on-surface-variant);
-            margin-bottom: var(--space-lg);
-        }
-
-        .hero-badge .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--slate-primary);
-            box-shadow: 0 0 8px var(--slate-accent-glow);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.9); }
-        }
-
-        .hero h1 {
-            font-size: var(--font-display);
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -0.03em;
-            margin-bottom: var(--space-lg);
-            max-width: 900px;
-        }
-
-        .hero h1 .accent {
-            background: linear-gradient(135deg, var(--slate-primary), var(--slate-primary-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
-            font-size: var(--font-title);
-            color: var(--slate-on-surface-variant);
-            max-width: 650px;
-            margin-bottom: var(--space-xl);
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: var(--space-md);
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        /* ================================================================
-           Buttons
-           ================================================================ */
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-sm) var(--space-lg);
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            font-size: var(--font-label);
-            text-decoration: none;
-            cursor: pointer;
-            border: none;
-            transition: all 0.25s var(--ease-standard);
-        }
-
-        .btn-primary {
-            background: var(--slate-primary);
-            color: var(--slate-on-primary);
-        }
-
-        .btn-primary:hover {
-            background: var(--slate-primary-light);
-            transform: translateY(-2px);
-            box-shadow: var(--elevation-3), 0 0 20px var(--slate-accent-glow);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--slate-on-surface);
-            border: 1px solid var(--slate-outline);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--slate-on-surface-variant);
-        }
-
-        /* ================================================================
-           Feature Cards
-           ================================================================ */
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--space-lg);
-        }
-
-        .feature-card {
-            background: var(--slate-surface-variant);
-            border: 1px solid var(--slate-outline-variant);
-            border-radius: var(--radius-lg);
-            padding: var(--space-xl);
-            transition: all 0.3s var(--ease-standard);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--elevation-3);
-            border-color: var(--slate-primary);
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(184, 90, 60, 0.15);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--space-md);
-            font-size: 24px;
-        }
-
-        .feature-card h3 {
-            font-size: var(--font-title);
-            font-weight: 600;
-            margin-bottom: var(--space-sm);
-        }
-
-        .feature-card p {
-            color: var(--slate-on-surface-variant);
-            font-size: var(--font-body);
-        }
-
-        .feature-badge {
-            display: inline-block;
-            padding: 2px 10px;
-            background: var(--slate-primary);
-            color: var(--slate-on-primary);
-            border-radius: var(--radius-full);
-            font-size: var(--font-caption);
-            font-weight: 600;
-            margin-top: var(--space-md);
-        }
-
-        /* ================================================================
-           Schematics Section
-           ================================================================ */
-
-        .schematic-section {
-            background: var(--blueprint-bg);
-            border-top: 1px solid var(--blueprint-grid);
-            border-bottom: 1px solid var(--blueprint-grid);
-        }
-
-        .schematic-container {
-            background: rgba(13, 27, 42, 0.5);
-            border: 1px solid var(--blueprint-grid);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-        }
-
-        .schematic-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: var(--space-md) var(--space-lg);
-            background: var(--blueprint-grid);
-            border-bottom: 1px solid rgba(152, 193, 217, 0.2);
-            flex-wrap: wrap;
-            gap: var(--space-md);
-        }
-
-        .schematic-title {
-            font-family: Consolas, monospace;
-            color: var(--slate-primary-light);
-            font-size: var(--font-label);
-            font-weight: 600;
-            letter-spacing: 0.1em;
-        }
-
-        .schematic-tabs {
-            display: flex;
-            gap: var(--space-sm);
-            flex-wrap: wrap;
-        }
-
-        .schematic-tab {
-            padding: var(--space-xs) var(--space-md);
-            background: transparent;
-            border: 1px solid var(--blueprint-grid);
-            border-radius: var(--radius-sm);
-            color: var(--blueprint-accent);
-            font-size: var(--font-caption);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .schematic-tab:hover,
-        .schematic-tab.active {
-            background: rgba(184, 90, 60, 0.2);
-            border-color: var(--slate-primary);
-            color: var(--slate-primary-light);
-        }
-
-        .schematic-body {
-            padding: var(--space-lg);
-            display: flex;
-            justify-content: center;
-            overflow-x: auto;
-            min-height: 400px;
-        }
-
-        .schematic-body object {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .schematic-pane {
-            display: none;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .schematic-pane.active {
-            display: flex;
-        }
-
-        /* ================================================================
-           Requirements Section
-           ================================================================ */
-
-        .requirements {
-            background: var(--slate-surface-variant);
-        }
-
-        .requirements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--space-xl);
-        }
-
-        .requirements-card {
-            background: var(--slate-surface);
-            border: 1px solid var(--slate-outline-variant);
-            border-radius: var(--radius-lg);
-            padding: var(--space-xl);
-        }
-
-        .requirements-card h3 {
-            font-size: var(--font-title);
-            margin-bottom: var(--space-md);
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            color: var(--slate-primary-light);
-        }
-
-        .requirements-card ul {
-            list-style: none;
-        }
-
-        .requirements-card li {
-            padding: var(--space-sm) 0;
-            color: var(--slate-on-surface-variant);
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            border-bottom: 1px solid var(--slate-outline-variant);
-        }
-
-        .requirements-card li:last-child {
-            border-bottom: none;
-        }
-
-        .req-label {
-            color: var(--slate-primary-light);
-            font-weight: 500;
-            min-width: 100px;
-        }
-
-        /* ================================================================
-           Install Section
-           ================================================================ */
-
-        .install-section {
-            text-align: center;
-        }
-
-        .install-box {
-            background: linear-gradient(135deg, var(--slate-surface-variant), var(--slate-surface-elevated));
-            border: 1px solid var(--slate-primary-dark);
-            border-radius: var(--radius-xl);
-            padding: var(--space-2xl);
-            max-width: 800px;
-            margin: 0 auto;
-            box-shadow: 0 0 40px rgba(184, 90, 60, 0.1);
-        }
-
-        .install-box h2 {
-            font-size: var(--font-headline);
-            margin-bottom: var(--space-sm);
-        }
-
-        .install-box p {
-            color: var(--slate-on-surface-variant);
-            margin-bottom: var(--space-lg);
-        }
-
-        .install-code {
-            background: var(--slate-surface);
-            border: 1px solid var(--slate-outline-variant);
-            border-radius: var(--radius-md);
-            padding: var(--space-md) var(--space-lg);
-            font-family: Consolas, 'Courier New', monospace;
-            font-size: var(--font-body);
-            color: var(--slate-primary-light);
-            margin-bottom: var(--space-lg);
-            overflow-x: auto;
-            text-align: left;
-        }
-
-        /* ================================================================
-           Footer
-           ================================================================ */
-
-        footer {
-            padding: var(--space-2xl) var(--space-lg);
-            border-top: 1px solid var(--slate-outline-variant);
-            text-align: center;
-        }
-
-        .footer-logo {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-md);
-        }
-
-        .footer-logo img {
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-sm);
-        }
-
-        .footer-logo span {
-            font-family: Consolas, monospace;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: var(--space-lg);
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: var(--space-md);
-        }
-
-        .footer-links a {
-            color: var(--slate-on-surface-variant);
-            text-decoration: none;
-            font-size: var(--font-label);
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover {
-            color: var(--slate-on-surface);
-        }
-
-        .footer-author {
-            color: var(--slate-outline);
-            font-size: var(--font-caption);
-        }
-
-        .footer-author a {
-            color: var(--slate-on-surface-variant);
-            text-decoration: none;
-        }
-
-        /* ================================================================
-           Responsive
-           ================================================================ */
-
-        /* ================================================================
-           Watchmaker Enhancements
-           ================================================================ */
-
-        .hero-gears {
-            position: absolute;
-            top: 20%;
-            right: 10%;
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        .hero.z-components {
-            position: relative;
-        }
-
-        /* Balance Wheel Activity Indicator in Footer */
-        .footer-activity {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-md);
-            margin-bottom: var(--space-md);
-        }
-
-        /* Escapement Animation in Install Section */
-        .install-escapement {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            margin-bottom: var(--space-md);
-        }
-
-        /* Feature Card Watchmaker Enhancements */
-        .feature-card.watchmaker-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card.watchmaker-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--polish-reflection);
-            pointer-events: none;
-            border-radius: inherit;
-        }
-
-        .feature-card.watchmaker-card .watchmaker-card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: var(--space-sm);
-            padding-bottom: var(--space-sm);
-            border-bottom: 1px solid var(--slate-outline-variant);
-        }
-
-        .feature-card.watchmaker-card:hover .gear {
-            animation: gear-rotate 4s linear infinite;
-        }
-
-        /* Data Flow SVG for Architecture */
-        .architecture-flow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .hero h1 {
-                font-size: clamp(2rem, 1.5rem + 2.5vw, 3rem);
-            }
-
-            .hero-gears {
-                display: none;
-            }
-
-            .schematic-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .schematic-tabs {
-                width: 100%;
-                justify-content: flex-start;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+/* ════════════════════════════════════════════════════════════════════════════
+   S.L.A.T.E. ENGINEERING DRAWING DESIGN SYSTEM v5.0
+   Based on: ISO 128, IEC 60617, ASME Y14.44, PCB Conventions
+   Specification: Spec 013 - Engineering Drawing Theme System
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Design Tokens (LOCKED - Spec 013) ──────────────────────────────────── */
+:root {
+    /* Brand Colors */
+    --sl-primary: #B87333;
+    --sl-primary-light: #C9956B;
+    --sl-primary-dark: #8B4530;
+
+    /* Surface Colors */
+    --sl-surface: #0A0A0A;
+    --sl-surface-variant: #161616;
+    --sl-surface-elevated: #1A1A1A;
+    --sl-on-surface: #E7E0D8;
+    --sl-on-surface-variant: #A8A29E;
+    --sl-on-surface-dim: #78716C;
+
+    /* Blueprint Backgrounds (Engineering Drawing) */
+    --sl-blueprint-bg: #0D1B2A;
+    --sl-blueprint-secondary: #0a0a0a;
+    --sl-blueprint-tertiary: #1B2838;
+    --sl-blueprint-grid: #1B3A4B;
+    --sl-blueprint-accent: #98C1D9;
+
+    /* Trace Colors (ISO 128 / IEC 60617) */
+    --sl-trace-signal: #B87333;
+    --sl-trace-power: #C47070;
+    --sl-trace-ground: #78716C;
+    --sl-trace-data: #7EA8BE;
+    --sl-trace-control: #D4A054;
+
+    /* Status Colors (Engineering Indicators) */
+    --sl-status-active: #22C55E;
+    --sl-status-pending: #D4A054;
+    --sl-status-error: #C47070;
+    --sl-status-disabled: #333333;
+    --sl-status-unknown: #4B5563;
+
+    /* Component Fills (IEC 60617 Style) */
+    --sl-fill-service: #1a1510;
+    --sl-fill-database: #101520;
+    --sl-fill-gpu: #15120a;
+    --sl-fill-ai: #0a1515;
+    --sl-fill-external: #151015;
+
+    /* ISO 128 Line Types (stroke-dasharray) */
+    --line-continuous: none;
+    --line-dashed: 8,4;
+    --line-dashed-thin: 6,3;
+    --line-chain: 12,3,3,3;
+    --line-dotted: 2,2;
+    --line-boundary: 18,3,3,3,3,3;
+
+    /* Schematic Animation */
+    --schematic-pulse: 2s;
+    --schematic-flow: 1s;
+    --schematic-opacity: 0.12;
+
+    /* Engineering Grid (8px base - ISO module) */
+    --grid-base: 8px;
+    --grid-minor: 16px;
+    --grid-major: 64px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* Component Sizes */
+    --component-small: 64px;
+    --component-medium: 128px;
+    --component-large: 256px;
+
+    /* Border Radius (minimal for engineering style) */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+
+    /* Typography (Engineering/Technical) */
+    --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono: 'Consolas', 'Cascadia Code', monospace;
+    --font-schematic: 'Consolas', 'Courier New', monospace;
+
+    /* Text Sizes (PCB Silkscreen Convention) */
+    --text-designator: 12px;
+    --text-label: 14px;
+    --text-pin: 10px;
+    --text-section: 16px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 8px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+
+    /* Engineering Polish Effect */
+    --polish: linear-gradient(135deg, rgba(184,115,51,0.05) 0%, transparent 50%);
+}
+
+/* ─── Reset & Base ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--sl-surface);
+    color: var(--sl-on-surface);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+a { color: var(--sl-primary-light); text-decoration: none; }
+a:hover { color: var(--sl-primary); }
+a:focus-visible { outline: 2px solid var(--sl-primary); outline-offset: 2px; }
+
+/* Skip Link (Accessibility) */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    background: var(--sl-primary);
+    color: white;
+    border-radius: var(--radius-sm);
+    z-index: 9999;
+}
+.skip-link:focus { top: var(--space-4); }
+
+/* ─── Precision Engineering Schematic Background ───────────────────────── */
+.schematic-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+    background:
+        /* Major grid (64px) - thin precision lines */
+        linear-gradient(90deg, rgba(184,115,51,0.025) 0.5px, transparent 0.5px),
+        linear-gradient(rgba(184,115,51,0.025) 0.5px, transparent 0.5px),
+        /* Minor grid (16px) */
+        linear-gradient(90deg, rgba(184,115,51,0.012) 0.5px, transparent 0.5px),
+        linear-gradient(rgba(184,115,51,0.012) 0.5px, transparent 0.5px),
+        /* Micro grid (8px base unit) */
+        linear-gradient(90deg, rgba(184,115,51,0.006) 0.5px, transparent 0.5px),
+        linear-gradient(rgba(184,115,51,0.006) 0.5px, transparent 0.5px),
+        var(--sl-surface);
+    background-size:
+        var(--grid-major) var(--grid-major),
+        var(--grid-major) var(--grid-major),
+        var(--grid-minor) var(--grid-minor),
+        var(--grid-minor) var(--grid-minor),
+        var(--grid-base) var(--grid-base),
+        var(--grid-base) var(--grid-base);
+}
+
+.schematic-bg .circuit {
+    position: absolute;
+    opacity: var(--schematic-opacity);
+}
+
+/* Precision Line Widths (0.5px - 1px for fine detail) */
+.schematic-bg .line-hairline { stroke-width: 0.5px; }
+.schematic-bg .line-fine { stroke-width: 0.75px; }
+.schematic-bg .line-normal { stroke-width: 1px; }
+.schematic-bg .line-emphasis { stroke-width: 1.5px; }
+
+/* Service Node (SVC) - Precision Rectangle with Pin Details */
+.schematic-bg .svc-node {
+    fill: var(--sl-fill-service);
+    stroke: var(--sl-trace-signal);
+    stroke-width: 0.75px;
+}
+
+/* Database Node (DB) - Cylinder with Fine Detail */
+.schematic-bg .db-node {
+    fill: var(--sl-fill-database);
+    stroke: var(--sl-trace-data);
+    stroke-width: 0.75px;
+}
+
+/* GPU Node - Precision Hexagon with Internal Grid */
+.schematic-bg .gpu-node {
+    fill: var(--sl-fill-gpu);
+    stroke: var(--sl-trace-control);
+    stroke-width: 0.75px;
+}
+
+/* AI Node - Processor with Fine Internal Lines */
+.schematic-bg .ai-node {
+    fill: var(--sl-fill-ai);
+    stroke: var(--sl-status-active);
+    stroke-width: 0.75px;
+}
+
+/* Precision Trace Lines (ISO 128 - Fine) */
+.schematic-bg .trace-signal { stroke: var(--sl-trace-signal); stroke-dasharray: var(--line-continuous); stroke-width: 0.75px; }
+.schematic-bg .trace-data { stroke: var(--sl-trace-data); stroke-dasharray: 4,2; stroke-width: 0.5px; }
+.schematic-bg .trace-power { stroke: var(--sl-trace-power); stroke-dasharray: var(--line-continuous); stroke-width: 1.5px; }
+.schematic-bg .trace-control { stroke: var(--sl-trace-control); stroke-dasharray: 8,2,2,2; stroke-width: 0.5px; }
+.schematic-bg .trace-ground { stroke: var(--sl-trace-ground); stroke-dasharray: 1,1; stroke-width: 0.5px; }
+
+/* Reference Designators (ASME Y14.44 - Fine Typography) */
+.schematic-bg .designator {
+    font-family: var(--font-schematic);
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    fill: var(--sl-primary-light);
+}
+
+.schematic-bg .designator-small {
+    font-family: var(--font-schematic);
+    font-size: 7px;
+    fill: var(--sl-on-surface-dim);
+}
+
+/* Pin Numbers (Fine Detail) */
+.schematic-bg .pin-number {
+    font-family: var(--font-schematic);
+    font-size: 6px;
+    fill: var(--sl-on-surface-dim);
+}
+
+/* Pin Markers (Pin 1 dot) */
+.schematic-bg .pin-marker {
+    fill: var(--sl-primary);
+    r: 1.5px;
+}
+
+/* Dimension Lines (ISO 128 Type 02) */
+.schematic-bg .dimension-line {
+    stroke: var(--sl-on-surface-dim);
+    stroke-width: 0.5px;
+    stroke-dasharray: none;
+}
+
+.schematic-bg .dimension-arrow {
+    fill: var(--sl-on-surface-dim);
+}
+
+/* Center Lines (ISO 128 Type 05) */
+.schematic-bg .center-line {
+    stroke: var(--sl-trace-ground);
+    stroke-width: 0.25px;
+    stroke-dasharray: 6,1.5,1.5,1.5;
+}
+
+/* Data Flow Animation */
+@keyframes trace-flow {
+    from { stroke-dashoffset: 16; }
+    to { stroke-dashoffset: 0; }
+}
+
+.schematic-bg .trace-animated {
+    animation: trace-flow 0.8s linear infinite;
+}
+
+/* Active Pulse Animation (Subtle) */
+@keyframes node-pulse {
+    0%, 100% { opacity: 0.06; }
+    50% { opacity: 0.12; }
+}
+
+.schematic-bg .node-active {
+    animation: node-pulse 2.5s ease-in-out infinite;
+}
+
+/* Circuit positioning - spread for coverage */
+.schematic-bg .circuit:nth-child(1) { top: 5%; left: 3%; }
+.schematic-bg .circuit:nth-child(2) { top: 18%; left: 1%; }
+.schematic-bg .circuit:nth-child(3) { top: 35%; left: 2%; }
+.schematic-bg .circuit:nth-child(4) { top: 52%; left: 4%; }
+.schematic-bg .circuit:nth-child(5) { top: 68%; left: 1%; }
+.schematic-bg .circuit:nth-child(6) { top: 82%; left: 5%; }
+.schematic-bg .circuit:nth-child(7) { top: 8%; right: 2%; }
+.schematic-bg .circuit:nth-child(8) { top: 22%; right: 4%; }
+.schematic-bg .circuit:nth-child(9) { top: 38%; right: 1%; }
+.schematic-bg .circuit:nth-child(10) { top: 55%; right: 3%; }
+.schematic-bg .circuit:nth-child(11) { top: 70%; right: 5%; }
+.schematic-bg .circuit:nth-child(12) { bottom: 5%; right: 2%; }
+.schematic-bg .circuit:nth-child(13) { top: 45%; left: 8%; }
+.schematic-bg .circuit:nth-child(14) { top: 30%; right: 8%; }
+
+/* ─── 3D Perspective Container ───────────────────────────────────────────── */
+.perspective-wrapper {
+    perspective: var(--perspective);
+    perspective-origin: 50% 50%;
+}
+
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
+.container {
+    width: min(100% - var(--space-8), 1200px);
+    margin-inline: auto;
+}
+
+section {
+    padding: var(--space-16) 0;
+}
+
+/* ─── Navigation ─────────────────────────────────────────────────────────── */
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: var(--space-4) var(--space-6);
+    background: rgba(10, 10, 10, 0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--sl-on-surface);
+}
+
+.nav-brand img {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+}
+
+.nav-brand span {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+}
+
+.nav-links {
+    display: flex;
+    gap: var(--space-6);
+    list-style: none;
+}
+
+.nav-links a {
+    color: var(--sl-on-surface-variant);
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--sl-on-surface); }
+
+.nav-cta {
+    background: var(--sl-primary);
+    color: white !important;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+}
+
+.nav-cta:hover { background: var(--sl-primary-light); }
+
+/* ─── Hero Section ───────────────────────────────────────────────────────── */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-16) var(--space-4);
+    padding-top: calc(var(--space-16) + 80px);
+    position: relative;
+}
+
+.hero-version {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-4);
+    background: var(--sl-surface-variant);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    color: var(--sl-on-surface-variant);
+    margin-bottom: var(--space-6);
+}
+
+.hero-version .jewel {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sl-success);
+    box-shadow: 0 0 var(--jewel-glow) var(--sl-success);
+}
+
+.hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: var(--space-6);
+    max-width: 900px;
+}
+
+.hero h1 .accent {
+    background: linear-gradient(135deg, var(--sl-primary), var(--sl-primary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--sl-on-surface-variant);
+    max-width: 600px;
+    margin-bottom: var(--space-8);
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--sl-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--sl-primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(184, 90, 60, 0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--sl-on-surface);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.3);
+}
+
+/* ─── Project Health Section ─────────────────────────────────────────────── */
+.health-section {
+    background: var(--sl-surface-variant);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.health-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+}
+
+.health-card {
+    background: var(--sl-surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.health-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--polish);
+    pointer-events: none;
+}
+
+.health-card .metric {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--sl-primary-light);
+    line-height: 1;
+    margin-bottom: var(--space-2);
+}
+
+.health-card .label {
+    font-size: 0.75rem;
+    color: var(--sl-on-surface-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.health-card .badge {
+    display: inline-block;
+    margin-top: var(--space-3);
+}
+
+.health-card .badge img {
+    height: 20px;
+}
+
+/* ─── Features Section ───────────────────────────────────────────────────── */
+.section-header {
+    text-align: center;
+    margin-bottom: var(--space-12);
+}
+
+.section-header h2 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+}
+
+.section-header p {
+    color: var(--sl-on-surface-variant);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-6);
+}
+
+.feature-card {
+    background: var(--sl-surface-variant);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--polish);
+    pointer-events: none;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.feature-card .icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(184, 90, 60, 0.15);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+    font-size: 1.5rem;
+}
+
+.feature-card h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+}
+
+.feature-card p {
+    color: var(--sl-on-surface-variant);
+    font-size: 0.9375rem;
+}
+
+.feature-badge {
+    display: inline-block;
+    margin-top: var(--space-4);
+    padding: 2px 10px;
+    background: var(--sl-primary);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* ─── Architecture Section ───────────────────────────────────────────────── */
+.arch-section {
+    background: var(--sl-blueprint-bg);
+    border-top: 1px solid var(--sl-blueprint-grid);
+    border-bottom: 1px solid var(--sl-blueprint-grid);
+}
+
+.arch-container {
+    background: rgba(13, 27, 42, 0.6);
+    border: 1px solid var(--sl-blueprint-grid);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.arch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4) var(--space-6);
+    background: rgba(27, 58, 75, 0.5);
+    border-bottom: 1px solid rgba(152, 193, 217, 0.1);
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.arch-title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--sl-primary-light);
+    text-transform: uppercase;
+}
+
+.arch-tabs {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.arch-tab {
+    padding: var(--space-1) var(--space-3);
+    background: transparent;
+    border: 1px solid var(--sl-blueprint-grid);
+    border-radius: var(--radius-sm);
+    color: var(--sl-blueprint-accent);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.arch-tab:hover, .arch-tab.active {
+    background: rgba(184, 90, 60, 0.2);
+    border-color: var(--sl-primary);
+    color: var(--sl-primary-light);
+}
+
+.arch-body {
+    padding: var(--space-8);
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.arch-pane {
+    display: none;
+    width: 100%;
+    justify-content: center;
+}
+
+.arch-pane.active {
+    display: flex;
+}
+
+.arch-pane object {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ─── Requirements Section ───────────────────────────────────────────────── */
+.requirements-section {
+    background: var(--sl-surface-variant);
+}
+
+.requirements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+}
+
+.requirements-card {
+    background: var(--sl-surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+}
+
+.requirements-card h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 1.125rem;
+    color: var(--sl-primary-light);
+    margin-bottom: var(--space-4);
+}
+
+.requirements-card ul {
+    list-style: none;
+}
+
+.requirements-card li {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.9375rem;
+}
+
+.requirements-card li:last-child { border-bottom: none; }
+
+.requirements-card .label {
+    color: var(--sl-primary-light);
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.requirements-card .value {
+    color: var(--sl-on-surface-variant);
+}
+
+/* ─── Install Section ────────────────────────────────────────────────────── */
+.install-section {
+    text-align: center;
+}
+
+.install-box {
+    background: linear-gradient(135deg, var(--sl-surface-variant), var(--sl-surface-elevated));
+    border: 1px solid var(--sl-primary-dark);
+    border-radius: var(--radius-xl);
+    padding: var(--space-12);
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.install-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--polish);
+    pointer-events: none;
+}
+
+.install-box h2 {
+    font-size: 1.75rem;
+    margin-bottom: var(--space-2);
+}
+
+.install-box > p {
+    color: var(--sl-on-surface-variant);
+    margin-bottom: var(--space-6);
+}
+
+.install-code {
+    background: var(--sl-surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-6);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--sl-primary-light);
+    text-align: left;
+    overflow-x: auto;
+    margin-bottom: var(--space-6);
+}
+
+/* ─── Roadmap Section ────────────────────────────────────────────────────── */
+.roadmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+}
+
+.roadmap-card {
+    background: var(--sl-surface-variant);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    position: relative;
+}
+
+.roadmap-card .version {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--sl-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-2);
+}
+
+.roadmap-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: var(--space-4);
+}
+
+.roadmap-card ul {
+    list-style: none;
+}
+
+.roadmap-card li {
+    padding: var(--space-2) 0;
+    padding-left: var(--space-5);
+    position: relative;
+    color: var(--sl-on-surface-variant);
+    font-size: 0.9375rem;
+}
+
+.roadmap-card li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sl-primary);
+}
+
+.roadmap-card.current { border-color: var(--sl-primary); }
+.roadmap-card.current::after {
+    content: 'CURRENT';
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    padding: 2px 8px;
+    background: var(--sl-primary);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 700;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.1em;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+.footer {
+    padding: var(--space-12) var(--space-4);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+}
+
+.footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.footer-brand img {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+}
+
+.footer-brand span {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+.footer-links {
+    display: flex;
+    gap: var(--space-6);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+}
+
+.footer-links a {
+    color: var(--sl-on-surface-variant);
+    font-size: 0.875rem;
+}
+
+.footer-links a:hover { color: var(--sl-on-surface); }
+
+.footer-legal {
+    color: var(--sl-on-surface-dim);
+    font-size: 0.75rem;
+}
+
+.footer-legal a { color: var(--sl-on-surface-variant); }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .nav-links { display: none; }
+
+    .hero h1 { font-size: 2rem; }
+
+    .schematic-bg { opacity: 0.5; }
+
+    .health-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .features-grid { grid-template-columns: 1fr; }
+
+    .arch-header { flex-direction: column; align-items: flex-start; }
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .schematic-bg .trace-animated,
+    .schematic-bg .node-active { animation: none; }
+
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ─── Print Styles ───────────────────────────────────────────────────────── */
+@media print {
+    .schematic-bg, .nav { display: none; }
+    body { background: white; color: black; }
+}
     </style>
 </head>
 <body>
-    <!-- Watchmaker Mechanism Background -->
-    <div class="mechanism-bg" aria-hidden="true">
-        <svg class="gear gear-spin-slow" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="8"/>
-            <circle cx="50" cy="50" r="12" fill="currentColor"/>
-            <rect x="45" y="5" width="10" height="20" rx="3" fill="currentColor"/>
-            <rect x="45" y="75" width="10" height="20" rx="3" fill="currentColor"/>
-            <rect x="5" y="45" width="20" height="10" rx="3" fill="currentColor"/>
-            <rect x="75" y="45" width="20" height="10" rx="3" fill="currentColor"/>
-            <rect x="16" y="16" width="10" height="15" rx="3" fill="currentColor" transform="rotate(45 21 23.5)"/>
-            <rect x="74" y="16" width="10" height="15" rx="3" fill="currentColor" transform="rotate(-45 79 23.5)"/>
-            <rect x="16" y="69" width="10" height="15" rx="3" fill="currentColor" transform="rotate(-45 21 76.5)"/>
-            <rect x="74" y="69" width="10" height="15" rx="3" fill="currentColor" transform="rotate(45 79 76.5)"/>
+    <!-- Skip Link (Accessibility) -->
+    <a href="#main" class="skip-link">Skip to main content</a>
+
+    <!-- Precision Engineering Schematic Background (ISO 128 / IEC 60617 / Flux.ai) -->
+    <div class="schematic-bg" aria-hidden="true">
+        <!-- Service Node (SVC1) - IC Package Style with Pins -->
+        <svg class="circuit node-active" width="140" height="72" viewBox="0 0 140 72">
+            <rect class="svc-node" x="20" y="8" width="100" height="56" rx="2"/>
+            <!-- Pin 1 marker -->
+            <circle class="pin-marker" cx="28" cy="16" r="2"/>
+            <!-- Left pins -->
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="0" y1="20" x2="20" y2="20"/>
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="0" y1="36" x2="20" y2="36"/>
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="0" y1="52" x2="20" y2="52"/>
+            <!-- Right pins -->
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="120" y1="20" x2="140" y2="20"/>
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="120" y1="36" x2="140" y2="36"/>
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="120" y1="52" x2="140" y2="52"/>
+            <!-- Pin numbers -->
+            <text class="pin-number" x="4" y="22">1</text>
+            <text class="pin-number" x="4" y="38">2</text>
+            <text class="pin-number" x="4" y="54">3</text>
+            <text class="pin-number" x="130" y="22">6</text>
+            <text class="pin-number" x="130" y="38">5</text>
+            <text class="pin-number" x="130" y="54">4</text>
+            <text class="designator" x="70" y="40" text-anchor="middle">SVC1</text>
         </svg>
-        <svg class="gear gear-spin-medium" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="6"/>
-            <circle cx="50" cy="50" r="10" fill="currentColor"/>
-            <rect x="46" y="10" width="8" height="16" rx="2" fill="currentColor"/>
-            <rect x="46" y="74" width="8" height="16" rx="2" fill="currentColor"/>
-            <rect x="10" y="46" width="16" height="8" rx="2" fill="currentColor"/>
-            <rect x="74" y="46" width="16" height="8" rx="2" fill="currentColor"/>
+
+        <!-- Database Node (DB1) - Capacitor/Storage Symbol -->
+        <svg class="circuit" width="80" height="96" viewBox="0 0 80 96">
+            <!-- Cylinder top ellipse -->
+            <ellipse class="db-node" cx="40" cy="20" rx="32" ry="12"/>
+            <!-- Cylinder body -->
+            <path class="db-node" d="M 8 20 L 8 68 A 32 12 0 0 0 72 68 L 72 20" fill="var(--sl-fill-database)"/>
+            <!-- Cylinder bottom ellipse -->
+            <ellipse class="db-node" cx="40" cy="68" rx="32" ry="12"/>
+            <!-- Internal lines (data rows) -->
+            <line stroke="var(--sl-trace-data)" stroke-width="0.25" opacity="0.3" x1="16" y1="36" x2="64" y2="36"/>
+            <line stroke="var(--sl-trace-data)" stroke-width="0.25" opacity="0.3" x1="16" y1="48" x2="64" y2="48"/>
+            <line stroke="var(--sl-trace-data)" stroke-width="0.25" opacity="0.3" x1="16" y1="60" x2="64" y2="60"/>
+            <text class="designator" x="40" y="46" text-anchor="middle">DB1</text>
         </svg>
-        <svg class="gear gear-spin-reverse" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="10"/>
-            <circle cx="50" cy="50" r="15" fill="currentColor"/>
-            <rect x="44" y="0" width="12" height="22" rx="4" fill="currentColor"/>
-            <rect x="44" y="78" width="12" height="22" rx="4" fill="currentColor"/>
-            <rect x="0" y="44" width="22" height="12" rx="4" fill="currentColor"/>
-            <rect x="78" y="44" width="22" height="12" rx="4" fill="currentColor"/>
+
+        <!-- GPU Node (GPU0) - Hexagonal IC with Grid -->
+        <svg class="circuit node-active" width="100" height="88" viewBox="0 0 100 88">
+            <polygon class="gpu-node" points="50,4 92,24 92,64 50,84 8,64 8,24"/>
+            <!-- Internal compute grid -->
+            <line stroke="var(--sl-trace-control)" stroke-width="0.25" opacity="0.3" x1="24" y1="32" x2="76" y2="32"/>
+            <line stroke="var(--sl-trace-control)" stroke-width="0.25" opacity="0.3" x1="24" y1="44" x2="76" y2="44"/>
+            <line stroke="var(--sl-trace-control)" stroke-width="0.25" opacity="0.3" x1="24" y1="56" x2="76" y2="56"/>
+            <line stroke="var(--sl-trace-control)" stroke-width="0.25" opacity="0.3" x1="32" y1="24" x2="32" y2="64"/>
+            <line stroke="var(--sl-trace-control)" stroke-width="0.25" opacity="0.3" x1="50" y1="24" x2="50" y2="64"/>
+            <line stroke="var(--sl-trace-control)" stroke-width="0.25" opacity="0.3" x1="68" y1="24" x2="68" y2="64"/>
+            <text class="designator" x="50" y="48" text-anchor="middle">GPU0</text>
         </svg>
-        <svg class="gear gear-spin-slow" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" stroke-width="5"/>
-            <circle cx="50" cy="50" r="8" fill="currentColor"/>
+
+        <!-- AI Node (AI1) - Processor with Die Pattern -->
+        <svg class="circuit" width="120" height="80" viewBox="0 0 120 80">
+            <rect class="ai-node" x="16" y="8" width="88" height="64" rx="1"/>
+            <!-- Pin 1 marker -->
+            <circle class="pin-marker" cx="22" cy="14" r="1.5"/>
+            <!-- Top pins -->
+            <line stroke="var(--sl-status-active)" stroke-width="0.5" x1="32" y1="0" x2="32" y2="8"/>
+            <line stroke="var(--sl-status-active)" stroke-width="0.5" x1="48" y1="0" x2="48" y2="8"/>
+            <line stroke="var(--sl-status-active)" stroke-width="0.5" x1="64" y1="0" x2="64" y2="8"/>
+            <line stroke="var(--sl-status-active)" stroke-width="0.5" x1="80" y1="0" x2="80" y2="8"/>
+            <!-- Bottom pins -->
+            <line stroke="var(--sl-status-active)" stroke-width="0.5" x1="32" y1="72" x2="32" y2="80"/>
+            <line stroke="var(--sl-status-active)" stroke-width="0.5" x1="48" y1="72" x2="48" y2="80"/>
+            <line stroke="var(--sl-status-active)" stroke-width="0.5" x1="64" y1="72" x2="64" y2="80"/>
+            <line stroke="var(--sl-status-active)" stroke-width="0.5" x1="80" y1="72" x2="80" y2="80"/>
+            <!-- Internal structure -->
+            <rect stroke="var(--sl-status-active)" stroke-width="0.25" fill="none" opacity="0.3" x="28" y="20" width="64" height="40" rx="1"/>
+            <text class="designator" x="60" y="44" text-anchor="middle">AI1</text>
         </svg>
-        <svg class="gear gear-spin-fast" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" stroke-width="4"/>
-            <circle cx="50" cy="50" r="6" fill="currentColor"/>
+
+        <!-- Data Bus (BUS1) - Wide Trace with Taps -->
+        <svg class="circuit" width="200" height="32" viewBox="0 0 200 32">
+            <line class="trace-power" x1="0" y1="16" x2="200" y2="16" stroke-width="2"/>
+            <!-- Tap points with small circles -->
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="40" y1="8" x2="40" y2="24"/>
+            <circle cx="40" cy="8" r="1.5" fill="var(--sl-trace-signal)"/>
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="80" y1="8" x2="80" y2="24"/>
+            <circle cx="80" cy="8" r="1.5" fill="var(--sl-trace-signal)"/>
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="120" y1="8" x2="120" y2="24"/>
+            <circle cx="120" cy="8" r="1.5" fill="var(--sl-trace-signal)"/>
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="160" y1="8" x2="160" y2="24"/>
+            <circle cx="160" cy="8" r="1.5" fill="var(--sl-trace-signal)"/>
+            <text class="designator-small" x="100" y="30" text-anchor="middle">BUS1</text>
+        </svg>
+
+        <!-- Terminal (T1) - Arrow Style Input/Output -->
+        <svg class="circuit" width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="18" fill="var(--sl-fill-external)" stroke="var(--sl-trace-signal)" stroke-width="0.75"/>
+            <polygon points="28,16 34,28 28,22 22,28" fill="var(--sl-trace-signal)"/>
+            <text class="designator" x="28" y="50" text-anchor="middle">T1</text>
+        </svg>
+
+        <!-- Animated Data Trace (J1-J2) -->
+        <svg class="circuit" width="160" height="48" viewBox="0 0 160 48">
+            <path class="trace-data trace-animated" d="M 8 24 L 40 24 L 56 8 L 104 8 L 120 24 L 152 24" fill="none" stroke-width="0.75" stroke-dasharray="4,2"/>
+            <circle cx="8" cy="24" r="3" fill="none" stroke="var(--sl-trace-data)" stroke-width="0.5"/>
+            <circle cx="152" cy="24" r="3" fill="none" stroke="var(--sl-trace-data)" stroke-width="0.5"/>
+            <text class="designator-small" x="8" y="38">J1</text>
+            <text class="designator-small" x="148" y="38">J2</text>
+        </svg>
+
+        <!-- Control Signal Trace (Chain Line) -->
+        <svg class="circuit" width="140" height="32" viewBox="0 0 140 32">
+            <path class="trace-control" d="M 0 16 Q 35 4, 70 16 Q 105 28, 140 16" fill="none" stroke-width="0.5" stroke-dasharray="8,2,2,2"/>
+        </svg>
+
+        <!-- Resistor Symbol (R1) -->
+        <svg class="circuit" width="64" height="24" viewBox="0 0 64 24">
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="0" y1="12" x2="12" y2="12"/>
+            <path stroke="var(--sl-trace-signal)" stroke-width="0.5" fill="none" d="M 12 12 L 16 4 L 24 20 L 32 4 L 40 20 L 48 4 L 52 12"/>
+            <line stroke="var(--sl-trace-signal)" stroke-width="0.5" x1="52" y1="12" x2="64" y2="12"/>
+            <text class="designator-small" x="32" y="24" text-anchor="middle">R1</text>
+        </svg>
+
+        <!-- Capacitor Symbol (C1) -->
+        <svg class="circuit" width="48" height="40" viewBox="0 0 48 40">
+            <line stroke="var(--sl-trace-data)" stroke-width="0.5" x1="24" y1="0" x2="24" y2="14"/>
+            <line stroke="var(--sl-trace-data)" stroke-width="0.75" x1="12" y1="14" x2="36" y2="14"/>
+            <line stroke="var(--sl-trace-data)" stroke-width="0.75" x1="12" y1="20" x2="36" y2="20"/>
+            <line stroke="var(--sl-trace-data)" stroke-width="0.5" x1="24" y1="20" x2="24" y2="34"/>
+            <text class="designator-small" x="24" y="40" text-anchor="middle">C1</text>
+        </svg>
+
+        <!-- Ground Symbol (GND) -->
+        <svg class="circuit" width="32" height="32" viewBox="0 0 32 32">
+            <line stroke="var(--sl-trace-ground)" stroke-width="0.5" x1="16" y1="0" x2="16" y2="12"/>
+            <line stroke="var(--sl-trace-ground)" stroke-width="0.75" x1="4" y1="12" x2="28" y2="12"/>
+            <line stroke="var(--sl-trace-ground)" stroke-width="0.75" x1="8" y1="18" x2="24" y2="18"/>
+            <line stroke="var(--sl-trace-ground)" stroke-width="0.75" x1="12" y1="24" x2="20" y2="24"/>
+            <text class="designator-small" x="16" y="32" text-anchor="middle">GND</text>
+        </svg>
+
+        <!-- Diode Symbol (D1) -->
+        <svg class="circuit" width="56" height="24" viewBox="0 0 56 24">
+            <line stroke="var(--sl-trace-power)" stroke-width="0.5" x1="0" y1="12" x2="16" y2="12"/>
+            <polygon points="16,12 28,4 28,20" fill="none" stroke="var(--sl-trace-power)" stroke-width="0.5"/>
+            <line stroke="var(--sl-trace-power)" stroke-width="0.75" x1="28" y1="4" x2="28" y2="20"/>
+            <line stroke="var(--sl-trace-power)" stroke-width="0.5" x1="28" y1="12" x2="56" y2="12"/>
+            <text class="designator-small" x="22" y="24" text-anchor="middle">D1</text>
+        </svg>
+
+        <!-- Connector Array -->
+        <svg class="circuit" width="120" height="24" viewBox="0 0 120 24">
+            <rect stroke="var(--sl-trace-signal)" stroke-width="0.5" fill="var(--sl-fill-service)" x="8" y="4" width="104" height="16" rx="2"/>
+            <circle cx="24" cy="12" r="3" fill="none" stroke="var(--sl-trace-data)" stroke-width="0.5"/>
+            <circle cx="44" cy="12" r="3" fill="none" stroke="var(--sl-trace-data)" stroke-width="0.5"/>
+            <circle cx="64" cy="12" r="3" fill="none" stroke="var(--sl-trace-data)" stroke-width="0.5"/>
+            <circle cx="84" cy="12" r="3" fill="none" stroke="var(--sl-trace-data)" stroke-width="0.5"/>
+            <circle cx="104" cy="12" r="3" fill="none" stroke="var(--sl-trace-data)" stroke-width="0.5"/>
+            <text class="designator-small" x="60" y="24" text-anchor="middle">CN1</text>
         </svg>
     </div>
 
-    <!-- 3D Perspective Container -->
-    <div class="perspective-container">
-
     <!-- Navigation -->
-    <nav>
-        <div class="container">
-            <a href="#" class="nav-logo">
-                <img src="assets/slate-logo-v2.svg" alt="SLATE Logo">
+    <nav class="nav" aria-label="Main navigation">
+        <div class="nav-inner">
+            <a href="#" class="nav-brand" aria-label="S.L.A.T.E. Home">
+                <img src="assets/slate-logo-v2.svg" alt="" width="36" height="36">
                 <span>S.L.A.T.E.</span>
             </a>
             <ul class="nav-links">
                 <li><a href="#features">Features</a></li>
                 <li><a href="#architecture">Architecture</a></li>
                 <li><a href="#requirements">Requirements</a></li>
+                <li><a href="#roadmap">Roadmap</a></li>
                 <li><a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki">Docs</a></li>
                 <li><a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E" class="nav-cta">GitHub</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero z-components">
-        <div class="hero-badge">
-            <span class="status-jewel active"></span>
-            <span>v2.5 - Production Ready</span>
-        </div>
+    <!-- Main Content -->
+    <main id="main">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-version">
+                <span class="jewel" aria-hidden="true"></span>
+                <span>⚠️ EXPERIMENTAL | Open Source | MIT License</span>
+            </div>
+            <h1>Transform Your Hardware Into an <span class="accent">AI Operations Center</span></h1>
+            <p class="hero-subtitle">Run AI operations locally. No cloud costs. No data leaving your machine. Complete control over your AI infrastructure.</p>
+            <p style="color: var(--sl-status-pending); font-size: 0.85rem; margin-top: 0.5rem; font-family: var(--font-mono, monospace); letter-spacing: 0.05em;">⚠️ This software is <strong>EXPERIMENTAL</strong> with a production-ready aim. Not yet suitable for critical systems.</p>
+            <div class="hero-actions">
+                <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E" class="btn btn-primary">Get Started</a>
+                <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki" class="btn btn-secondary">Read Documentation</a>
+            </div>
+        </section>
 
-        <!-- Decorative Gear Cluster -->
-        <div class="gear-cluster hero-gears" aria-hidden="true">
-            <svg class="gear gear-spin-slow" width="60" height="60" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="35" fill="none" stroke="var(--slate-primary)" stroke-width="8"/>
-                <circle cx="50" cy="50" r="12" fill="var(--slate-primary)"/>
-                <rect x="45" y="5" width="10" height="20" rx="3" fill="var(--slate-primary)"/>
-                <rect x="45" y="75" width="10" height="20" rx="3" fill="var(--slate-primary)"/>
-                <rect x="5" y="45" width="20" height="10" rx="3" fill="var(--slate-primary)"/>
-                <rect x="75" y="45" width="20" height="10" rx="3" fill="var(--slate-primary)"/>
-            </svg>
-            <svg class="gear" width="40" height="40" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="30" fill="none" stroke="var(--blueprint-accent)" stroke-width="6"/>
-                <circle cx="50" cy="50" r="10" fill="var(--blueprint-accent)"/>
-            </svg>
-        </div>
-        <h1>Turn Your Hardware Into<br>an <span class="accent">AI Operations Center</span></h1>
-        <p class="hero-subtitle">
-            Stop paying for cloud AI. Run AI operations locally on YOUR hardware and integrate seamlessly with GitHub.
-        </p>
-        <div class="hero-buttons">
-            <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E" class="btn btn-primary">Get Started</a>
-            <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki" class="btn btn-secondary">Documentation</a>
-        </div>
-    </section>
+        <!-- Project Health Section -->
+        <section class="health-section" aria-labelledby="health-heading">
+            <div class="container">
+                <h2 id="health-heading" class="visually-hidden">Project Health</h2>
+                <div class="health-grid">
+                    <div class="health-card">
+                        <div class="metric">MIT</div>
+                        <div class="label">License</div>
+                        <div class="badge">
+                            <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/blob/main/LICENSE">
+                                <img src="https://img.shields.io/github/license/SynchronizedLivingArchitecture/S.L.A.T.E?style=flat-square&color=B85A3C" alt="License: MIT">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="health-card">
+                        <div class="metric" id="stars-count">-</div>
+                        <div class="label">GitHub Stars</div>
+                        <div class="badge">
+                            <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/stargazers">
+                                <img src="https://img.shields.io/github/stars/SynchronizedLivingArchitecture/S.L.A.T.E?style=flat-square&color=B85A3C" alt="GitHub Stars">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="health-card">
+                        <div class="metric" id="forks-count">-</div>
+                        <div class="label">Forks</div>
+                        <div class="badge">
+                            <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/network/members">
+                                <img src="https://img.shields.io/github/forks/SynchronizedLivingArchitecture/S.L.A.T.E?style=flat-square&color=B85A3C" alt="GitHub Forks">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="health-card">
+                        <div class="metric" id="issues-count">-</div>
+                        <div class="label">Open Issues</div>
+                        <div class="badge">
+                            <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/issues">
+                                <img src="https://img.shields.io/github/issues/SynchronizedLivingArchitecture/S.L.A.T.E?style=flat-square&color=B85A3C" alt="Open Issues">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <!-- Features Section -->
-    <section id="features">
-        <div class="container">
-            <div class="section-header">
-                <h2>Built for Your Hardware</h2>
-                <p>SLATE auto-detects and optimizes for whatever GPU and CPU resources you have available.</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card watchmaker-card">
-                    <div class="watchmaker-card-header">
-                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
-                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
-                        </svg>
-                        <span class="status-jewel active"></span>
-                    </div>
-                    <div class="feature-icon">&#x1F9E0;</div>
-                    <h3>Local AI Engine</h3>
-                    <p>Ollama + Foundry Local running on your GPU. No API bills. No data leaving your machine.</p>
-                    <span class="feature-badge">FREE</span>
+        <!-- Features Section -->
+        <section id="features">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Core Capabilities</h2>
+                    <p>A complete local AI development platform designed for privacy, performance, and professional workflows.</p>
                 </div>
-                <div class="feature-card watchmaker-card">
-                    <div class="watchmaker-card-header">
-                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
-                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
-                        </svg>
-                        <span class="status-jewel active"></span>
-                    </div>
-                    <div class="feature-icon">&#x26A1;</div>
-                    <h3>GPU Optimized</h3>
-                    <p>Auto-detects your GPU architecture (Blackwell, Ada, Ampere) and applies optimal settings.</p>
-                    <span class="feature-badge">YOUR HARDWARE</span>
-                </div>
-                <div class="feature-card watchmaker-card">
-                    <div class="watchmaker-card-header">
-                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
-                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
-                        </svg>
-                        <span class="status-jewel active"></span>
-                    </div>
-                    <div class="feature-icon">&#x1F916;</div>
-                    <h3>Agentic Workflows</h3>
-                    <p>Claude Code MCP integration + VS Code extension with 26 AI tools at your command.</p>
-                    <span class="feature-badge">26 TOOLS</span>
-                </div>
-                <div class="feature-card watchmaker-card">
-                    <div class="watchmaker-card-header">
-                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
-                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
-                        </svg>
-                        <span class="status-jewel active"></span>
-                    </div>
-                    <div class="feature-icon">&#x1F4E6;</div>
-                    <h3>GitHub Integration</h3>
-                    <p>Self-hosted runner with bidirectional sync to Issues, Projects V2, and Discussions.</p>
-                    <span class="feature-badge">AUTOMATED</span>
-                </div>
-                <div class="feature-card watchmaker-card">
-                    <div class="watchmaker-card-header">
-                        <svg class="gear" width="24" height="24" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--gear-accent)" stroke-width="6"/>
-                            <circle cx="50" cy="50" r="10" fill="var(--gear-accent)"/>
-                        </svg>
-                        <span class="status-jewel pending"></span>
-                    </div>
-                    <div class="feature-icon">&#x1F5BC;</div>
-                    <h3>Generative UI</h3>
-                    <p>Schematic Diagram SDK with live WebSocket updates. Blueprint-style architecture visualization.</p>
-                    <span class="feature-badge">LIVE</span>
+                <div class="features-grid">
+                    <article class="feature-card">
+                        <div class="icon" aria-hidden="true">&#x1F9E0;</div>
+                        <h3>Local AI Inference</h3>
+                        <p>Run large language models on your own hardware using Ollama and Foundry Local. No API costs, no data transmission.</p>
+                        <span class="feature-badge">ZERO COST</span>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon" aria-hidden="true">&#x26A1;</div>
+                        <h3>GPU Optimization</h3>
+                        <p>Automatic detection and optimization for NVIDIA GPUs. Supports multi-GPU configurations for parallel workloads.</p>
+                        <span class="feature-badge">AUTO-DETECT</span>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon" aria-hidden="true">&#x1F916;</div>
+                        <h3>Agentic Workflows</h3>
+                        <p>MCP server integration with Claude Code and VS Code extension. 26+ AI-powered tools for development automation.</p>
+                        <span class="feature-badge">26+ TOOLS</span>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon" aria-hidden="true">&#x1F4E6;</div>
+                        <h3>GitHub Integration</h3>
+                        <p>Self-hosted runner with bidirectional sync. Manage issues, PRs, projects, and discussions through AI automation.</p>
+                        <span class="feature-badge">AUTOMATED</span>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon" aria-hidden="true">&#x1F512;</div>
+                        <h3>Security First</h3>
+                        <p>ActionGuard validates all operations. SDK Source Guard ensures trusted packages. PII Scanner prevents credential leaks.</p>
+                        <span class="feature-badge">PROTECTED</span>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon" aria-hidden="true">&#x1F5BC;</div>
+                        <h3>Generative UI</h3>
+                        <p>Schematic Diagram SDK for architecture visualization. Real-time WebSocket updates. Blueprint-style dashboards.</p>
+                        <span class="feature-badge">LIVE</span>
+                    </article>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Architecture Schematics Section -->
-    <section id="architecture" class="schematic-section">
-        <div class="container">
-            <div class="section-header">
-                <h2>System Architecture</h2>
-                <p>Interactive schematics showing how SLATE components fit together.</p>
-            </div>
-            <div class="schematic-container">
-                <div class="schematic-header">
-                    <span class="schematic-title">ARCHITECTURE DIAGRAMS</span>
-                    <div class="schematic-tabs">
-                        <button class="schematic-tab active" data-tab="system">System</button>
-                        <button class="schematic-tab" data-tab="modules">Modules</button>
-                        <button class="schematic-tab" data-tab="ai">AI Pipeline</button>
-                        <button class="schematic-tab" data-tab="github">GitHub</button>
-                        <button class="schematic-tab" data-tab="runners">Runners</button>
-                    </div>
+        <!-- Architecture Section -->
+        <section id="architecture" class="arch-section" aria-labelledby="arch-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="arch-heading">System Architecture</h2>
+                    <p>Conceptual diagrams showing how SLATE components integrate.</p>
                 </div>
-                <div class="schematic-body">
-                    <div id="schematic-system" class="schematic-pane active">
-                        <object type="image/svg+xml" data="assets/schematics/system-architecture-full.svg">
-                            Loading system architecture...
-                        </object>
+                <div class="arch-container">
+                    <div class="arch-header">
+                        <span class="arch-title">Architecture Diagrams</span>
+                        <div class="arch-tabs" role="tablist">
+                            <button class="arch-tab active" role="tab" aria-selected="true" data-tab="system">System</button>
+                            <button class="arch-tab" role="tab" aria-selected="false" data-tab="modules">Modules</button>
+                            <button class="arch-tab" role="tab" aria-selected="false" data-tab="ai">AI Pipeline</button>
+                            <button class="arch-tab" role="tab" aria-selected="false" data-tab="github">GitHub</button>
+                        </div>
                     </div>
-                    <div id="schematic-modules" class="schematic-pane">
-                        <object type="image/svg+xml" data="assets/schematics/code-module-map.svg">
-                            Loading code module map...
-                        </object>
-                    </div>
-                    <div id="schematic-ai" class="schematic-pane">
-                        <object type="image/svg+xml" data="assets/schematics/ai-inference-pipeline.svg">
-                            Loading AI pipeline...
-                        </object>
-                    </div>
-                    <div id="schematic-github" class="schematic-pane">
-                        <object type="image/svg+xml" data="assets/schematics/github-integration.svg">
-                            Loading GitHub integration...
-                        </object>
-                    </div>
-                    <div id="schematic-runners" class="schematic-pane">
-                        <object type="image/svg+xml" data="assets/schematics/multi-runner-system.svg">
-                            Loading multi-runner system...
-                        </object>
+                    <div class="arch-body">
+                        <div id="arch-system" class="arch-pane active" role="tabpanel">
+                            <object type="image/svg+xml" data="assets/schematics/system-architecture-full.svg" aria-label="System architecture diagram">
+                                <p>System architecture diagram showing SLATE component relationships.</p>
+                            </object>
+                        </div>
+                        <div id="arch-modules" class="arch-pane" role="tabpanel" hidden>
+                            <object type="image/svg+xml" data="assets/schematics/code-module-map.svg" aria-label="Code module map">
+                                <p>Code module organization and dependencies.</p>
+                            </object>
+                        </div>
+                        <div id="arch-ai" class="arch-pane" role="tabpanel" hidden>
+                            <object type="image/svg+xml" data="assets/schematics/ai-inference-pipeline.svg" aria-label="AI inference pipeline">
+                                <p>AI inference pipeline from request to response.</p>
+                            </object>
+                        </div>
+                        <div id="arch-github" class="arch-pane" role="tabpanel" hidden>
+                            <object type="image/svg+xml" data="assets/schematics/github-integration.svg" aria-label="GitHub integration diagram">
+                                <p>GitHub Actions and workflow integration.</p>
+                            </object>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Requirements Section -->
-    <section id="requirements" class="requirements">
-        <div class="container">
-            <div class="section-header">
-                <h2>System Requirements</h2>
-                <p>SLATE scales from modest hardware to high-end workstations.</p>
-            </div>
-            <div class="requirements-grid">
-                <div class="requirements-card">
-                    <h3>&#x2705; Minimum</h3>
-                    <ul>
-                        <li><span class="req-label">OS</span> Windows 10/11, Linux, macOS</li>
-                        <li><span class="req-label">Python</span> 3.11+</li>
-                        <li><span class="req-label">RAM</span> 8GB</li>
-                        <li><span class="req-label">GPU</span> None (CPU-only mode)</li>
-                        <li><span class="req-label">Storage</span> 10GB free</li>
-                    </ul>
+        <!-- Requirements Section -->
+        <section id="requirements" class="requirements-section" aria-labelledby="req-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="req-heading">System Requirements</h2>
+                    <p>SLATE scales from modest hardware to professional workstations.</p>
                 </div>
-                <div class="requirements-card">
-                    <h3>&#x1F680; Recommended</h3>
-                    <ul>
-                        <li><span class="req-label">OS</span> Windows 11, Ubuntu 22.04+</li>
-                        <li><span class="req-label">Python</span> 3.11+</li>
-                        <li><span class="req-label">RAM</span> 16GB+</li>
-                        <li><span class="req-label">GPU</span> NVIDIA RTX 20xx+ (8GB+ VRAM)</li>
-                        <li><span class="req-label">Storage</span> 50GB+ SSD</li>
-                    </ul>
+                <div class="requirements-grid">
+                    <div class="requirements-card">
+                        <h3>Minimum</h3>
+                        <ul>
+                            <li><span class="label">OS</span><span class="value">Windows 10/11, Linux, macOS</span></li>
+                            <li><span class="label">Python</span><span class="value">3.11 or higher</span></li>
+                            <li><span class="label">RAM</span><span class="value">8 GB</span></li>
+                            <li><span class="label">GPU</span><span class="value">Optional (CPU mode available)</span></li>
+                            <li><span class="label">Storage</span><span class="value">10 GB free space</span></li>
+                        </ul>
+                    </div>
+                    <div class="requirements-card">
+                        <h3>Recommended</h3>
+                        <ul>
+                            <li><span class="label">OS</span><span class="value">Windows 11, Ubuntu 22.04+</span></li>
+                            <li><span class="label">Python</span><span class="value">3.11 or higher</span></li>
+                            <li><span class="label">RAM</span><span class="value">16+ GB</span></li>
+                            <li><span class="label">GPU</span><span class="value">NVIDIA RTX 20xx+ (8GB+ VRAM)</span></li>
+                            <li><span class="label">Storage</span><span class="value">50+ GB SSD</span></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Install Section -->
-    <section class="install-section">
-        <div class="container">
-            <div class="install-box watchmaker-card">
-                <!-- Escapement Activity Indicator -->
-                <div class="install-escapement escapement" aria-hidden="true">
-                    <span class="escapement-tick"></span>
-                    <span class="escapement-tick"></span>
-                    <span class="escapement-tick"></span>
-                    <span class="escapement-tick"></span>
-                    <span class="escapement-tick"></span>
+        <!-- Install Section -->
+        <section class="install-section" aria-labelledby="install-heading">
+            <div class="container">
+                <div class="install-box">
+                    <h2 id="install-heading">Quick Install</h2>
+                    <p>Clone and run the installer. Full ecosystem ready in minutes.</p>
+                    <div class="install-code">
+                        <code>git clone https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git &amp;&amp; cd S.L.A.T.E &amp;&amp; python install_slate.py</code>
+                    </div>
+                    <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki/Installation" class="btn btn-primary">Full Installation Guide</a>
                 </div>
-                <h2>Quick Install</h2>
-                <p>One command installs everything. Full ecosystem ready in minutes.</p>
-                <div class="install-code">
-                    git clone https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git && cd S.L.A.T.E && python install_slate.py
-                </div>
-                <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E" class="btn btn-primary">View on GitHub</a>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <!-- Roadmap Section -->
+        <section id="roadmap" aria-labelledby="roadmap-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="roadmap-heading">Development Roadmap</h2>
+                    <p>Track the evolution of SLATE capabilities.</p>
+                </div>
+                <div class="roadmap-grid">
+                    <div class="roadmap-card current">
+                        <div class="version">v2.5</div>
+                        <h3>Current (Experimental)</h3>
+                        <ul>
+                            <li>Dual-GPU load balancing</li>
+                            <li>Claude Code MCP integration</li>
+                            <li>Schematic Diagram SDK</li>
+                            <li>Watchmaker UI design system</li>
+                        </ul>
+                    </div>
+                    <div class="roadmap-card">
+                        <div class="version">v3.0</div>
+                        <h3>Next Release</h3>
+                        <ul>
+                            <li>Enhanced agentic workflows</li>
+                            <li>Model fine-tuning pipeline</li>
+                            <li>Extended Claude Agent SDK</li>
+                            <li>Performance optimizations</li>
+                        </ul>
+                    </div>
+                    <div class="roadmap-card">
+                        <div class="version">Future</div>
+                        <h3>Planned Features</h3>
+                        <ul>
+                            <li>Distributed multi-machine</li>
+                            <li>Custom model training</li>
+                            <li>Advanced RAG pipelines</li>
+                            <li>Plugin ecosystem</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- Footer -->
-    <footer>
+    <footer class="footer">
         <div class="container">
-            <!-- Balance Wheel Activity Indicator -->
-            <div class="footer-activity" aria-hidden="true">
-                <div class="balance-wheel"></div>
-                <span class="status-jewel active"></span>
-                <span style="color: var(--slate-on-surface-variant); font-size: 0.75rem;">System Active</span>
-            </div>
-            <div class="footer-logo">
-                <img src="assets/slate-logo-v2.svg" alt="SLATE">
+            <div class="footer-brand">
+                <img src="assets/slate-logo-v2.svg" alt="" width="32" height="32">
                 <span>S.L.A.T.E.</span>
             </div>
-            <div class="footer-links">
+            <nav class="footer-links" aria-label="Footer navigation">
                 <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E">GitHub</a>
                 <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/wiki">Documentation</a>
                 <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/issues">Issues</a>
+                <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/discussions">Discussions</a>
                 <a href="https://github.com/orgs/SynchronizedLivingArchitecture/projects">Projects</a>
-            </div>
-            <p class="footer-author">
-                Created by <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/blob/main/AUTHOR.md">Daniel Perry</a> | Canadian Forces Veteran | Afghanistan Veteran
-                <br>
-                Copyright &copy; 2024-2026 Daniel Perry. All Rights Reserved.
+            </nav>
+            <p class="footer-legal">
+                <strong style="color: var(--sl-status-pending);">⚠️ EXPERIMENTAL SOFTWARE</strong> — Production-ready aim. Not for critical systems.<br>
+                Created by <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/blob/main/AUTHOR.md">Daniel Perry</a><br>
+                Copyright &copy; 2024-2026 Daniel Perry. All Rights Reserved.<br>
+                Licensed under the <a href="https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E/blob/main/LICENSE">MIT License</a>.
             </p>
         </div>
     </footer>
 
-    </div><!-- End Perspective Container -->
-
+    <!-- Minimal JavaScript for tab switching only -->
     <script>
-        // Schematic tab switching
-        document.querySelectorAll('.schematic-tab').forEach(tab => {
+    (function() {
+        'use strict';
+
+        // Architecture tab switching
+        const tabs = document.querySelectorAll('.arch-tab');
+        tabs.forEach(function(tab) {
             tab.addEventListener('click', function() {
                 const tabName = this.getAttribute('data-tab');
 
-                // Hide all panes
-                document.querySelectorAll('.schematic-pane').forEach(pane => {
-                    pane.classList.remove('active');
-                });
-
-                // Deactivate all tabs
-                document.querySelectorAll('.schematic-tab').forEach(t => {
+                // Update tabs
+                tabs.forEach(function(t) {
                     t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                this.classList.add('active');
+                this.setAttribute('aria-selected', 'true');
+
+                // Update panes
+                document.querySelectorAll('.arch-pane').forEach(function(pane) {
+                    pane.classList.remove('active');
+                    pane.setAttribute('hidden', '');
                 });
 
-                // Show selected pane
-                document.getElementById('schematic-' + tabName).classList.add('active');
-
-                // Activate selected tab
-                this.classList.add('active');
+                var activePane = document.getElementById('arch-' + tabName);
+                if (activePane) {
+                    activePane.classList.add('active');
+                    activePane.removeAttribute('hidden');
+                }
             });
         });
+    })();
     </script>
+
+    <!-- Visually hidden utility class -->
+    <style>
+    .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+    </style>
 </body>
 </html>
