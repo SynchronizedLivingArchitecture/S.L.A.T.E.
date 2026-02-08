@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # ═══════════════════════════════════════════════════════════════════════════════
 # CELL: install_slate [python]
-# Author: COPILOT | Created: 2026-02-06T00:30:00Z | Modified: 2026-02-06T22:30:00Z
+# Author: COPILOT | Created: 2026-02-06T00:30:00Z | Modified: 2026-02-07T20:00:00Z
 # Purpose: SLATE public installation script — delegates to slate_installer for full ecosystem
 # ═══════════════════════════════════════════════════════════════════════════════
 """
@@ -1004,9 +1004,22 @@ def step_dirs_create(tracker, args):
 
 
 def step_git_sync(tracker, args):
-    """Step 7: Sync with GitHub repository state."""
+    # Modified: 2026-02-07T22:00:00Z | Author: COPILOT | Change: Full fork+upstream+Pages setup for new installs
+    """Step 7: Sync with GitHub repository state.
+
+    For fork installs (Tony's scenario):
+    1. Detect if this is a fork of SynchronizedLivingArchitecture/S.L.A.T.E
+    2. Set 'upstream' remote pointing to Dan's main repo
+    3. Configure fork to track upstream/main for updates
+    4. Enable GitHub Pages from docs/ folder if not already enabled
+    5. Configure hardware-specific settings for the user's system
+    """
     tracker.start_step("git_sync")
-    tracker.update_progress("git_sync", 20, "Checking git state")
+    tracker.update_progress("git_sync", 10, "Checking git state")
+
+    UPSTREAM_URL = "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git"
+    UPSTREAM_OWNER = "SynchronizedLivingArchitecture"
+    UPSTREAM_REPO = "S.L.A.T.E"
 
     # Verify git is available
     try:
@@ -1023,7 +1036,7 @@ def step_git_sync(tracker, args):
     # Check if we're in a git repo
     in_repo = _run_cmd(["git", "rev-parse", "--is-inside-work-tree"], timeout=10)
     if in_repo.returncode != 0:
-        tracker.update_progress("git_sync", 40, "Initializing git repository")
+        tracker.update_progress("git_sync", 20, "Initializing git repository")
         _run_cmd(["git", "init"], timeout=15)
 
     # Configure remotes based on --beta flag
@@ -1043,22 +1056,183 @@ def step_git_sync(tracker, args):
             tracker.complete_step("git_sync", success=True,
                                   details="Beta remote added (fork manager not available)")
             return True
+
+    # Standard sync — detect fork and configure upstream
+    tracker.update_progress("git_sync", 30, "Analyzing remote configuration")
+    remote = _run_cmd(["git", "remote", "-v"], timeout=10)
+    branch = _run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], timeout=10)
+    commit = _run_cmd(["git", "rev-parse", "--short", "HEAD"], timeout=10)
+
+    branch_name = branch.stdout.strip() if branch.returncode == 0 else "unknown"
+    commit_hash = commit.stdout.strip() if commit.returncode == 0 else "unknown"
+    remote_output = remote.stdout or ""
+
+    details_parts = [f"Branch: {branch_name} @ {commit_hash}"]
+
+    # Detect if this is a fork (origin points to user's repo, not upstream)
+    is_fork = False
+    origin_url = ""
+    if "origin" in remote_output:
+        for line in remote_output.splitlines():
+            if line.startswith("origin") and "(fetch)" in line:
+                origin_url = line.split()[1]
+                # It's a fork if origin is NOT the upstream repo
+                if UPSTREAM_OWNER not in origin_url or UPSTREAM_REPO not in origin_url:
+                    is_fork = True
+                elif origin_url != UPSTREAM_URL and UPSTREAM_OWNER in origin_url:
+                    # User's fork of the same org — still same repo
+                    is_fork = False
+
+    # Step: Configure upstream remote for forks
+    if is_fork:
+        tracker.update_progress("git_sync", 50, "Fork detected — configuring upstream")
+        upstream_check = _run_cmd(["git", "remote", "get-url", "upstream"], timeout=10)
+        if upstream_check.returncode != 0:
+            # Add upstream
+            _run_cmd(["git", "remote", "add", "upstream", UPSTREAM_URL], timeout=10)
+            details_parts.append("upstream → main SLATE repo (added)")
+        else:
+            # Verify/update upstream URL
+            current_upstream = upstream_check.stdout.strip()
+            if current_upstream != UPSTREAM_URL:
+                _run_cmd(["git", "remote", "set-url", "upstream", UPSTREAM_URL], timeout=10)
+                details_parts.append("upstream → main SLATE repo (updated)")
+            else:
+                details_parts.append("upstream → main SLATE repo (verified)")
+
+        # Fetch upstream to make updates available
+        tracker.update_progress("git_sync", 60, "Fetching upstream updates")
+        fetch_result = _run_cmd(["git", "fetch", "upstream"], timeout=60)
+        if fetch_result.returncode == 0:
+            details_parts.append("upstream fetched")
+        else:
+            details_parts.append("upstream fetch skipped (network)")
+
+        # Set tracking branch
+        _run_cmd(["git", "branch", "--set-upstream-to=upstream/main", branch_name], timeout=10)
     else:
-        # Standard sync — just verify remote
-        tracker.update_progress("git_sync", 60, "Verifying remotes")
-        remote = _run_cmd(["git", "remote", "-v"], timeout=10)
-        branch = _run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], timeout=10)
-        commit = _run_cmd(["git", "rev-parse", "--short", "HEAD"], timeout=10)
+        details_parts.append("origin configured (main repo)")
 
-        branch_name = branch.stdout.strip() if branch.returncode == 0 else "unknown"
-        commit_hash = commit.stdout.strip() if commit.returncode == 0 else "unknown"
-        has_remote = "origin" in (remote.stdout or "")
+    # Step: Enable GitHub Pages for fork
+    tracker.update_progress("git_sync", 70, "Checking GitHub Pages")
+    if is_fork and origin_url:
+        _setup_github_pages(tracker, origin_url, details_parts)
 
-        details = f"Branch: {branch_name} @ {commit_hash}"
-        if has_remote:
-            details += " (origin configured)"
-        tracker.complete_step("git_sync", success=True, details=details)
-        return True
+    tracker.complete_step("git_sync", success=True,
+                          details=" | ".join(details_parts))
+    return True
+
+
+def _setup_github_pages(tracker, origin_url, details_parts):
+    """Enable GitHub Pages on the user's fork repository via GitHub API.
+
+    Configures Pages to serve from the docs/ folder on the main branch,
+    which contains the Watchmaker Dashboard, component showcase, etc.
+    """
+    # Modified: 2026-02-07T22:00:00Z | Author: COPILOT | Change: Add Pages auto-setup for forks
+    import urllib.request
+    import urllib.error
+
+    # Extract owner/repo from origin URL
+    owner, repo = None, None
+    try:
+        if "github.com" in origin_url:
+            # Handle both HTTPS and SSH URLs
+            if origin_url.startswith("git@"):
+                path = origin_url.split(":")[-1]
+            else:
+                path = origin_url.split("github.com/")[-1]
+            path = path.rstrip(".git").rstrip("/")
+            parts = path.split("/")
+            if len(parts) >= 2:
+                owner, repo = parts[0], parts[1]
+    except Exception:
+        pass
+
+    if not owner or not repo:
+        details_parts.append("Pages: could not parse repo URL")
+        return
+
+    # Get GitHub token from git credential manager
+    token = None
+    try:
+        result = subprocess.run(
+            ["git", "credential", "fill"],
+            input="protocol=https\nhost=github.com\n",
+            capture_output=True, text=True, timeout=15
+        )
+        if result.returncode == 0:
+            for line in result.stdout.splitlines():
+                if line.startswith("password="):
+                    token = line.split("=", 1)[1]
+                    break
+    except Exception:
+        pass
+
+    if not token:
+        details_parts.append("Pages: no GitHub token (enable manually in Settings > Pages)")
+        return
+
+    # Check if Pages is already enabled
+    try:
+        pages_url = f"https://api.github.com/repos/{owner}/{repo}/pages"
+        req = urllib.request.Request(
+            pages_url,
+            headers={
+                "Authorization": f"token {token}",
+                "Accept": "application/vnd.github.v3+json",
+                "User-Agent": "SLATE-Installer/2.4.0"
+            }
+        )
+        resp = urllib.request.urlopen(req, timeout=15)
+        if resp.status == 200:
+            details_parts.append(f"Pages: enabled at https://{owner}.github.io/{repo}/")
+            return
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            details_parts.append(f"Pages: check failed ({e.code})")
+            return
+    except Exception:
+        details_parts.append("Pages: check failed (network)")
+        return
+
+    # Enable Pages — POST to /repos/{owner}/{repo}/pages
+    try:
+        import json as _json
+        payload = _json.dumps({
+            "source": {
+                "branch": "main",
+                "path": "/docs"
+            }
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            pages_url,
+            data=payload,
+            method="POST",
+            headers={
+                "Authorization": f"token {token}",
+                "Accept": "application/vnd.github.v3+json",
+                "Content-Type": "application/json",
+                "User-Agent": "SLATE-Installer/2.4.0"
+            }
+        )
+        resp = urllib.request.urlopen(req, timeout=30)
+        if resp.status in (201, 200):
+            details_parts.append(f"Pages: ENABLED at https://{owner}.github.io/{repo}/")
+        else:
+            details_parts.append(f"Pages: setup returned {resp.status}")
+    except urllib.error.HTTPError as e:
+        if e.code == 409:
+            details_parts.append("Pages: already enabled")
+        elif e.code == 403:
+            details_parts.append("Pages: insufficient permissions (enable manually in Settings > Pages)")
+        elif e.code == 422:
+            details_parts.append("Pages: already configured")
+        else:
+            details_parts.append(f"Pages: enable failed ({e.code})")
+    except Exception as ex:
+        details_parts.append(f"Pages: enable failed ({ex})")
 
 
 def step_benchmark(tracker, args):
@@ -1435,6 +1609,130 @@ def step_fork_deps(tracker, args):
     return True
 
 
+# Modified: 2026-02-07T20:00:00Z | Author: COPILOT | Change: Add fork upstream + GitHub Pages steps for contributor installs
+
+def step_fork_upstream(tracker, args):
+    """Step: Configure fork's upstream remote back to SynchronizedLivingArchitecture main."""
+    tracker.start_step("fork_upstream")
+    tracker.update_progress("fork_upstream", 10, "Checking git remotes")
+
+    try:
+        result = _run_cmd(["git", "remote", "-v"], timeout=10)
+        if result.returncode != 0:
+            tracker.skip_step("fork_upstream", "Git not available")
+            return True
+
+        remotes = result.stdout or ""
+        has_upstream = "upstream" in remotes
+
+        if has_upstream:
+            tracker.complete_step("fork_upstream", success=True,
+                                  details="Upstream remote already configured")
+            return True
+
+        # Check if origin IS the main repo (not a fork)
+        if "SynchronizedLivingArchitecture/S.L.A.T.E" in remotes:
+            origin_lines = [l for l in remotes.splitlines()
+                            if l.startswith("origin") and "(fetch)" in l]
+            if origin_lines and "SynchronizedLivingArchitecture/S.L.A.T.E" in origin_lines[0]:
+                tracker.complete_step("fork_upstream", success=True,
+                                      details="Origin is upstream (direct clone)")
+                return True
+
+        # This is a fork — add upstream
+        tracker.update_progress("fork_upstream", 50, "Adding upstream remote")
+        upstream_url = "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git"
+        add_result = _run_cmd(["git", "remote", "add", "upstream", upstream_url], timeout=10)
+
+        if add_result.returncode == 0:
+            tracker.update_progress("fork_upstream", 70, "Fetching upstream branches")
+            _run_cmd(["git", "fetch", "upstream", "--no-tags"], timeout=60)
+            _run_cmd(["git", "branch", "--set-upstream-to=upstream/main", "main"], timeout=10)
+            tracker.complete_step("fork_upstream", success=True,
+                                  details="Upstream configured — syncs with SynchronizedLivingArchitecture/S.L.A.T.E main")
+        else:
+            tracker.complete_step("fork_upstream", success=True, warning=True,
+                                  details=f"Could not add upstream: {add_result.stderr.strip()}")
+
+    except Exception as e:
+        tracker.complete_step("fork_upstream", success=True, warning=True,
+                              details=f"Upstream setup error: {e}")
+    return True
+
+
+def step_github_pages(tracker, args):
+    """Step: Enable GitHub Pages on the fork for the SLATE docs site."""
+    tracker.start_step("github_pages")
+    tracker.update_progress("github_pages", 10, "Checking GitHub CLI")
+
+    # Check gh CLI
+    try:
+        gh_check = _run_cmd(["gh", "--version"], timeout=10)
+        if gh_check.returncode != 0:
+            tracker.complete_step("github_pages", success=True, warning=True,
+                                  details="GitHub CLI not available — enable Pages manually in Settings → Pages")
+            return True
+    except Exception:
+        tracker.complete_step("github_pages", success=True, warning=True,
+                              details="GitHub CLI not installed — enable Pages manually in Settings → Pages")
+        return True
+
+    # Check auth
+    tracker.update_progress("github_pages", 20, "Checking authentication")
+    auth_result = _run_cmd(["gh", "auth", "status"], timeout=10)
+    if auth_result.returncode != 0:
+        tracker.complete_step("github_pages", success=True, warning=True,
+                              details="GitHub CLI not authenticated — run: gh auth login")
+        return True
+
+    # Get repo slug from origin
+    tracker.update_progress("github_pages", 40, "Detecting repository")
+    remote_result = _run_cmd(["git", "remote", "get-url", "origin"], timeout=10)
+    if remote_result.returncode != 0:
+        tracker.complete_step("github_pages", success=True, warning=True,
+                              details="No origin remote — cannot configure Pages")
+        return True
+
+    origin_url = remote_result.stdout.strip()
+    repo_slug = None
+    if "github.com" in origin_url:
+        if origin_url.startswith("https://"):
+            repo_slug = origin_url.replace("https://github.com/", "").replace(".git", "").strip("/")
+        elif ":" in origin_url:
+            repo_slug = origin_url.split(":")[-1].replace(".git", "").strip("/")
+
+    if not repo_slug:
+        tracker.complete_step("github_pages", success=True, warning=True,
+                              details=f"Could not parse repo from remote: {origin_url}")
+        return True
+
+    # Enable Pages via GitHub API
+    tracker.update_progress("github_pages", 60, f"Enabling Pages for {repo_slug}")
+    enable_result = _run_cmd([
+        "gh", "api", f"repos/{repo_slug}/pages",
+        "--method", "POST",
+        "--field", "build_type=workflow",
+        "--silent",
+    ], timeout=30)
+
+    owner = repo_slug.split("/")[0] if "/" in repo_slug else repo_slug
+    repo = repo_slug.split("/")[1] if "/" in repo_slug else repo_slug
+    pages_url = f"https://{owner}.github.io/{repo}/"
+
+    if enable_result.returncode == 0:
+        tracker.complete_step("github_pages", success=True,
+                              details=f"GitHub Pages enabled — {pages_url}")
+    elif "409" in (enable_result.stderr or "") or "already" in (enable_result.stderr or "").lower():
+        tracker.complete_step("github_pages", success=True,
+                              details=f"GitHub Pages already enabled — {pages_url}")
+    else:
+        tracker.complete_step("github_pages", success=True, warning=True,
+                              details=f"Pages setup needs manual config: Settings → Pages → Source: GitHub Actions")
+    return True
+
+    return True
+
+
 def step_runtime_check(tracker, args):
     # Modified: 2025-07-12T21:30:00Z | Author: COPILOT | Change: Expand to 8 ecosystem checks
     """Step 9: Final runtime verification — full ecosystem validation."""
@@ -1740,11 +2038,11 @@ def main():
             pass
 
     # Define all installation steps in canonical order
-    # Modified: 2026-02-07T14:00:00Z | Author: COPILOT | Change: Add dependency scanner for SLATE installation ethos
+    # Modified: 2026-02-07T20:00:00Z | Author: COPILOT | Change: Add fork upstream + GitHub Pages steps
     install_steps = [
         ("dashboard_boot", step_dashboard_boot),
         ("python_check",   step_python_check),
-        ("dep_scan",       step_dep_scan),  # NEW: Scan before install - SLATE ethos
+        ("dep_scan",       step_dep_scan),  # Scan before install - SLATE ethos
         ("venv_setup",     step_venv_setup),
         ("deps_install",   step_deps_install),
         ("gpu_detect",     step_gpu_detect),
@@ -1762,6 +2060,8 @@ def main():
         ("runner_check",   step_runner_check),
         ("watchdog_setup", step_watchdog_setup),
         ("fork_deps",      step_fork_deps),
+        ("fork_upstream",  step_fork_upstream),
+        ("github_pages",   step_github_pages),
         ("benchmark",      step_benchmark),
         ("runtime_check",  step_runtime_check),
     ]

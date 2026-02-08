@@ -245,6 +245,169 @@ class StateTokens:
 
 
 @dataclass
+class EngineeringDrawingTokens:
+    """
+    Engineering Drawing Standards (Spec 013)
+
+    Based on:
+    - ISO 128 (Technical Drawing Line Types)
+    - IEC 60617 (Electronic Schematic Symbols)
+    - ASME Y14.44 (Reference Designators)
+    - PCB Silkscreen Conventions
+    """
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # ISO 128 Line Types (stroke-dasharray patterns)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Type 01: Continuous thick - visible outlines, active connections
+    line_continuous_thick: str = "none"
+    line_continuous_thick_width: str = "2px"
+
+    # Type 02: Continuous thin - dimension lines, leaders
+    line_continuous_thin: str = "none"
+    line_continuous_thin_width: str = "1px"
+
+    # Type 03: Dashed thick - hidden components, inactive services
+    line_dashed_thick: str = "8,4"
+    line_dashed_thick_width: str = "2px"
+
+    # Type 04: Dashed thin - hidden details, pending tasks
+    line_dashed_thin: str = "6,3"
+    line_dashed_thin_width: str = "1px"
+
+    # Type 05: Chain thin - center lines, symmetry axes
+    line_chain_thin: str = "12,3,3,3"
+    line_chain_thin_width: str = "1px"
+
+    # Type 06: Chain thick - cut planes, section indicators
+    line_chain_thick: str = "16,4,4,4"
+    line_chain_thick_width: str = "2px"
+
+    # Type 07: Dotted thin - projection lines, data flow
+    line_dotted_thin: str = "2,2"
+    line_dotted_thin_width: str = "1px"
+
+    # Type 08: Long-dash double-short - boundaries, system limits
+    line_boundary: str = "18,3,3,3,3,3"
+    line_boundary_width: str = "1px"
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Blueprint Colors (Engineering Drawing Palette)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Background variants
+    blueprint_primary: str = "#0D1B2A"      # Deep blueprint blue
+    blueprint_secondary: str = "#0a0a0a"    # SLATE dark
+    blueprint_tertiary: str = "#1B2838"     # Lighter blueprint
+
+    # Trace colors by type
+    trace_signal: str = "#B87333"           # Copper - primary signals
+    trace_power: str = "#C47070"            # Warm red - power lines
+    trace_ground: str = "#78716C"           # Cool gray - ground
+    trace_data: str = "#7EA8BE"             # Soft blue - data lines
+    trace_control: str = "#D4A054"          # Gold - control signals
+
+    # Status indicators
+    status_active: str = "#22C55E"          # Green - live/active
+    status_pending: str = "#D4A054"         # Gold - waiting
+    status_error: str = "#C47070"           # Red - fault
+    status_disabled: str = "#333333"        # Dim gray - disabled
+    status_unknown: str = "#4B5563"         # Neutral gray - unknown
+
+    # Component fills
+    fill_service: str = "#1a1510"           # Dark warm - services
+    fill_database: str = "#101520"          # Dark cool - databases
+    fill_gpu: str = "#15120a"               # Dark copper - GPU/compute
+    fill_ai: str = "#0a1515"                # Dark teal - AI/ML
+    fill_external: str = "#151015"          # Dark purple - external
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PCB Silkscreen Typography
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Font sizes (following silkscreen conventions)
+    text_component_label: str = "14px"      # Component labels
+    text_reference_designator: str = "12px" # Reference designators (R1, C2)
+    text_pin_number: str = "10px"           # Pin numbers
+    text_status_indicator: str = "8px"      # Status text
+    text_section_header: str = "16px"       # Section headers
+
+    # Font families (engineering-style)
+    font_schematic: str = "Consolas, 'Courier New', monospace"
+    font_schematic_bold: str = "Consolas, 'Courier New', monospace"
+    font_labels: str = "'Segoe UI', system-ui, sans-serif"
+
+    # Text colors
+    text_primary: str = "#E7E0D8"           # Cream - primary text
+    text_secondary: str = "#A8A29E"         # Warm gray - secondary
+    text_designator: str = "#C9956B"        # Copper - designators
+    text_muted: str = "#78716C"             # Muted - tertiary text
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Engineering Grid System (8px base unit)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    grid_base: str = "8px"                  # Base unit (ISO module)
+    grid_minor: str = "16px"                # Minor grid (2 × base)
+    grid_major: str = "64px"                # Major grid (8 × base)
+
+    # Component sizes (multiples of major grid)
+    component_small: str = "64px"           # 1×1 major (status)
+    component_medium_w: str = "128px"       # 2×1 major width (services)
+    component_medium_h: str = "64px"        # 2×1 major height
+    component_large: str = "128px"          # 2×2 major (databases)
+    component_xlarge_w: str = "256px"       # 4×2 major width (groups)
+    component_xlarge_h: str = "128px"       # 4×2 major height
+
+    # Spacing
+    spacing_component: str = "32px"         # Between components (4 × base)
+    spacing_group: str = "64px"             # Between groups (8 × base)
+    spacing_margin: str = "48px"            # Edge margin (6 × base)
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # ASME Y14.44 Reference Designator Prefixes
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    designator_service: str = "SVC"         # Core services
+    designator_database: str = "DB"         # Databases
+    designator_gpu: str = "GPU"             # GPU units
+    designator_ai: str = "AI"               # AI models
+    designator_api: str = "API"             # API routes
+    designator_connector: str = "J"         # Connectors
+    designator_bus: str = "BUS"             # Data buses
+    designator_terminal: str = "T"          # Terminals
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Animation Standards
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    anim_pulse_duration: str = "2s"         # Active pulse
+    anim_flow_duration: str = "1s"          # Data flow
+    anim_connect_duration: str = "0.5s"     # Connection establish
+    anim_appear_duration: str = "0.3s"      # Component appear
+    anim_transition_duration: str = "0.3s"  # Status change
+    anim_error_duration: str = "0.2s"       # Error flash
+
+    anim_easing_pulse: str = "ease-in-out"
+    anim_easing_flow: str = "linear"
+    anim_easing_appear: str = "ease-out"
+    anim_easing_transition: str = "ease-in-out"
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Polarity & Orientation Markers
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    marker_pin1: str = "●"                  # Pin 1 indicator (filled circle)
+    marker_active: str = "+"                # Active/power marker
+    marker_ground: str = "−"                # Ground/inactive marker
+    marker_empty: str = "○"                 # Empty/unconnected
+    marker_bidirectional: str = "↔"         # Bidirectional flow
+    marker_input: str = "→"                 # Input direction
+    marker_output: str = "←"                # Output direction
+
+
+@dataclass
 class DesignTokens:
     """Complete design token collection."""
 
@@ -255,6 +418,7 @@ class DesignTokens:
     radius: RadiusTokens = field(default_factory=RadiusTokens)
     motion: MotionTokens = field(default_factory=MotionTokens)
     state: StateTokens = field(default_factory=StateTokens)
+    engineering: EngineeringDrawingTokens = field(default_factory=EngineeringDrawingTokens)
 
     def to_css_variables(self, prefix: str = "slate") -> str:
         """Generate CSS custom properties from all tokens."""
@@ -304,6 +468,14 @@ class DesignTokens:
         for name, value in vars(self.state).items():
             lines.append(f"    --{prefix}-{name.replace('_', '-')}: {value};")
 
+        lines.append("")
+
+        # Engineering Drawing (Spec 013)
+        lines.append("    /* Engineering Drawing Standards (ISO 128, IEC 60617, ASME Y14.44) */")
+        for name, value in vars(self.engineering).items():
+            css_name = name.replace("_", "-")
+            lines.append(f"    --{prefix}-eng-{css_name}: {value};")
+
         lines.append("}")
 
         return "\n".join(lines)
@@ -317,7 +489,8 @@ class DesignTokens:
             "elevation": vars(self.elevation),
             "radius": vars(self.radius),
             "motion": vars(self.motion),
-            "state": vars(self.state)
+            "state": vars(self.state),
+            "engineering": vars(self.engineering)
         }
         return json.dumps(data, indent=2)
 

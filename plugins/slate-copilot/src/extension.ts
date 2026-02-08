@@ -1,4 +1,4 @@
-// Modified: 2026-02-07T15:00:00Z | Author: CLAUDE | Change: Add AI-powered Guided Install view
+// Modified: 2026-02-08T05:00:00Z | Author: Claude Opus 4.5 | Change: Add evolving schematic background system
 import * as vscode from 'vscode';
 import { registerSlateParticipant } from './slateParticipant';
 import { registerSlateTools } from './tools';
@@ -6,8 +6,14 @@ import { SlateDashboardViewProvider } from './slateDashboardView';
 import { SlateControlBoardViewProvider } from './slateControlBoardView';
 import { registerGuidedInstallView } from './slateGuidedInstallView';
 import { registerServiceMonitor } from './slateServiceMonitor';
+import {
+	applySchematicBackground,
+	registerBackgroundCommands,
+	watchForStateChanges
+} from './slateSchematicBackground';
 
 const DASHBOARD_URL = 'http://127.0.0.1:8080';
+const SLATE_THEME_ID = 'SLATE Dark';
 
 /** Status bar item showing SLATE is installed */
 let slateStatusBarItem: vscode.StatusBarItem;
@@ -15,6 +21,10 @@ let slateStatusBarItem: vscode.StatusBarItem;
 export function activate(context: vscode.ExtensionContext) {
 	registerSlateTools(context);
 	registerSlateParticipant(context);
+
+	// ─── SLATE Theme & Background Initialization ───────────────────────────
+	// Embodies the SLATE ethos: systems evolve with progress
+	initializeSlateEnvironment(context);
 
 	// Create SLATE status bar indicator
 	slateStatusBarItem = vscode.window.createStatusBarItem(
@@ -94,6 +104,99 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() { }
+
+// ─── SLATE Environment Initialization ──────────────────────────────────────
+// This implements the SLATE ethos: the system evolves with progress
+
+/**
+ * Initialize the SLATE visual environment:
+ * 1. Apply SLATE Dark theme (on first install or if requested)
+ * 2. Generate and apply the evolving schematic background
+ * 3. Set up watchers for automatic background evolution
+ */
+async function initializeSlateEnvironment(context: vscode.ExtensionContext): Promise<void> {
+	const isFirstActivation = !context.globalState.get<boolean>('slateInitialized');
+
+	// Register background commands
+	registerBackgroundCommands(context);
+
+	// On first activation, offer to apply SLATE theme
+	if (isFirstActivation) {
+		await context.globalState.update('slateInitialized', true);
+
+		const applyTheme = await vscode.window.showInformationMessage(
+			'Welcome to SLATE! Apply the SLATE Dark theme and schematic background?',
+			'Yes, Transform VS Code',
+			'Just Theme',
+			'Skip'
+		);
+
+		if (applyTheme === 'Yes, Transform VS Code') {
+			// Apply theme
+			await vscode.workspace.getConfiguration('workbench').update(
+				'colorTheme',
+				SLATE_THEME_ID,
+				vscode.ConfigurationTarget.Global
+			);
+
+			// Enable and generate background
+			await vscode.workspace.getConfiguration('slate').update(
+				'background.enabled',
+				true,
+				vscode.ConfigurationTarget.Global
+			);
+			await applySchematicBackground(context);
+
+			// Set up watchers for evolution
+			watchForStateChanges(context);
+
+			vscode.window.showInformationMessage(
+				'SLATE environment activated! Your VS Code will evolve as your system progresses.'
+			);
+		} else if (applyTheme === 'Just Theme') {
+			await vscode.workspace.getConfiguration('workbench').update(
+				'colorTheme',
+				SLATE_THEME_ID,
+				vscode.ConfigurationTarget.Global
+			);
+		}
+	} else {
+		// On subsequent activations, refresh background if enabled
+		const config = vscode.workspace.getConfiguration('slate');
+		if (config.get<boolean>('background.enabled', false)) {
+			// Generate background silently
+			await applySchematicBackground(context);
+			watchForStateChanges(context);
+		}
+	}
+
+	// Register apply theme command
+	context.subscriptions.push(
+		vscode.commands.registerCommand('slate.applyTheme', async () => {
+			await vscode.workspace.getConfiguration('workbench').update(
+				'colorTheme',
+				SLATE_THEME_ID,
+				vscode.ConfigurationTarget.Global
+			);
+
+			const enableBg = await vscode.window.showInformationMessage(
+				'SLATE Dark theme applied! Enable evolving schematic background?',
+				'Yes',
+				'No'
+			);
+
+			if (enableBg === 'Yes') {
+				await vscode.workspace.getConfiguration('slate').update(
+					'background.enabled',
+					true,
+					vscode.ConfigurationTarget.Global
+				);
+				await applySchematicBackground(context);
+				watchForStateChanges(context);
+			}
+		})
+	);
+}
 
 /** SLATE workspace configuration */
 export interface SlateConfig {

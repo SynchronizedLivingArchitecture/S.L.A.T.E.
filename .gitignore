@@ -1,5 +1,5 @@
 # Python
-# Modified: 2026-02-09T07:10:00Z | Author: COPILOT | Change: Clarify docs/specs are tracked for installer knowledge
+# Modified: 2026-02-07T20:00:00Z | Author: COPILOT | Change: Add .slate_identity to gitignore - personal fork data per user
 __pycache__/
 *.py[cod]
 *$py.class
@@ -80,6 +80,9 @@ _PipelineMapping/
 # GitHub Actions self-hosted runner (contains credentials)
 actions-runner/
 actions-runner-*/
+
+# Fork identity (generated per-user during install — never share upstream)
+.slate_identity/
 
 # Runtime state files
 .slate_orchestrator.pid

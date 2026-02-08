@@ -44,6 +44,37 @@ class TestStepStatus:
         # Assert
         assert actual == expected
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SLATE Installation Ethos Tests
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class TestSlateInstallationEthos:
+    """Test that the install tracker includes the dep_scan step for SLATE ethos."""
+
+    def test_dep_scan_step_exists(self):
+        """Verify that dependency scanning step is in the canonical steps."""
+        # Arrange
+        step_ids = [s.id for s in InstallTracker.INSTALL_STEPS]
+        # Assert
+        assert "dep_scan" in step_ids, "dep_scan step should exist for SLATE installation ethos"
+
+    def test_dep_scan_step_order(self):
+        """Verify dep_scan runs before deps_install."""
+        # Arrange
+        steps = {s.id: s.order for s in InstallTracker.INSTALL_STEPS}
+        # Assert
+        assert steps.get("dep_scan", 999) < steps.get("deps_install", 0), \
+            "dep_scan should run before deps_install"
+
+    def test_dep_scan_description(self):
+        """Verify dep_scan has appropriate description."""
+        # Arrange
+        dep_scan = [s for s in InstallTracker.INSTALL_STEPS if s.id == "dep_scan"]
+        # Assert
+        assert len(dep_scan) == 1
+        assert "scan" in dep_scan[0].description.lower()
+
     def test_status_is_string(self):
         # Assert — StepStatus inherits from str
         assert isinstance(StepStatus.PENDING, str)

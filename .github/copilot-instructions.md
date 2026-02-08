@@ -1,21 +1,20 @@
 # S.L.A.T.E. Copilot Instructions
 # Modified: 2026-02-08T01:00:00Z | Author: COPILOT | Change: Document test install workspace, direct-to-main workflow
 
-## Test Install Workspace
+## Workspace
 
-**This workspace (`E:\SLATE TEST INSTALL`) is a test installation of S.L.A.T.E.**
-It is used to validate the installer, test updates, and verify install procedures.
+**This workspace is a S.L.A.T.E. installation.**
+All paths are relative to the workspace root — no hardcoded directories.
 
-- **Repo**: `SynchronizedLivingArchitecture/S.L.A.T.E` (direct push to `main`)
-- **Purpose**: Test install system, benchmark GPU setup, validate dependency resolver
-- **Workflow**: Install fixes and error reports are committed and pushed directly to `main`
-- **Git**: `origin` → `https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git`
+- **Repo**: `SynchronizedLivingArchitecture/S.L.A.T.E`
+- **Purpose**: Full SLATE SDK, inference pipeline, GPU benchmarking, CI/CD
+- **Git**: `origin` → user's fork or `https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git`
 
-When install issues are found in this workspace:
+When install issues are found:
 1. Fix the issue in the relevant installer/SDK file
 2. Include `# Modified:` timestamp comment per SLATE rules
 3. Commit with `fix(installer):` prefix
-4. Push directly to `main` (`git push origin main`)
+4. Push to the appropriate branch
 
 ## MANDATORY PROTOCOL  Read Before Any Operation
 

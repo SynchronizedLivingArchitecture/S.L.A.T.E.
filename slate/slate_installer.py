@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add personalization support for fork creation
+# Modified: 2026-02-07T20:00:00Z | Author: COPILOT | Change: Add fork upstream + GitHub Pages setup for contributor installs
 """
 S.L.A.T.E. Ecosystem Installer
 ================================
@@ -1172,6 +1172,141 @@ class SlateInstaller:
 
     # ── Step 13: Final Validation ────────────────────────────────────────
 
+    # ── Step 12b: Fork Upstream Configuration ──────────────────────────
+
+    # Modified: 2026-02-07T20:00:00Z | Author: COPILOT | Change: Add fork upstream + Pages setup for contributor installs
+    def step_fork_upstream(self) -> bool:
+        """Configure fork's upstream remote back to SynchronizedLivingArchitecture/S.L.A.T.E main."""
+        _print_header("Step 12b: Fork Upstream Configuration")
+
+        if not _cmd_exists("git"):
+            self._log("⚠", "Git not available — skipping upstream setup")
+            self.results["fork_upstream"] = {"status": "skipped", "reason": "no_git"}
+            return True
+
+        # Check current remotes
+        result = _run(["git", "remote", "-v"], cwd=str(self.workspace), timeout=10)
+        remotes = result.stdout if result.returncode == 0 else ""
+
+        has_origin = "origin" in remotes
+        has_upstream = "upstream" in remotes
+        is_fork = has_origin and "SynchronizedLivingArchitecture/S.L.A.T.E" not in remotes.split("origin")[1].split("\n")[0] if has_origin and "origin" in remotes else False
+
+        if has_upstream:
+            self._log("✓", "Upstream remote already configured")
+            self.results["fork_upstream"] = {"status": "exists"}
+            return True
+
+        # If origin IS the main repo (not a fork), no upstream needed
+        if has_origin and "SynchronizedLivingArchitecture/S.L.A.T.E" in remotes:
+            # Check if this is a fork by looking at origin URL
+            origin_line = [l for l in remotes.splitlines() if l.startswith("origin") and "(fetch)" in l]
+            if origin_line:
+                origin_url = origin_line[0].split()[1]
+                if "SynchronizedLivingArchitecture/S.L.A.T.E" in origin_url:
+                    self._log("✓", "Origin points to upstream (direct clone, not a fork)")
+                    self.results["fork_upstream"] = {"status": "direct_clone"}
+                    return True
+
+        # This is a fork — add upstream
+        upstream_url = "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git"
+        self._log("→", "Adding upstream remote to SynchronizedLivingArchitecture/S.L.A.T.E")
+        add_result = _run(["git", "remote", "add", "upstream", upstream_url],
+                          cwd=str(self.workspace), timeout=10)
+
+        if add_result.returncode == 0:
+            # Fetch upstream to sync
+            self._log("→", "Fetching upstream branches")
+            _run(["git", "fetch", "upstream", "--no-tags"], cwd=str(self.workspace), timeout=60)
+
+            # Set default branch to track upstream/main
+            _run(["git", "branch", "--set-upstream-to=upstream/main", "main"],
+                 cwd=str(self.workspace), timeout=10)
+
+            self._log("✓", "Upstream configured — fork syncs with SynchronizedLivingArchitecture/S.L.A.T.E main")
+            self.results["fork_upstream"] = {"status": "configured", "upstream": upstream_url}
+        else:
+            self._log("⚠", f"Could not add upstream: {add_result.stderr.strip()}")
+            self.results["fork_upstream"] = {"status": "failed", "error": add_result.stderr.strip()}
+
+        return True
+
+    # ── Step 12c: GitHub Pages Setup ─────────────────────────────────────
+
+    def step_github_pages(self) -> bool:
+        """Enable GitHub Pages on the fork for the SLATE feature/docs site."""
+        _print_header("Step 12c: GitHub Pages Setup")
+
+        # Check if gh CLI is available
+        if not _cmd_exists("gh"):
+            self._log("⚠", "GitHub CLI (gh) not installed — Pages setup requires manual config")
+            self._log("ℹ", "  Install from: https://cli.github.com")
+            self._log("ℹ", "  Or manually enable Pages in your repo Settings → Pages")
+            self._log("ℹ", "  Source: GitHub Actions, Workflow: pages.yml")
+            self.results["github_pages"] = {"status": "skipped", "reason": "no_gh_cli"}
+            return True
+
+        # Check gh auth
+        auth_result = _run(["gh", "auth", "status"], timeout=10)
+        if auth_result.returncode != 0:
+            self._log("⚠", "GitHub CLI not authenticated — run: gh auth login")
+            self._log("ℹ", "  After auth, re-run install or manually enable Pages in Settings")
+            self.results["github_pages"] = {"status": "skipped", "reason": "not_authenticated"}
+            return True
+
+        # Get the repo name from git remote
+        remote_result = _run(["git", "remote", "get-url", "origin"], cwd=str(self.workspace), timeout=10)
+        if remote_result.returncode != 0:
+            self._log("⚠", "No origin remote — cannot configure Pages")
+            self.results["github_pages"] = {"status": "skipped", "reason": "no_origin"}
+            return True
+
+        origin_url = remote_result.stdout.strip()
+        # Extract owner/repo from URL
+        repo_slug = None
+        if "github.com" in origin_url:
+            # Handle https://github.com/owner/repo.git or git@github.com:owner/repo.git
+            if origin_url.startswith("https://"):
+                parts = origin_url.replace("https://github.com/", "").replace(".git", "").strip("/")
+                repo_slug = parts
+            elif ":" in origin_url:
+                parts = origin_url.split(":")[-1].replace(".git", "").strip("/")
+                repo_slug = parts
+
+        if not repo_slug:
+            self._log("⚠", f"Could not parse repo from: {origin_url}")
+            self.results["github_pages"] = {"status": "skipped", "reason": "unparseable_remote"}
+            return True
+
+        self._log("→", f"Configuring GitHub Pages for {repo_slug}")
+
+        # Enable Pages via GitHub API (gh api)
+        # Use GitHub Actions as the build source
+        enable_result = _run([
+            "gh", "api", f"repos/{repo_slug}/pages",
+            "--method", "POST",
+            "--field", "build_type=workflow",
+            "--silent",
+        ], timeout=30)
+
+        if enable_result.returncode == 0:
+            self._log("✓", f"GitHub Pages enabled for {repo_slug}")
+            pages_url = f"https://{repo_slug.split('/')[0]}.github.io/{repo_slug.split('/')[1]}/"
+            self._log("ℹ", f"  Pages URL: {pages_url}")
+            self._log("ℹ", "  Deploy trigger: push to main (docs/pages/**)")
+            self.results["github_pages"] = {"status": "enabled", "url": pages_url}
+        elif "409" in (enable_result.stderr or "") or "already" in (enable_result.stderr or "").lower():
+            self._log("✓", "GitHub Pages already enabled")
+            pages_url = f"https://{repo_slug.split('/')[0]}.github.io/{repo_slug.split('/')[1]}/"
+            self._log("ℹ", f"  Pages URL: {pages_url}")
+            self.results["github_pages"] = {"status": "already_enabled", "url": pages_url}
+        else:
+            self._log("⚠", f"Pages setup returned: {enable_result.stderr.strip()}")
+            self._log("ℹ", "  You can manually enable Pages: repo Settings → Pages → Source: GitHub Actions")
+            self.results["github_pages"] = {"status": "manual_required", "error": enable_result.stderr.strip()}
+
+        return True
+
     def step_validate(self) -> bool:
         """Run final validation of the SLATE ecosystem."""
         _print_header("Step 13: Final Validation")
@@ -1247,7 +1382,7 @@ class SlateInstaller:
             fork_name: Pre-set fork name for non-interactive personalization
             interactive: Allow interactive prompts
         """
-        # Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Add personalization support
+        # Modified: 2026-02-07T20:00:00Z | Author: COPILOT | Change: Add fork upstream + Pages setup steps
         print()
         print("═" * 64)
         print("  S.L.A.T.E. Ecosystem Installer v2.4.0")
@@ -1256,7 +1391,7 @@ class SlateInstaller:
 
         start_time = time.time()
         steps = [
-            ("Dependency Scan", self.step_dependency_scan),  # NEW: Scan first - SLATE ethos
+            ("Dependency Scan", self.step_dependency_scan),  # Scan first - SLATE ethos
             ("Git Repository", lambda: self.step_git_setup(target_dir, beta)),
             ("Virtual Environment", self.step_venv_setup),
             ("Core Dependencies", self.step_core_deps),
@@ -1268,6 +1403,8 @@ class SlateInstaller:
             ("SLATE Models", self.step_slate_models),
             ("Personalization", lambda: self.step_personalization(interactive=interactive, fork_name=fork_name) if personalize else True),
             ("Workspace Config", self.step_workspace_setup),
+            ("Fork Upstream", self.step_fork_upstream),
+            ("GitHub Pages", self.step_github_pages),
             ("Generative UI", self.step_generative_ui),
             ("Guided Mode", self.step_guided_mode),
             ("Final Validation", self.step_validate),

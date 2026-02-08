@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Modified: 2026-02-07T12:00:00Z | Author: COPILOT | Change: Initial creation — scan-first dependency resolver
+# Modified: 2026-02-07T20:00:00Z | Author: COPILOT | Change: Remove hardcoded workspace path from docstring
 """
 S.L.A.T.E. Dependency Resolver
 ================================
@@ -560,7 +560,7 @@ class DependencyResolver:
     Orchestrates the scan → match → link → install pipeline.
 
     Usage:
-        resolver = DependencyResolver(workspace=Path("E:/SLATE TEST INSTALL"))
+        resolver = DependencyResolver(workspace=Path("."))
         result = resolver.resolve_all(requirements_file=Path("requirements.txt"))
         print(result["summary"])
     """

@@ -9,11 +9,11 @@
 		"url": "https://github.com/SynchronizedLivingArchitecture/S.L.A.T.E.git"
 	},
 	"slateMetadata": {
-		"modified": "2026-02-07T12:00:00Z",
-		"author": "COPILOT",
-		"change": "Fix freezing — streaming progress, error recovery, concurrent tools, proper arg parsing, adaptive follow-ups"
+		"modified": "2026-02-08T05:00:00Z",
+		"author": "Claude Opus 4.5",
+		"change": "Add evolving schematic background system - background reflects system state and updates as SLATE progresses"
 	},
-	"version": "3.1.0",
+	"version": "3.2.0",
 	"icon": "media/icon.png",
 	"engines": {
 		"vscode": "^1.100.0"
@@ -702,8 +702,37 @@
 			{
 				"command": "slate.refreshDashboard",
 				"title": "SLATE: Refresh Dashboard"
+			},
+			{
+				"command": "slate.applyTheme",
+				"title": "SLATE: Apply SLATE Dark Theme"
+			},
+			{
+				"command": "slate.refreshBackground",
+				"title": "SLATE: Refresh Schematic Background"
+			},
+			{
+				"command": "slate.toggleBackground",
+				"title": "SLATE: Toggle Schematic Background"
 			}
-		]
+		],
+		"configuration": {
+			"title": "SLATE",
+			"properties": {
+				"slate.background.enabled": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable the evolving SLATE schematic background. The background reflects system progress and updates as your SLATE installation evolves."
+				},
+				"slate.background.opacity": {
+					"type": "number",
+					"default": 0.1,
+					"minimum": 0.01,
+					"maximum": 0.3,
+					"description": "Opacity of the schematic background (0.01-0.3). Lower values are more subtle."
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

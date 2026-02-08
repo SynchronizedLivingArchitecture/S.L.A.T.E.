@@ -1,10 +1,48 @@
 # S.L.A.T.E. Development Guidelines
-<!-- Modified: 2026-02-07T11:00:00Z | Author: COPILOT | Change: Add Claude Code validator and Agent SDK integration -->
+<!-- Modified: 2026-02-08T05:00:00Z | Author: Claude Opus 4.5 | Change: Add evolving system ethos and schematic background -->
 
 **S.L.A.T.E.** = Synchronized Living Architecture for Transformation and Evolution
 
 **Constitution**: `.specify/memory/constitution.md` — Supersedes all other practices
-Last updated: 2026-02-06
+Last updated: 2026-02-08
+
+## Core Ethos: Systems Evolve With Progress
+
+**SLATE systems are living systems that reflect their current state and evolve as progress is made.**
+
+This principle applies to all SLATE components:
+
+| Component | How It Evolves |
+|-----------|----------------|
+| **VS Code Theme** | SLATE Dark theme with evolving schematic background |
+| **Schematic Background** | Reflects tech tree progress, active services, and spec completion |
+| **Dashboard** | Real-time system architecture visualization |
+| **Tech Tree** | Visual progression of completed and in-progress features |
+| **Specs** | Lifecycle from draft → complete, visible in all visualizations |
+
+### Schematic Background System
+
+The SLATE VS Code extension provides an **evolving schematic background** that:
+
+1. **Reflects Current State**: Shows active services, GPU count, AI backends
+2. **Shows Progress**: Tech tree completion percentage, specs completed
+3. **Auto-Updates**: Refreshes when tech tree or specs change
+4. **Grows More Visible**: Background opacity increases as system matures
+
+```powershell
+# VS Code Commands
+> SLATE: Apply SLATE Dark Theme       # Apply theme + background
+> SLATE: Refresh Schematic Background # Force refresh
+> SLATE: Toggle Schematic Background  # Enable/disable
+```
+
+The background is generated from real system state:
+- `/.slate_tech_tree/tech_tree.json` - Tech tree progress
+- `/specs/**/spec.md` - Specification status
+- Service status (dashboard, ollama, runner, etc.)
+- GPU configuration
+
+**All SLATE visualizations should follow this ethos** — they are not static documentation but living representations of system state.
 
 ## Active Technologies
 - Python 3.11+ (backend), Vanilla JavaScript + D3.js v7 (frontend)
